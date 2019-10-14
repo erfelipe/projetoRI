@@ -1,0 +1,34 @@
+
+
+Snomed: 
+- Termos pesquisados: 356186
+- Termos encontrados: 4379
+- 1,22%
+
+MeSH:
+- Termos pesquisados: 177143
+- Termos encontrados: 5986
+- 3,37%
+
+Comuns: 
+- Termos encontrados: 14854
+
+Metodologia:
+- Disparar a pesquisa no ElasticSearch dos 14854 termos comuns, considerando cada instrumento. Levantar os hits. 
+- Identificar os documentos COMUNS entre as pesquisas e os documentos DIFERENTES. 
+
+Problemas:
+- A conversão do PDF para TXT não é "perfeita".
+* Consultar o site do greenstone com relaçao a termos errados, se ha alguma soluçao. 
+
+- Vários termos estão separados entre vírgula, (como proceder)? 
+* A principio, explicitar como problema e ignorar na consulta;
+
+- Como considerar o nível de relação em comparação dos instrumentos? (is-a X entry terms)? 
+* No MeSH usar BT e NT em comparacao com o snomed que eh taxonomico (hierarquia) ;
+* Primeiro fazer um teste com o primeiro nivel do snomed de hierarquia, se der expande ;
+
+- As estatísticas são relevantes ou a avaliação humana apenas? 
+
+
+# Considerar na ontologia, como as demais relacoes podem adicionar valor a consulta, (object properties) estude isso! Preste atençao no RANGE que deve ser o elo de ligacao entre os termos. 

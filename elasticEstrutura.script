@@ -1,0 +1,34 @@
+#DELETE articles
+
+PUT articles
+{
+  "mappings": {
+    "properties": {
+      "dcIdentifier": {
+        "type": "text"
+      },
+      "dcDate": {
+        "type": "text"
+      },
+      "dcLanguage": {
+        "type": "text"
+      },
+      "dcCreator": {
+        "type": "text"
+      },
+      "dcTitle": {
+        "type": "text"
+      },
+      "dcDescription": {
+        "type": "text"
+      },
+      "dcSubject": {
+        "type": "text"
+      }
+    }
+  }
+}
+
+GET /articles/_search
+
+GET /articles/_mapping
