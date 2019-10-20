@@ -47,7 +47,7 @@ class BD:
             return self.suprimirHifenInicioeFim(text)
 
     def trataDescricao(self, text):
-        #selecionar apenas o primeiro termo da lista com separador vírgula 
+        #selecionar apenas o primeiro termo da lista com separador virgula 
         resp = ''
         listastr = text.split(',')
         i = 0
@@ -57,33 +57,33 @@ class BD:
                 break
             i+=1
 
-        #suprimir palavras entre parênteses, entre ^^, entre ><, entre [] 
+        #suprimir palavras entre parenteses, entre ^^, entre ><, entre [] 
         resp = self.suprimirSubstringComLimitadores(resp, '(', ')')
         resp = self.suprimirSubstringComLimitadores(resp, '[', ']')
         resp = self.suprimirSubstringComLimitadores(resp, '>', '<')
         resp = self.suprimirSubstringComLimitadores(resp, '^', '^')
 
-        #suprimir caracteres numéricos e 
+        #suprimir caracteres numericos e 
         resp = ''.join(i for i in resp if not i.isdigit())
 
         #suprimir termos particulares (-RETIRED- ; mm ; NOS; O/E)
         resp = resp.replace('-RETIRED-', '').replace('mm', '').replace('NOS', '').replace('O/E', '').replace('&/or', '')
 
-        #tratamento de caracteres especiais (^, <, >, :, ',', ';', &, '/', '%') [exceto hífen]
-        #suprimir a palavra que contém esses caracteres? 
+        #tratamento de caracteres especiais (^, <, >, :, ',', ';', &, '/', '%') [exceto hifen]
+        #suprimir a palavra que contem esses caracteres? 
         resp = resp.replace('^', '').replace('<', '').replace('>', '').replace(':', '').replace(',', '').replace(';', '').replace('&', '').replace('/', '').replace('%', '')
 
-        #retirar dois ou mais espaços em sequencia e dois ou mais hífens
+        #retirar dois ou mais espacos em sequencia e dois ou mais hifens
         resp = re.sub("[ ]{2,}", " ", resp)
         resp = re.sub("[-]{2,}", " ", resp)
 
-        #retirar espaços antes e após (trimmer)
+        #retirar espacos antes e apos (trimmer)
         resp = resp.strip()
 
-        #termo nao pode começar ou terminar com hífen ou caracter especial e não pode ter dois ou mais hífens juntos 
+        #termo nao pode comecar ou terminar com hifen ou caracter especial e nao pode ter dois ou mais hifens juntos 
         resp = self.suprimirHifenInicioeFim(resp)
 
-        #apos todas as regras, validar se há string vazia como resultado! 
+        #apos todas as regras, validar se ha string vazia como resultado! 
         if not resp:
             return text
         else:
