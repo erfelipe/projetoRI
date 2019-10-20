@@ -1,4 +1,5 @@
 import sqlite3
+import re
 class BD:
     
     def __init__(self, nameDB):
@@ -17,6 +18,76 @@ class BD:
     def dateToTimeString(self, dt):
         resp = dt[:4] + '-' + dt[4:6] + '-' + dt[6:]
         return resp
+
+    def suprimirSubstringComLimitadores(self, text, ini, fim):
+        if not text:
+            return 'VAZIO'
+        if (ini == fim):
+            posini = text.find(ini)
+            posfim = text.rfind(fim, posini+1)
+        else:
+            posini = text.find(ini)
+            posfim = text.rfind(fim)
+        if (posini < 0 or posfim < 0):
+            return text.strip()
+        elif ((posini >= 0 and posfim >= 0) and (posfim+1 > posini)):
+            text = text[:posini] + text[posfim+1:]
+            return self.suprimirSubstringComLimitadores(text, ini, fim)
+        else: 
+            return text
+
+    def suprimirHifenInicioeFim(self, text):
+        if not (text.startswith('-') or text.endswith('-')):
+            return text.strip()
+        elif text.startswith('-'):
+            text = text[1:]
+            return self.suprimirHifenInicioeFim(text)
+        elif text.endswith('-'):
+            text = text[0:len(text)-1]
+            return self.suprimirHifenInicioeFim(text)
+
+    def trataDescricao(self, text):
+        #selecionar apenas o primeiro termo da lista com separador vírgula 
+        resp = ''
+        listastr = text.split(',')
+        i = 0
+        for it in listastr:
+            if not (it.isnumeric()):
+                resp = listastr[i].strip()
+                break
+            i+=1
+
+        #suprimir palavras entre parênteses, entre ^^, entre ><, entre [] 
+        resp = self.suprimirSubstringComLimitadores(resp, '(', ')')
+        resp = self.suprimirSubstringComLimitadores(resp, '[', ']')
+        resp = self.suprimirSubstringComLimitadores(resp, '>', '<')
+        resp = self.suprimirSubstringComLimitadores(resp, '^', '^')
+
+        #suprimir caracteres numéricos e 
+        resp = ''.join(i for i in resp if not i.isdigit())
+
+        #suprimir termos particulares (-RETIRED- ; mm ; NOS; O/E)
+        resp = resp.replace('-RETIRED-', '').replace('mm', '').replace('NOS', '').replace('O/E', '').replace('&/or', '')
+
+        #tratamento de caracteres especiais (^, <, >, :, ',', ';', &, '/', '%') [exceto hífen]
+        #suprimir a palavra que contém esses caracteres? 
+        resp = resp.replace('^', '').replace('<', '').replace('>', '').replace(':', '').replace(',', '').replace(';', '').replace('&', '').replace('/', '').replace('%', '')
+
+        #retirar dois ou mais espaços em sequencia e dois ou mais hífens
+        resp = re.sub("[ ]{2,}", " ", resp)
+        resp = re.sub("[-]{2,}", " ", resp)
+
+        #retirar espaços antes e após (trimmer)
+        resp = resp.strip()
+
+        #termo nao pode começar ou terminar com hífen ou caracter especial e não pode ter dois ou mais hífens juntos 
+        resp = self.suprimirHifenInicioeFim(resp)
+
+        #apos todas as regras, validar se há string vazia como resultado! 
+        if not resp:
+            return text
+        else:
+            return resp
 
     def criarBancoDeDados(self): 
         self.cursor.execute("""  CREATE TABLE if not exists concept 
@@ -93,12 +164,9 @@ class BD:
         active = tupla[2]
         moduleId = tupla[3]
         definitionStatusId = tupla[4]
-        print(id, effectiveTime)
-        self.cursor.execute(" SELECT count(id) from concept where (id = ?) and (effectiveTime = ?) ", (id, effectiveTime) )
-        result = self.cursor.fetchone()
-        if (result[0] < 1):
-            self.cursor.execute(" INSERT INTO concept (id, effectiveTime, active, moduleId, definitionStatusId) VALUES (?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, definitionStatusId, ))
-            print('concept', tupla)
+        """ Por motivos de performance farei insercao direta, sem validacao """
+        self.cursor.execute(" INSERT INTO concept (id, effectiveTime, active, moduleId, definitionStatusId) VALUES (?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, definitionStatusId, ))
+        print('concept', tupla)
 
     def inserirDescription(self, tupla):
         id = tupla[0]
@@ -108,7 +176,7 @@ class BD:
         conceptId = tupla[4]
         languageCode = tupla[5]
         typeId = tupla[6]
-        term = tupla[7]
+        term = self.trataDescricao(tupla[7])
         caseSignificanceId = tupla[8]
         """ Por motivos de performance farei insercao direta, sem validacao """
         self.cursor.execute(" INSERT INTO description (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, term, caseSignificanceId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, term, caseSignificanceId, ))

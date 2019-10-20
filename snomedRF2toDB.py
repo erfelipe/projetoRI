@@ -10,9 +10,25 @@ def main():
 def ProcessarArquivoRF2(arquivo, tabela):
     with open(arquivo) as arq:
         conteudo = csv.reader(arq, delimiter='\t')
-        for linha in conteudo:
-            with bancoDeDados:
-                bancoDeDados.inserirLinha(linha, tabela)
+        with bancoDeDados:
+            if tabela == 'concept':
+                for linha in conteudo:
+                    bancoDeDados.inserirConcept(linha)
+            elif tabela == 'description':
+                for linha in conteudo:
+                    bancoDeDados.inserirDescription(linha)
+            elif tabela == 'relationship':
+                for linha in conteudo:
+                    bancoDeDados.inserirRelationShip(linha)
+            elif tabela == 'srefset':
+                for linha in conteudo:
+                    bancoDeDados.inserirSrefSet(linha)
+            elif tabela == 'statedrelationship':
+                for linha in conteudo:
+                    bancoDeDados.inserirStatedRelationShip(linha)
+            elif tabela == 'textdefinition':
+                for linha in conteudo:
+                    bancoDeDados.inserirTextDefinition(linha)
 
 if __name__ == "__main__":
     main()
