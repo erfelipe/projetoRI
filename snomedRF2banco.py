@@ -88,6 +88,31 @@ class BD:
             return text
         else:
             return resp
+    
+    #dado um termo por extenso: "heart attack"
+    #retorna array complexo: [('Acute myocardial infarction', '266288001'), ('Attack - heart', '266288001'), ...]
+    def selecionarListaDeTermosPorNome(self, nome):
+        dataset = self.cursor.execute( """ select d.term, d.conceptId
+                                        from description as d 
+                                        where conceptId in (select d.conceptId
+                                                            from description d
+                                                            where term like (?)
+                                                            and active = 1
+                                                            group by d.conceptId)
+                                        and d.active = 1 
+                                        group by d.term """, (nome, )
+                                    ).fetchall()
+        return dataset
+
+    def selecionarListaDeTermosPorCodigo(self, lstCodigos):
+        codigos = ",".join(lstCodigos)
+        dataset = self.cursor.execute( f"""select d.term 
+                                        from description as d 
+                                        where conceptId in ({codigos}) 
+                                        and d.active = 1 
+                                        group by d.term """
+                                    ).fetchall()
+        return dataset
 
     def criarBancoDeDados(self): 
         self.cursor.execute("""  CREATE TABLE if not exists concept 
@@ -251,3 +276,4 @@ class BD:
             self.inserirStatedRelationShip(linha)
         elif tabela == 'textdefinition':
             self.inserirTextDefinition(linha)
+
