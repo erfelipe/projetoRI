@@ -5,7 +5,7 @@ import snomedRF2banco as banco
 # 'is modification of' --738774007
 # 'occurrence' --246454002
 
-def extrair_associated_finding(axioma, objectproperyID, posini=0, listFinding = []):
+def extrairConceitoRelacionadoDoAxioma(axioma, objectproperyID, posini=0, listFinding = []):
     pos = axioma.find(objectproperyID, posini)
     if (pos == -1):
         return listFinding
@@ -14,20 +14,24 @@ def extrair_associated_finding(axioma, objectproperyID, posini=0, listFinding = 
         posfimconcept = axioma.find(')', pos)
         if (posiniconcept > 0 and posfimconcept > 0):
             concept = axioma[posiniconcept+1:posfimconcept]
-            listFinding.append(concept)
-            return extrair_associated_finding(axioma, objectproperyID, posfimconcept)
+            if concept.isnumeric():
+                listFinding.append(concept)
+                return extrairConceitoRelacionadoDoAxioma(axioma, objectproperyID, posfimconcept)
         else:
             return listFinding
 
 if __name__ == "__main__":
     bancoDeDados = banco.BD("db-snomed-RF2.sqlite3")
     with bancoDeDados:
-        listaDeTermos = bancoDeDados.selecionarListaDeTermosPorNome("heart attack")
-        print(listaDeTermos)
+        listaDeTermos = bancoDeDados.selecionarListaDeTermosPorNome("Method")
+        print('termo buscado: ', listaDeTermos)
 
-    axioma = 'EquivalentClasses(:115451000119100 ObjectIntersectionOf(:243796009 ObjectSomeValuesFrom(:609096000 ObjectIntersectionOf(ObjectSomeValuesFrom(:246090004 :1847009) ObjectSomeValuesFrom(:408729009 :410515003) ObjectSomeValuesFrom(:408731000 :410513005) ObjectSomeValuesFrom(:408732007 :410604004))))ObjectSomeValuesFrom(:246090004 :66514008))'
-    lista = extrair_associated_finding(axioma, '246090004')
-    print(lista)
-    with bancoDeDados:
-        termosDeAxiomas = bancoDeDados.selecionarListaDeTermosPorCodigo(lista)
-        print(termosDeAxiomas)
+    #para cada termo, encontrar os axiomas pelo ID
+    for item in listaDeTermos:
+        with bancoDeDados:
+            axioma = bancoDeDados.selecionarAxiomaPorID(item[1])
+            if len(axioma) > 0:
+                lstCodigosAssociacaoDoAxioma = extrairConceitoRelacionadoDoAxioma(str(axioma[0]), item[1])
+                print("------ lista de associacao: " , lstCodigosAssociacaoDoAxioma)
+                listaDeTermosDosAxiomas = bancoDeDados.selecionarListaDeTermosPorCodigo(lstCodigosAssociacaoDoAxioma)
+                print("------ listas de conceitos axiomaticos: ", listaDeTermosDosAxiomas) 

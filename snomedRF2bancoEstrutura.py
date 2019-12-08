@@ -21,7 +21,7 @@ class BD:
 
     def suprimirSubstringComLimitadores(self, text, ini, fim):
         if not text:
-            return 'VAZIO'
+            return 'V A Z I O'
         if (ini == fim):
             posini = text.find(ini)
             posfim = text.rfind(fim, posini+1)
@@ -63,7 +63,7 @@ class BD:
         resp = self.suprimirSubstringComLimitadores(resp, '>', '<')
         resp = self.suprimirSubstringComLimitadores(resp, '^', '^')
 
-        #suprimir caracteres numericos e 
+        #suprimir caracteres numericos 
         resp = ''.join(i for i in resp if not i.isdigit())
 
         #suprimir termos particulares (-RETIRED- ; mm ; NOS; O/E)
@@ -71,7 +71,7 @@ class BD:
 
         #tratamento de caracteres especiais (^, <, >, :, ',', ';', &, '/', '%') [exceto hifen]
         #suprimir a palavra que contem esses caracteres? 
-        resp = resp.replace('^', '').replace('<', '').replace('>', '').replace(':', '').replace(',', '').replace(';', '').replace('&', '').replace('/', '').replace('%', '')
+        resp = resp.replace('#', '').replace('%', '').replace('\'-', '').replace('/', '').replace('\'', '').replace('\"', '').replace('^', '').replace('<', '').replace('>', '').replace(':', '').replace(',', '').replace(';', '').replace('&', '').replace('(', '').replace(')', '').replace('*', '').replace('.', '').replace('-', '').replace('?', '').replace('+', '').replace('|', '')
 
         #retirar dois ou mais espacos em sequencia e dois ou mais hifens
         resp = re.sub("[ ]{2,}", " ", resp)
@@ -89,6 +89,14 @@ class BD:
         else:
             return resp
     
+    #dado um ID, encontrar o axioma associado
+    def selecionarAxiomaPorID(self, identificador):
+        dataset = self.cursor.execute(""" select r.owlExpression
+                                        from refset r
+                                        where r.referencedComponentId = ? 
+        """, (identificador, )).fetchall()
+        return dataset
+
     #dado um termo por extenso: "heart attack"
     #retorna array complexo: [('Acute myocardial infarction', '266288001'), ('Attack - heart', '266288001'), ...]
     def selecionarListaDeTermosPorNome(self, nome):
@@ -105,14 +113,17 @@ class BD:
         return dataset
 
     def selecionarListaDeTermosPorCodigo(self, lstCodigos):
-        codigos = ",".join(lstCodigos)
-        dataset = self.cursor.execute( f"""select d.term 
-                                        from description as d 
-                                        where conceptId in ({codigos}) 
-                                        and d.active = 1 
-                                        group by d.term """
-                                    ).fetchall()
-        return dataset
+        if (lstCodigos is not None) and (len(lstCodigos) > 0):
+            codigos = ",".join(lstCodigos)
+            dataset = self.cursor.execute( f"""select d.term 
+                                            from description as d 
+                                            where conceptId in ({codigos}) 
+                                            and d.active = 1 
+                                            group by d.term """
+                                        ).fetchall()
+            return dataset 
+        else:
+            return ""
 
     def criarBancoDeDados(self): 
         self.cursor.execute("""  CREATE TABLE if not exists concept 
@@ -131,8 +142,11 @@ class BD:
                              conceptId text NOT NULL, 
                              languageCode text NOT NULL,
                              typeId text NOT NULL,
+                             termOriginal text NOT NULL,
                              term text NOT NULL,
-                             caseSignificanceId text NOT NULL );
+                             caseSignificanceId text NOT NULL,
+                             correspondenciaMeSH text NOT NULL,
+                             correspondenciaMeSHoriginal text NOT NULL );
                     """) 
 
         self.cursor.execute(""" CREATE TABLE if not exists relationship 
@@ -201,10 +215,13 @@ class BD:
         conceptId = tupla[4]
         languageCode = tupla[5]
         typeId = tupla[6]
+        termOriginal = tupla[7]
         term = self.trataDescricao(tupla[7])
         caseSignificanceId = tupla[8]
+        correspondenciaMeSH = 'N' #default nao
+        correspondenciaMeSHoriginal = 'N' #default nao
         """ Por motivos de performance farei insercao direta, sem validacao """
-        self.cursor.execute(" INSERT INTO description (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, term, caseSignificanceId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, term, caseSignificanceId, ))
+        self.cursor.execute(" INSERT INTO description (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal, term, caseSignificanceId, correspondenciaMeSH, correspondenciaMeSHoriginal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal, term, caseSignificanceId, correspondenciaMeSH, correspondenciaMeSHoriginal, ))
         print('description' , tupla)
 
     def inserirRelationShip(self, tupla):
