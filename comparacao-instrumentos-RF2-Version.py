@@ -1,5 +1,4 @@
 
-from owlready2 import *
 import sqlite3 
 import json
 
@@ -25,20 +24,45 @@ def procuraInMeSH(desc):
 
 #Procura de SNOMED para MeSH, os termos correspondentes
 def main():
+    registro = 0
+    tIguais = {}
+    tOriginais = {}
+    tTratados = {}
 
     #percorre o SNOMED (RF2) 
+    quant = SnomedCursor.execute("SELECT count(term) FROM description").fetchone()
+
     SnomedCursor.execute("SELECT term, termOriginal FROM description")
     for linha in SnomedCursor:
+        registro += 1
         termoSnomed = linha[0]
         termoSnomedOriginal = linha[1]
+        termosIguais = termoSnomed == termoSnomedOriginal
+
         encontradoTermo = procuraInMeSH(termoSnomed)
-        encontradoTermoOriginal = procuraInMeSH(termoSnomedOriginal) 
-        if (encontradoTermo > 0):
-            SnomedCursorUpdate.execute("UPDATE description SET correspondenciaMeSH = ? WHERE term = ?", ('S', termoSnomed))
-            print("Termo tratado: " + termoSnomed)
-        if (encontradoTermoOriginal > 0):
-            SnomedCursorUpdate.execute("UPDATE description SET correspondenciaMeSHoriginal = ? WHERE termOriginal = ?", ('S', termoSnomedOriginal))
-            print("Termo original: " + termoSnomedOriginal)
+        if ((encontradoTermo > 0) and (termosIguais)):
+            SnomedCursorUpdate.execute("UPDATE description SET correspondenciaMeSH = ?, correspondenciaMeSHoriginal = ? WHERE term like ? and termOriginal like ?", ('S', 'S', termoSnomed, termoSnomedOriginal))
+            SnomedConn.commit()
+            print("Termos iguais: " + termoSnomed)
+        else: 
+            if (encontradoTermo > 0):
+                SnomedCursorUpdate.execute("UPDATE description SET correspondenciaMeSH = ? WHERE term = ?", ('S', termoSnomed))
+                SnomedConn.commit()
+                print("Termo tratado: " + termoSnomed)
+                encontradoTermoOriginal = procuraInMeSH(termoSnomedOriginal)
+                if (encontradoTermoOriginal > 0):
+                    SnomedCursorUpdate.execute("UPDATE description SET correspondenciaMeSHoriginal = ? WHERE termOriginal = ?", ('S', termoSnomedOriginal))
+                    SnomedConn.commit()
+                    print("Termo original: " + termoSnomedOriginal)
+            else:
+                if (not termosIguais):
+                    encontradoTermoOriginal = procuraInMeSH(termoSnomedOriginal)
+                    if (encontradoTermoOriginal > 0):
+                        SnomedCursorUpdate.execute("UPDATE description SET correspondenciaMeSHoriginal = ? WHERE termOriginal = ?", ('S', termoSnomedOriginal))
+                        SnomedConn.commit()
+                        print("Termo original: " + termoSnomedOriginal)
+
+        print(str(registro) + " de "  + str(quant[0])) 
 
 if __name__ == "__main__":
     main()
