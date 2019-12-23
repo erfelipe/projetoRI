@@ -197,6 +197,9 @@ class BD:
                             caseSignificanceId text NOT NULL );
                     """)
 
+        self.cursor.execute("CREATE INDEX idx_description_term ON description (term);")
+        self.cursor.execute("CREATE INDEX idx_description_termOriginal ON description (termOriginal);")
+
     def inserirConcept(self, tupla):
         id = tupla[0]
         effectiveTime = self.dateToTimeString(tupla[1])

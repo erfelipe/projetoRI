@@ -32,6 +32,9 @@ class BD:
                              PRIMARY KEY (iddesc, idhierarq));
                     """)
 
+        self.cursor.execute("CREATE INDEX idx_descritores_namedesc ON descritores (namedesc);")
+        self.cursor.execute("CREATE INDEX idx_termos_nameterm ON termos (nameterm);")
+
     def inserirNoBancoDeDados(self, desc):
         iddesc = desc.iddesc
         descricao = desc.namedesc
@@ -54,20 +57,46 @@ class BD:
             if (result[0] < 1):
                 self.cursor.execute(" INSERT INTO hierarquia (iddesc, idhierarq) VALUES (?, ?)", (iddesc, hq) )
     
+    # *********************************************
+    #  Para cada DESCRITOR pode haver vários TERMOS
+    # *********************************************
+
     # dado uma string, descobrir descritor. pode-se usar termos de entrada. 
-    # retorna o iddesc e seu respectivo idhierarq + os termos de entrada 
-    def selecionarDescritor_e_Termo(self, desc): 
+    # retorna o iddesc e o termo de entrada 
+    def selecionarIdDescritor_NomeDescritor(self, desc): 
         dataset = self.cursor.execute("""   select descritores.iddesc as idesc 
-                                            , hierarquia.idhierarq as idhierarq 
                                             , descritores.namedesc
                                             from descritores 
                                             left join termos on descritores.iddesc = termos.iddesc
-                                            left join hierarquia on descritores.iddesc = hierarquia.iddesc
                                             where (descritores.namedesc like ?) OR (termos.nameterm like ?) """, (desc, desc, )
                                      ).fetchone()
         return dataset
 
-    def selecionarHierarquia(self, idhierarq):
+    # um IdDescritor pode possuir vários IdsHierarquicos 
+    def selecionarIdsHierarquiaPorIdDescritor(self, idDescritor):
+        dataset = self.cursor.execute("""   select idhierarq 
+                                            from hierarquia h
+                                            where (h.iddesc like ?) """, (idDescritor, )
+                                    ).fetchall()
+        return dataset 
+
+    # dado um IdHierarquico, quais termos estao associados a ele
+    def selecionarTermosPorIdHierarquico(self, idhierarq):
+        dataset = self.cursor.execute("""   select d.namedesc, t.nameterm, idhierarq 
+                                            from hierarquia h
+                                            join descritores d on d.iddesc = h.iddesc
+                                            join termos t on t.iddesc = d.iddesc
+                                            where (idhierarq like ?) """, (idhierarq+'%', )
+                                    ).fetchall()
+        listagem = set()
+        print(idhierarq)
+        for linha in dataset:
+            listagem.add(linha[0])
+            listagem.add(linha[1])
+        return listagem
+
+    # qual IdDescritor o IdHierarquia esta relacionado
+    def selecionarIdDescritorPorIdHierarquia(self, idhierarq):
         dataset = self.cursor.execute("""   select iddesc
                                             from hierarquia 
                                             where (idhierarq like ?) """, (idhierarq+'%', )
