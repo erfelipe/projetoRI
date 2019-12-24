@@ -1,5 +1,5 @@
 import sqlite3
-class BD:
+class BDMeSH:
 
     def __init__(self, nameDB):
         self.nameDB = nameDB
@@ -89,7 +89,6 @@ class BD:
                                             where (idhierarq like ?) """, (idhierarq+'%', )
                                     ).fetchall()
         listagem = set()
-        print(idhierarq)
         for linha in dataset:
             listagem.add(linha[0])
             listagem.add(linha[1])

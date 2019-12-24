@@ -16,7 +16,7 @@ def main():
         itensTotais += 1
         label = concept.label.first().lower()
         #result = es.search(index="articles", body={"track_total_hits": True, "query": {"match_phrase" : {"dcDescription" : label}}})
-        result = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": label, "type": "phrase_prefix", "fields": [ "dcTitle", "dcDescription" ]}}})
+        result = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": label, "type": "match_phrase", "fields": [ "dcTitle", "dcDescription" ]}}})
         if (result['hits']['total']['value'] > 0):
             itensMatch += 1
             compElastic[label] = result['hits']['total']['value']

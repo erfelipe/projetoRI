@@ -1,4 +1,4 @@
-from MeSHbancoEstrutura import BD
+from MeSHbancoEstrutura import BDMeSH
 import MeSHutils as utils
 
 # Exemplo fixo para identificar os termos a serem pesquisados no MeSH
