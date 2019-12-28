@@ -59,6 +59,10 @@ def lista_sem_duplicidade2(lista):
 
 def montaDocJSONporTexto(hs, tx, mt):
     descricao = tx
+    assunto = ''
+    titulo = ''
+    autores = ''
+    data = ''
     if "dc:description" in mt:
         assunto = mt["dc:description"]
     if "dc:title" in mt:

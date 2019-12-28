@@ -17,6 +17,7 @@ class BDelastic:
     def criarBancoDeDados(self): 
         self.cursor.execute(""" CREATE TABLE if not exists termoProcurado(
                                 id integer primary key autoincrement,
+                                instrumento char(1),
                                 termoProc text not null,
                                 quantTermoProcurado integer not null,
                                 idDescritor text not null, 
@@ -24,14 +25,27 @@ class BDelastic:
                                 quantDescritorPrincipal integer not null
                                 );
                             """) 
-        self.cursor.execute(""" CREATE TABLE if not exists termosAssociados(
 
-                                );
-
-        """)
+        self.cursor.execute(""" CREATE TABLE if not exists termoAssociado(
+                                idAssociado integer primary key autoincrement, 
+                                id integer not null, 
+                                termo text not null, 
+                                quantTermo integer not null, 
+                                tipoTermo char(1) not null
+                                ); 
+                            """)
         
-    def insereTermoProcurado(self, termoProc, quantTermoProcurado, idDescritor, descritorPrincipal, quantDescritorPrincipal ):
-        self.cursor.execute(""" INSERT INTO termoProcurado (termoProc, quantTermoProcurado, idDescritor, descritorPrincipal, quantDescritorPrincipal) 
-                                VALUES (?, ?, ?, ?, ?) """, (termoProc, quantTermoProcurado, idDescritor, descritorPrincipal, quantDescritorPrincipal, ))
+    def insereTermoProcurado(self, instrumento, termoProc, quantTermoProcurado, idDescritor, descritorPrincipal, quantDescritorPrincipal ):
+        self.cursor.execute(""" INSERT INTO termoProcurado (instrumento, termoProc, quantTermoProcurado, idDescritor, descritorPrincipal, quantDescritorPrincipal) 
+                                VALUES (?, ?, ?, ?, ?, ?) """, (instrumento, termoProc, quantTermoProcurado, idDescritor, descritorPrincipal, quantDescritorPrincipal, ))
         return self.cursor.lastrowid
+
+    def insereTermoAssociado(self, id, termo, quantTermo, tipoTermo):
+        self.cursor.execute(""" INSERT INTO termoAssociado (id, termo, quantTermo, tipoTermo) 
+                                VALUES (?, ?, ?, ?) """, (id, termo, quantTermo, tipoTermo, ))
+
+
+
+
+
 
