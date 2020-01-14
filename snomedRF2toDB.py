@@ -3,8 +3,8 @@ import snomedRF2bancoEstrutura as banco
 import os 
 from pathlib import Path
 
-bancoDeDados = banco.BD("db-snomed-RF2.sqlite3")
-SNOMEDbaseDir = "/Users/eduardofelipe/Documents/Ontologias/SNOMED_CT/SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z/Full/Terminology/"
+bancoDeDados = banco.BDSnomed("/Volumes/SD-64-Interno/BancosSQL/db-snomed-RF2.sqlite3")
+SNOMEDbaseDir = "/Volumes/SD-64-Interno/SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z/Full/Terminology/"
 
 def main():
     arqSQL = Path("db-snomed-RF2.sqlite3")

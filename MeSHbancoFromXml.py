@@ -2,7 +2,7 @@ import xml.etree.ElementTree as et
 import re
 import MeSHutils as utils
 
-from MeSHbancoEstrutura import BD
+from MeSHbancoEstrutura import BDMeSH
 from MeSHdescritor import Descritor
 
 def normalizaTreeNumberList(NList):
@@ -16,11 +16,11 @@ def validaConceptList(cList):
         return True    
 
 def main():
-    bancoDeDados = BD("db-MeSH.sqlite3")
+    bancoDeDados = BDMeSH("/Volumes/SD-64-Interno/BancosSQL/db-MeSH.sqlite3")
     with bancoDeDados:
        bancoDeDados.criarBancoDeDados()
     
-    tree = et.parse("/Users/eduardofelipe/Documents/Ontologias/MeSH/xmlmesh/desc2019.xml")  #desc2019-resumo.xml
+    tree = et.parse("/Volumes/SD-64-Interno/Download/MeSH2020/desc2020.xml")  #desc2019-resumo.xml
     #tree = et.parse("desc2019-resumo.xml")
     raiz = tree.getroot() 
 

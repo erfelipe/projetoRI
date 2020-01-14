@@ -1,6 +1,6 @@
 import sqlite3
 import re
-class BD:
+class BDSnomed:
     
     def __init__(self, nameDB):
         self.nameDB = nameDB
@@ -88,6 +88,8 @@ class BD:
             return text
         else:
             return resp
+
+# *******************************************************************************************************
     
     #dado um ID, encontrar o axioma associado
     def selecionarAxiomaPorID(self, identificador):
@@ -110,20 +112,60 @@ class BD:
                                         and d.active = 1 
                                         group by d.term """, (nome, )
                                     ).fetchall()
-        return dataset
+        return dataset 
 
     def selecionarListaDeTermosPorCodigo(self, lstCodigos):
         if (lstCodigos is not None) and (len(lstCodigos) > 0):
             codigos = ",".join(lstCodigos)
-            dataset = self.cursor.execute( f"""select d.term 
-                                            from description as d 
-                                            where conceptId in ({codigos}) 
-                                            and d.active = 1 
-                                            group by d.term """
-                                        ).fetchall()
+            dataset = self.cursor.execute( "select d.term from description d where d.conceptId in (?) and d.active = 1 group by d.term ", (codigos, )).fetchall()
             return dataset 
         else:
             return ""
+
+    def extrairConceitoRelacionadoDoAxioma(self, axioma, objectproperyID, posini=0, listFinding = []):
+        pos = axioma.find(objectproperyID, posini)
+        if (pos == -1):
+            return listFinding
+        else:
+            posiniconcept = axioma.find(':', pos)
+            posfimconcept = axioma.find(')', pos)
+            if (posiniconcept > 0 and posfimconcept > 0):
+                concept = axioma[posiniconcept+1:posfimconcept]
+                if concept.isnumeric():
+                    listFinding.append(concept)
+                    return self.extrairConceitoRelacionadoDoAxioma(axioma, objectproperyID, posfimconcept)
+            else:
+                return listFinding
+
+# Ao apontar para um destinationId o sourceId representa o descendente
+    def extrairTermosHierarquicosPorTermoOriginal(self, idTermo, resp = []):
+        dataset = self.cursor.execute(""" select d.conceptId, d.termOriginal
+                                        from description as d 
+                                        where conceptId in (select r.sourceId 
+                                                            from relationship r 
+                                                            where r.destinationId = ?)	
+                                        and d.active = 1  
+                                        group by d.conceptId, d.termOriginal 
+                                    """, (idTermo, ) ).fetchall()
+        if (len(dataset) > 0):
+            resp = resp + dataset
+            for item in dataset:
+                self.extrairTermosHierarquicosPorTermoOriginal(item[0])
+        else: 
+            return resp
+
+    def extrairTermosHierarquicosPorTermoTratado(self, idTermo):
+        dataset = self.cursor.execute(""" select d.term
+                                        from description as d 
+                                        where conceptId in (select r.sourceId 
+                                                            from relationship r 
+                                                            where r.destinationId = ?)	
+                                        and d.active = 1  
+                                        group by d.term 
+                                    """, (idTermo, ) ).fetchall()
+        return dataset
+
+# *******************************************************************************************************
 
     def criarBancoDeDados(self): 
         self.cursor.execute("""  CREATE TABLE if not exists concept 
@@ -199,6 +241,10 @@ class BD:
 
         self.cursor.execute("CREATE INDEX idx_description_term ON description (term);")
         self.cursor.execute("CREATE INDEX idx_description_termOriginal ON description (termOriginal);")
+        self.cursor.execute("CREATE INDEX idx_relationship_destId ON relationship (destinationId);")
+        self.cursor.execute("CREATE INDEX idx_relationship_srcId ON relationship (sourceId);")
+
+# *******************************************************************************************************
 
     def inserirConcept(self, tupla):
         id = tupla[0]
