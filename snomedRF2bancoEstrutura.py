@@ -91,12 +91,12 @@ class BDSnomed:
 
 # *******************************************************************************************************
     
-    #dado um ID, encontrar o axioma associado
-    def selecionarAxiomaPorID(self, identificador):
+    #dado um ID, encontrar o(s) axioma(s) associado(s)
+    def selecionarAxiomasPorConceptID(self, identificador):
         dataset = self.cursor.execute(""" select r.owlExpression
                                         from refset r
-                                        where r.referencedComponentId = ? 
-        """, (identificador, )).fetchall()
+                                        where r.owlExpression like ? 
+        """, ('%'+identificador+'%', )).fetchall()
         return dataset
 
     #dado um termo por extenso: "heart attack"

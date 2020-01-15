@@ -6,43 +6,64 @@ import json, requests
 # 'is modification of' --738774007
 # 'occurrence' --246454002
 
-def hierarquiaPorTermo(IdConcept):
+def hierarquiaPorTermo(IdConcept, resp = []):
     #a primeira query recupera os axiomas que possuem este conceptId
     #para cada axioma, eh analisado se eh uma hierarquia do termo
-    #exemplo
-    dataSetAxioma = []
-    dataSetAxioma.append('EquivalentClasses(:238594009 ObjectIntersectionOf(:247446008 :418363000 :64572001 ObjectSomeValuesFrom(:609096000 ObjectIntersectionOf(ObjectSomeValuesFrom(:116676008 :409777003) ObjectSomeValuesFrom(:363698007 :39937001)))))')
-    dataSetAxioma.append('ClassOf(:247446008 ObjectIntersectionOf(:404684003 ObjectSomeValuesFrom(:609096000 ObjectSomeValuesFrom(:363698007 :39937001))))')
-    dataSetAxioma.append('EquivalentClasses(:201077008 ObjectIntersectionOf(:247446008 :418363000 :89105000 ObjectSomeValuesFrom(:609096000 ObjectIntersectionOf(ObjectSomeValuesFrom(:116676008 :409777003) ObjectSomeValuesFrom(:363698007 :39937001)))))')
+    #exemplo 
+    # dataSetAxioma.append('EquivalentClasses(:238594009 ObjectIntersectionOf(:247446008 :418363000 :64572001 ObjectSomeValuesFrom(:609096000 ObjectIntersectionOf(ObjectSomeValuesFrom(:116676008 :409777003) ObjectSomeValuesFrom(:363698007 :39937001)))))')
+    # dataSetAxioma.append('ClassOf(:247446008 ObjectIntersectionOf(:404684003 ObjectSomeValuesFrom(:609096000 ObjectSomeValuesFrom(:363698007 :39937001))))')
+    # dataSetAxioma.append('EquivalentClasses(:201077008 ObjectIntersectionOf(:247446008 :418363000 :89105000 ObjectSomeValuesFrom(:609096000 ObjectIntersectionOf(ObjectSomeValuesFrom(:116676008 :409777003) ObjectSomeValuesFrom(:363698007 :39937001)))))')
+
+    bancoDeDados = BancoSnomed.BDSnomed("/Volumes/SD-64-Interno/BancosSQL/db-snomed-RF2.sqlite3")
+    with bancoDeDados:
+        dataSetAxioma = bancoDeDados.selecionarAxiomasPorConceptID(IdConcept)
+
+    if len(dataSetAxioma) <= 0:
+        return resp
 
     codigos = []
     objInterSize = len('ObjectIntersectionOf(') 
     for ax in dataSetAxioma: 
-        pParentesis = ax.find('(')
-        introAxioma = ax[0:pParentesis]
-        if introAxioma == 'EquivalentClasses':
-            pass
-        else:
-            if introAxioma == 'ClassOf':
-                pass
+        codigos.clear()
+        pParentesis = ax[0].find('(')
 
-        ind = ax.find('ObjectIntersectionOf(') 
+        introAxioma = ax[0][0:pParentesis]
+        if introAxioma == 'EquivalentClasses':
+            espaco = ax[0].find(' ', len('EquivalentClasses(:'))
+            axAbout = ax[0][len('EquivalentClasses(:') : espaco]
+        else:
+            if introAxioma == 'SubClassOf':
+                espaco = ax[0].find(' ', len('SubClassOf(:'))
+                axAbout = ax[0][len('SubClassOf(:') : espaco]
+
+        ind = ax[0].find('ObjectIntersectionOf(') 
         ehNumero = True 
         if ind > -1: 
             ind = ind + objInterSize 
             while (ehNumero): 
-                espaco = ax.find(' ', ind) 
+                espaco = ax[0].find(' ', ind) 
                 if espaco > -1: 
-                    cod = ax[ind+1:espaco]
+                    cod = ax[0][ind+1 : espaco]
                     ehNumero = cod.isdigit()
                     if (ehNumero): 
-                        codigos.append(ax[ind+1:espaco]) 
+                        codigos.append(ax[0][ind+1:espaco]) 
                     ind = espaco + 1 
-        print(codigos)
+                else:
+                    ehNumero = False
+        isChild = False
+        for cod in codigos:
+            if (cod == IdConcept):
+                isChild = True
+        if isChild:
+            resp.append(axAbout) 
+            temMaisFilhos = hierarquiaPorTermo(axAbout)
+            if (len(temMaisFilhos) > 0) and (type(temMaisFilhos) == str):
+                resp.append(temMaisFilhos)
+    return resp
 
 
 def teste():
-    bancoDeDados = BancoSnomed.BDSnomed("db-snomed-RF2.sqlite3")
+    bancoDeDados = BancoSnomed.BDSnomed("/Volumes/SD-64-Interno/BancosSQL/db-snomed-RF2.sqlite3")
     with bancoDeDados:
         listaDeTermos = bancoDeDados.selecionarListaDeTermosPorNome("Advance healthcare directive status")
         print('termo buscado: ', listaDeTermos)
@@ -69,5 +90,8 @@ def requisicaoREST():
     print(dadosFormatados)
 
 if __name__ == "__main__":
-    hierarquiaPorTermo('247446008')
+    hierq = hierarquiaPorTermo('247446008')
+    print('------')
+    print (hierq)
+
     #requisicaoREST()
