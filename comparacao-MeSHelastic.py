@@ -1,8 +1,8 @@
-from MeSHbancoEstrutura import BD
+from MeSHbancoEstrutura import BDMeSH
 import elasticsearch 
 import json
 
-bancodedados = BD("db-MeSH.sqlite3")
+bancodedados = BDMeSH("db-MeSH.sqlite3")
 es = elasticsearch.Elasticsearch()
 es.indices.open("articles")
 compMeSH = {}

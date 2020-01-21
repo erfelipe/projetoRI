@@ -6,7 +6,7 @@ import json, requests
 # 'is modification of' --738774007
 # 'occurrence' --246454002
 
-def hierarquiaPorTermo(IdConcept, resp = []):
+def hierarquiaDeIDsPorIdConcept(IdConcept, resp = []):
     #a primeira query recupera os axiomas que possuem este conceptId
     #para cada axioma, eh analisado se eh uma hierarquia do termo
     #exemplo 
@@ -56,7 +56,7 @@ def hierarquiaPorTermo(IdConcept, resp = []):
                 isChild = True
         if isChild:
             resp.append(axAbout) 
-            temMaisFilhos = hierarquiaPorTermo(axAbout)
+            temMaisFilhos = hierarquiaDeIDsPorIdConcept(axAbout)
             if (len(temMaisFilhos) > 0) and (type(temMaisFilhos) == str):
                 resp.append(temMaisFilhos)
     return resp
@@ -90,7 +90,7 @@ def requisicaoREST():
     print(dadosFormatados)
 
 if __name__ == "__main__":
-    hierq = hierarquiaPorTermo('247446008')
+    hierq = hierarquiaDeIDsPorIdConcept('247446008')
     print('------')
     print (hierq)
 

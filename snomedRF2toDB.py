@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 bancoDeDados = banco.BDSnomed("/Volumes/SD-64-Interno/BancosSQL/db-snomed-RF2.sqlite3")
-SNOMEDbaseDir = "/Volumes/SD-64-Interno/SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z/Full/Terminology/"
+SNOMEDbaseDir = "/Volumes/SD-64-Interno/SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z/Snapshot/Terminology/" 
 
 def main():
     arqSQL = Path("db-snomed-RF2.sqlite3")
@@ -38,10 +38,10 @@ def ProcessarArquivoRF2(arquivo, tabela):
 
 if __name__ == "__main__":
     main()
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_Concept_Full_INT_20190731.txt", 'concept')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_Description_Full-en_INT_20190731.txt", 'description')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_Relationship_Full_INT_20190731.txt", 'relationship')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_sRefset_OWLExpressionFull_INT_20190731.txt", 'srefset')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_StatedRelationship_Full_INT_20190731.txt", 'statedrelationship')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_TextDefinition_Full-en_INT_20190731.txt", 'textdefinition')
+    # ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_Concept_Snapshot_INT_20190731.txt", 'concept')
+    # ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_Description_Snapshot-en_INT_20190731.txt", 'description')
+    # ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_Relationship_Snapshot_INT_20190731.txt", 'relationship')
+    # ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_sRefset_OWLExpressionSnapshot_INT_20190731.txt", 'srefset')
+    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_StatedRelationship_Snapshot_INT_20190731.txt", 'statedrelationship')
+    # ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_TextDefinition_Snapshot-en_INT_20190731.txt", 'textdefinition')
 

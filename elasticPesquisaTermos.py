@@ -1,11 +1,12 @@
 import elasticsearch
 from MeSHbancoEstrutura import BDMeSH
+from snomedRF2bancoEstrutura import BDSnomed
 from elasticBancoEstrutura import BDelastic
 
 
 def searchElasticMeSH(termoProcurado):
 	# Procura os todos os termos relacionados
-	bancoMeSH = BDMeSH("db-MeSH.sqlite3")
+	bancoMeSH = BDMeSH("/Volumes/SD-64-Interno/BancosSQL/db-MeSH.sqlite3")
 	with bancoMeSH:
 		resposta = bancoMeSH.selecionarIdDescritor_NomeDescritor(termoProcurado) 
 		idDescritor = str(resposta[0])
@@ -56,16 +57,46 @@ def searchElasticMeSH(termoProcurado):
 			bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tH, quantTh, 'H')
 
 
-def searchElasticSnomed(termoComum):
-    print(termoComum)
+def searchElasticSnomed(termoProcurado):
+    #pelo nome do termo, identifica se o seu código de conceito 
+	bancoSNOMED = BDSnomed("/Volumes/SD-64-Interno/BancosSQL/db-snomed-RF2.sqlite3") 
+	with bancoSNOMED:
+		#pelo código de conceito, encontra se as descriçoes associadas (labels)
+		iDsRelacionados = bancoSNOMED.selecionarConceptIdsPorTermo(termoProcurado) 
+		print('* selecionarConceptIdsPorTermo')
+		print(iDsRelacionados)
+
+		#dos vários conceitos, procura se um principal	
+		iDPrincipal = bancoSNOMED.selecionarIdPrincipal(iDsRelacionados)
+		print('* selecionarIdPrincipal')
+		print(iDPrincipal)
+
+		#pelo código de conceito principal, encontra se os termos hierarquicos
+		iDsHierarquicos = bancoSNOMED.hierarquiaDeIDsPorIdConcept(iDPrincipal)
+		print('* hierarquiaDeIDsPorIdConcept')
+		print(iDsHierarquicos)
+		termosHierarquicos = bancoSNOMED.selecionarDescricoesPorIDsConcept(iDsHierarquicos)
+		print('* selecionarDescricoesPorIDsConcept')
+		print(termosHierarquicos)
+		#pesquisa no elastic e grava no sqlite 
+
 
 if __name__ == "__main__":
-	bancoElastic = BDelastic("db-elastic.sqlite3")
-	with bancoElastic:
-		bancoElastic.criarBancoDeDados()
+	# bancoElastic = BDelastic("db-elastic.sqlite3")
+	# with bancoElastic:
+	# 	bancoElastic.criarBancoDeDados()
 
-	bancoMeSH = BDMeSH("db-MeSH.sqlite3")
-	with bancoMeSH:
-		lstTermos = bancoMeSH.selecionarTermosPorIdHierarquico('C')
-		for t in lstTermos:
-			searchElasticMeSH(t) 
+	# bancoMeSH = BDMeSH("db-MeSH.sqlite3")
+	# with bancoMeSH:
+	# 	lstTermos = bancoMeSH.selecionarTermosPorIdHierarquico('C')
+	# 	for t in lstTermos:
+	# 		searchElasticMeSH(t) 
+
+	searchElasticSnomed("heart attack") 
+
+	#searchElasticSnomed("Myositis") - funcionou bonito ! 
+
+	# bancoSNOMED = BDSnomed("/Volumes/SD-64-Interno/BancosSQL/db-snomed-RF2.sqlite3")
+	# with bancoSNOMED:
+	# 	pass
+
