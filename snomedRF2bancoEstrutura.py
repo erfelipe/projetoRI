@@ -16,10 +16,28 @@ class BDSnomed:
         self.conn.close() 
 
     def dateToTimeString(self, dt):
+        """ Ao receber uma data sem separador, formata como yyyy-mm-dd para compatibilidade com sqLite
+            
+            Args:
+                param1 (str): data a ser formatada (20020131)
+
+            Returns: 
+                str: data formatada (2017-07-31)
+        """
         resp = dt[:4] + '-' + dt[4:6] + '-' + dt[6:]
         return resp
 
     def suprimirSubstringComLimitadores(self, text, ini, fim):
+        """ Recebe um texto e simbolos como  () [] para retornar apenas o texto FORA dos delimitadores
+
+            Args: 
+                param1 (str): todo o texto a ser tratado
+                param2 (str): simbolo inicial -> ( [ {
+                param3 (str): simbolo final -> ) ] }
+
+            Returns:
+                str: string fora dos delimitadores
+        """
         if not text:
             return 'V A Z I O'
         if (ini == fim):
@@ -37,6 +55,14 @@ class BDSnomed:
             return text
 
     def suprimirHifenInicioeFim(self, text):
+        """ Recebe um texto com hifen e retorna o mesmo texto sem o simbolo
+
+            Args:
+                param1 (str): texto com hifen nas extremidades
+
+            Returns:
+                str: texto sem hifen nas extremidades
+        """
         if not (text.startswith('-') or text.endswith('-')):
             return text.strip()
         elif text.startswith('-'):
@@ -46,7 +72,16 @@ class BDSnomed:
             text = text[0:len(text)-1]
             return self.suprimirHifenInicioeFim(text)
 
-    def trataDescricao(self, text):
+    def trataDescricao(self, text): 
+        """ Recebe a descricao do conceito e chama outras funcoes para tratar muitos detalhes
+            excesso de espacoes, caracteres especiais, separadores, etc. 
+
+            Args: 
+                param1 (str): texto da descricao do termo 
+
+            Returns: 
+                str: texto da descricao do termo tratado 
+        """
         #selecionar apenas o primeiro termo da lista com separador virgula 
         resp = ''
         listastr = text.split(',')
@@ -96,11 +131,11 @@ class BDSnomed:
         """ Dado um ConceptId: 22298006, pesquisa seus IDs lidados a ele hierarquicamente
 
         Args: 
-        param1 (str): identificador do conceito 
-        param2 (array): Ids hierarquicos
+            param1 (str): identificador do conceito 
+            param2 (array): Ids hierarquicos
 
         Returns: 
-        list: retorna array de IDs: ['266288001', '266288333', ...]
+            list: retorna array de IDs: ['266288001', '266288333', ...]
 
         a primeira query recupera os axiomas que possuem este conceptId
         para cada axioma, eh analisado se eh uma hierarquia do termo
@@ -167,6 +202,14 @@ class BDSnomed:
 
     #dado um ID, encontrar o(s) axioma(s) associado(s)
     def selecionarAxiomasPorConceptID(self, identificador):
+        """ Ao receber um conceptID identifica quais axiomas estao relacionados a este conceito
+
+            Args:
+                param1 (str): codigo ID do conceito
+
+            Returns:
+                list: retorna um array de Axiomas 
+        """
         dataset = self.cursor.execute(""" select r.owlExpression
                                         from refset r
                                         where r.owlExpression like ? 
@@ -177,10 +220,10 @@ class BDSnomed:
         """ Dado um termo por extenso: "heart attack", pesquisa seus IDs relacionados
 
         Args: 
-        param1 (str): nome do conceito 
+            param1 (str): nome do conceito 
 
         Returns: 
-        list: retorna array de IDs: ['266288001', '266288001', ...]
+            list: retorna array de IDs: ['266288001', '266288001', ...]
         """ 
         dataset = self.cursor.execute( """ select d.conceptId
                                            from description d
@@ -198,10 +241,10 @@ class BDSnomed:
             na representação de uma determinada terminologia 
 
             Args: 
-            param1 (array): Concept IDs
+                param1 (array): Concept IDs
 
             Returns: 
-            str: Um concept ID principal
+                str: Um concept ID principal
         """
         if (IDs is not None) and (len(IDs) > 0): 
             sql = "select s.destinationId from statedrelationship s where s.destinationId in ({seq}) group by s.destinationId ".format(seq = ','.join(['?']*len(IDs))) 
@@ -211,12 +254,35 @@ class BDSnomed:
             return "" 
 
     def selecionarDescricoesPorIDsConcept(self, IDs):
-        if (IDs is not None) and (len(IDs) > 0):
-            sql = "select d.term from description d where d.conceptId in ({seq}) and d.active = 1 group by d.term ".format(seq = ','.join(['?']*len(IDs))) 
+        """ Recebe uma lista (array) de conceptIDs e procura todas as descricoes associadas ao conjunto
+
+            Args: 
+                param1 (array ou str): Concept ID(s)
+
+            Returns:
+                array: Vários termos encapsulados em um array de string
+        """
+        if (IDs is not None) and (len(IDs) > 0) and (isinstance(IDs,list)):
+            sql = "select d.term from description d where d.conceptId in ({seq}) group by d.term ".format(seq = ','.join(['?']*len(IDs))) 
             dataset = self.cursor.execute(sql, IDs).fetchall()
-            return dataset 
+            resposta = []
+            for d in dataset:
+                resposta.append(d[0])
+            return resposta 
         else:
-            return ""
+            if (IDs is not None) and (isinstance(IDs, str)):
+                dataset = self.cursor.execute(""" 
+                    select d.term 
+                    from description d 
+                    where d.conceptId = (?) 
+                    group by d.term 
+                    """, (IDs,)).fetchall() 
+                resposta = []
+                for d in dataset:
+                    resposta.append(d[0])
+                return resposta
+            else:    
+                return ""
 
     def extrairConceitoRelacionadoDoAxioma(self, axioma, objectproperyID, posini=0, listFinding = []):
         pos = axioma.find(objectproperyID, posini)
@@ -236,6 +302,8 @@ class BDSnomed:
 # *******************************************************************************************************
 
     def criarBancoDeDados(self): 
+        """ Cria a estrutura do banco de dados
+        """ 
         self.cursor.execute("""  CREATE TABLE if not exists concept 
                             (id   text NOT NULL, 
                              effectiveTime text NOT NULL,
@@ -316,6 +384,14 @@ class BDSnomed:
 # *******************************************************************************************************
 
     def inserirConcept(self, tupla):
+        """ Insere registros na tabela concept 
+
+            Args: 
+                param1 (array): registro lido do arquivo txt
+
+            Returns:
+                void
+        """ 
         id = tupla[0]
         effectiveTime = self.dateToTimeString(tupla[1])
         active = tupla[2]
@@ -330,6 +406,14 @@ class BDSnomed:
                 print('* Erro na inserção do ID' + id + identifier)
 
     def inserirDescription(self, tupla):
+        """ Insere registros na tabela description 
+
+            Args: 
+            param1 (array): registro lido do arquivo txt 
+
+            Returns:
+            void
+        """         
         id = tupla[0]
         effectiveTime = self.dateToTimeString(tupla[1])
         active = tupla[2]
