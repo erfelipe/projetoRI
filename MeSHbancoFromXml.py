@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as et
 import re
 import MeSHutils as utils
+import constantes
 
 from MeSHbancoEstrutura import BDMeSH
 from MeSHdescritor import Descritor
@@ -16,12 +17,8 @@ def validaConceptList(cList):
         return True    
 
 def main():
-    bancoDeDados = BDMeSH("/Volumes/SD-64-Interno/BancosSQL/db-MeSH.sqlite3")
-    with bancoDeDados:
-       bancoDeDados.criarBancoDeDados()
-    
-    tree = et.parse("/Volumes/SD-64-Interno/Download/MeSH2020/desc2020.xml")  #desc2019-resumo.xml
-    #tree = et.parse("desc2019-resumo.xml")
+   
+    tree = et.parse(constantes.MESH_XML_FILE)  #desc2019-resumo.xml 
     raiz = tree.getroot() 
 
     for descRecords in raiz.findall("DescriptorRecord"):
@@ -56,8 +53,10 @@ def main():
                             conceitosRelacionados.append(conjunto)
         
         desc = Descritor(dr, nomeDescritor, numerosHierarquicos, conceitosRelacionados) 
-        with bancoDeDados:
-            bancoDeDados.inserirNoBancoDeDados(desc)
+        
+        bancoMESH = BDMeSH(constantes.BD_SQL_MESH)
+        with bancoMESH:
+            bancoMESH.inserirNoBancoDeDados(desc)
             print(desc.iddesc)
 
 if __name__ == "__main__":

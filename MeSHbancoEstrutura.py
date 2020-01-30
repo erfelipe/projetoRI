@@ -1,4 +1,6 @@
 import sqlite3
+import constantes 
+
 class BDMeSH:
 
     def __init__(self, nameDB):
@@ -16,12 +18,14 @@ class BDMeSH:
 
     def criarBancoDeDados(self): 
         self.cursor.execute("""  CREATE TABLE if not exists descritores 
-                            (iddesc   text PRIMARY KEY NOT NULL, 
+                            ( 
+                             iddesc   text PRIMARY KEY NOT NULL, 
                              namedesc text NOT NULL ); 
                     """) 
         
         self.cursor.execute("""  CREATE TABLE if not exists termos 
-                            (iddesc   text NOT NULL,
+                            (
+                             iddesc   text NOT NULL,
                              idterm   text NOT NULL,
                              nameterm text NOT NULL );
                     """) 
@@ -38,27 +42,27 @@ class BDMeSH:
     def inserirNoBancoDeDados(self, desc):
         iddesc = desc.iddesc
         descricao = desc.namedesc
-        self.cursor.execute(" SELECT count(iddesc) from descritores where (iddesc = ?)", (iddesc, ) )
-        result = self.cursor.fetchone()
-        if (result[0] < 1):
-            self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc) VALUES (?, ?)", (iddesc, descricao.lower(),  ))
+        # self.cursor.execute(" SELECT count(iddesc) from descritores where (iddesc = ?)", (iddesc, ) )
+        # result = self.cursor.fetchone()
+        # if (result[0] < 1):
+        self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc) VALUES (?, ?)", (iddesc, descricao.lower(),))
         
-        termos = desc.terms
+        termos = desc.terms 
         for tr in termos:
             for idtermo, termo in tr.items():
-                self.cursor.execute(" SELECT COUNT(idterm) from termos where (iddesc = ? and nameterm = ?)", (iddesc, termo.lower(), ) )
-                result = self.cursor.fetchone()
-                if (result[0] < 1):
-                    self.cursor.execute(" INSERT INTO termos (iddesc, idterm, nameterm) VALUES (?, ?, ?)", (iddesc, idtermo, termo.lower() ) )
+                # self.cursor.execute(" SELECT COUNT(idterm) from termos where (iddesc = ? and nameterm = ?)", (iddesc, termo.lower(), ) )
+                # result = self.cursor.fetchone()
+                # if (result[0] < 1):
+                self.cursor.execute(" INSERT INTO termos (iddesc, idterm, nameterm) VALUES (?, ?, ?)", (iddesc, idtermo, termo.lower(),) )
 
         for hq in desc.hierarq:
-            self.cursor.execute(" SELECT COUNT(iddesc) from hierarquia where (iddesc = ? and idhierarq = ?)", (iddesc, hq, ) )
-            result = self.cursor.fetchone()
-            if (result[0] < 1):
-                self.cursor.execute(" INSERT INTO hierarquia (iddesc, idhierarq) VALUES (?, ?)", (iddesc, hq) )
-    
+            # self.cursor.execute(" SELECT COUNT(iddesc) from hierarquia where (iddesc = ? and idhierarq = ?)", (iddesc, hq, ) )
+            # result = self.cursor.fetchone()
+            # if (result[0] < 1):
+            self.cursor.execute(" INSERT INTO hierarquia (iddesc, idhierarq) VALUES (?, ?)", (iddesc, hq,) )
+        
     # *********************************************
-    #  Para cada DESCRITOR pode haver vários TERMOS
+    #  Para cada DESCRITOR pode haver varios TERMOS
     # *********************************************
 
     # dado uma string, descobrir descritor. pode-se usar termos de entrada. 
@@ -72,7 +76,7 @@ class BDMeSH:
                                      ).fetchone()
         return dataset
 
-    # um IdDescritor pode possuir vários IdsHierarquicos 
+    # um IdDescritor pode possuir varios IdsHierarquicos 
     def selecionarIdsHierarquiaPorIdDescritor(self, idDescritor):
         dataset = self.cursor.execute("""   select idhierarq 
                                             from hierarquia h

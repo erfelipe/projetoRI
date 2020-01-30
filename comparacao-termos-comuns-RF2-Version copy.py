@@ -1,18 +1,17 @@
-
 import sqlite3 
-
+import constantes 
+from random import randint
+import json
 
 #inicializa os bancos
-MeSHDB = 'db-MeSH.sqlite3'
-MeSHconn = sqlite3.connect(MeSHDB)
+MeSHconn = sqlite3.connect(constantes.BD_SQL_MESH)
 MeSHcursor = MeSHconn.cursor()
 
-SnomedDB = 'db-snomed-RF2.sqlite3' 
-SnomedConn = sqlite3.connect(SnomedDB) 
+SnomedConn = sqlite3.connect(constantes.BD_SQL_SNOMED) 
 SnomedCursor = SnomedConn.cursor()
 SnomedCursorUpdate = SnomedConn.cursor()
 
-#Considera sucesso se o termo procurado é o descritor principal ou termo de entrada
+#Considera sucesso se o termo procurado eh o descritor principal ou termo de entrada
 #deprecated
 def procuraInMeSH(desc):
     dataset = MeSHcursor.execute("""   select count(descritores.iddesc) as cont 
@@ -32,6 +31,37 @@ def procuraInSnomedOriginal(desc):
     dataSet = SnomedCursor.execute(""" SELECT count(termOriginal) FROM description d WHERE (d.termOriginal LIKE ?) """, (desc, )
                                     ).fetchone() 
     return dataSet[0]
+
+def procuraSnomedFromMeshTerms():
+    quantDescritores = MeSHcursor.execute(""" SELECT max(rowid) 
+                                              FROM descritores d  """).fetchone() 
+    
+    # quantTermos = MeSHcursor.execute(""" SELECT max(rowid) 
+    #                                      FROM termos t """).fetchone() 
+
+    tIguais = []
+
+    #encontra 100 descritores comuns, de forma aleatoria
+    quantDescComuns = 0
+    while (quantDescComuns < 101):
+        rand = randint(1, quantDescritores[0])
+        descritor = MeSHcursor.execute(""" select d.namedesc
+                                           from descritores d
+                                           where rowid = ? """, (rand,) ).fetchone()
+        quantSNOMEDTermoOriginal = procuraInSnomedOriginal(descritor[0])
+        if (quantSNOMEDTermoOriginal > 0):
+            tIguais.append(descritor[0])
+            quantDescComuns += 1
+            print(str(quantDescComuns) + " " + descritor[0] + " rowid: " + str(rand))
+    
+    
+    #encontra 100 termos comuns, de forma aleatoria 
+
+
+    #grava o array em json
+    with open('termosComuns.json', 'w') as f:
+        json.dump(tIguais, f, ensure_ascii=False, indent=4)
+
 
 #Procura de MeSH para Snomed, os termos correspondentes
 def procuraInSnomedFromMeshTerms(termos):
@@ -101,7 +131,7 @@ def procuraInSnomedFromMeshTerms(termos):
 
 
 def main():
-    print("resolver a leitura de quais termos MeSH primeiro")
+    procuraSnomedFromMeshTerms()
 
 
 if __name__ == "__main__":
