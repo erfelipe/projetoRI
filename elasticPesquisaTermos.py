@@ -3,6 +3,7 @@ from MeSHbancoEstrutura import BDMeSH
 from snomedRF2bancoEstrutura import BDSnomed
 from elasticBancoEstrutura import BDelastic
 import constantes
+import json
 import logging
 
 
@@ -122,5 +123,8 @@ if __name__ == "__main__":
 	# 	for t in lstTermos:
 	# 		searchElasticMeSH(t) 
 
-	searchElasticSnomed("heart attack") 
-
+	with open(constantes.TERMOS_COMUNS_JSON, 'r') as f:
+		termosComuns = json.load(f)
+	
+	for termo in termosComuns:
+		searchElasticSnomed(termo) 
