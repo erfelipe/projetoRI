@@ -1,5 +1,10 @@
 import sqlite3
 import re
+import logging
+import constantes
+
+logging.basicConfig(filename=constantes.LOG_FILE, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
 class BDSnomed:
     
     def __init__(self, nameDB):
@@ -234,6 +239,7 @@ class BDSnomed:
         datasetSimples = []
         for d in dataset:
             datasetSimples.append(d[0])
+        logging.info(f"O termo {termo} possui os seguintes conceptsIDs: {str(datasetSimples)}")
         return datasetSimples
 
     def selecionarIdPrincipal(self, IDs):
@@ -249,7 +255,10 @@ class BDSnomed:
         if (IDs is not None) and (len(IDs) > 0): 
             sql = "select s.destinationId from statedrelationship s where s.destinationId in ({seq}) group by s.destinationId ".format(seq = ','.join(['?']*len(IDs))) 
             dataset = self.cursor.execute(sql, IDs).fetchone() 
-            return dataset[0]
+            if (dataset is None):
+                return ""
+            else:
+                return dataset[0]
         else: 
             return "" 
 
@@ -400,7 +409,6 @@ class BDSnomed:
         """ Por motivos de performance farei insercao direta, sem validacao """
         if (active == '1'):
             try:
-                print('concept', tupla)
                 self.cursor.execute(" INSERT INTO concept (id, effectiveTime, active, moduleId, definitionStatusId) VALUES (?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, definitionStatusId, ))
             except Exception as identifier:
                 print('* Erro na inserção do ID' + id + identifier)
@@ -429,7 +437,6 @@ class BDSnomed:
         """ Por motivos de performance farei insercao direta, sem validacao """
         if (active == '1'):
             try:
-                print('description' , tupla)
                 self.cursor.execute(" INSERT INTO description (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal, term, caseSignificanceId, correspondenciaMeSH, correspondenciaMeSHoriginal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal, term, caseSignificanceId, correspondenciaMeSH, correspondenciaMeSHoriginal, ))
             except Exception as identifier:
                 print('* Erro na inserção do ID' + id + identifier)
@@ -448,7 +455,6 @@ class BDSnomed:
         """ Por motivos de performance farei insercao direta, sem validacao """
         if (active == '1'):
             try:
-                print('relationship', tupla) 
                 self.cursor.execute(" INSERT INTO relationship (id, effectiveTime, active, moduleId, sourceId, destinationId, relationshipGroup, typeId, characteristicTypeId, modifierId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, sourceId, destinationId, relationshipGroup, typeId, characteristicTypeId, modifierId, ))
             except Exception as identifier:
                 print('* Erro na inserção do ID' + id + identifier)
@@ -464,7 +470,6 @@ class BDSnomed:
         """ Por motivos de performance farei insercao direta, sem validacao """
         if (active == '1'):
             try:
-                print('refset', tupla)
                 self.cursor.execute(" INSERT INTO refset (id, effectiveTime, active, moduleId, refsetId, referencedComponentId, owlExpression) VALUES (?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, refsetId, referencedComponentId, owlExpression, ))
             except Exception as identifier:
                 print('* Erro na inserção do ID' + id + identifier)
@@ -482,7 +487,6 @@ class BDSnomed:
         modifierId = tupla[9]
         """ Por motivos de performance farei insercao direta, sem validacao """
         try:
-            print('statedrelationship', tupla)
             self.cursor.execute(" INSERT INTO statedrelationship (id, effectiveTime, active, moduleId, sourceId, destinationId, relationshipGroup, typeId, characteristicTypeId, modifierId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, sourceId, destinationId, relationshipGroup, typeId, characteristicTypeId, modifierId, ))
         except Exception as identifier:
             print('* Erro na inserção do ID' + id + identifier)
@@ -500,7 +504,6 @@ class BDSnomed:
         """ Por motivos de performance farei insercao direta, sem validacao """
         if (active == '1'):
             try:
-                print('textdefinition', tupla)
                 self.cursor.execute(" INSERT INTO textdefinition (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, term, caseSignificanceId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, term, caseSignificanceId, ))
             except Exception as identifier:
                 print('* Erro na inserção do ID' + id + identifier)

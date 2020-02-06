@@ -8,3 +8,5 @@ PATH_SNOMED_TERMINOLOGY = "/Volumes/SD-64-Interno/SnomedCT_InternationalRF2_PROD
 MESH_XML_FILE = "/Volumes/SD-64-Interno/MeSH2020/desc2020.xml"
 
 TERMOS_COMUNS_JSON = "/Volumes/SD-64-Interno/Utils/termosComuns.json"
+
+LOG_FILE = "/Volumes/SD-64-Interno/Utils/log.txt"

@@ -1,5 +1,5 @@
 import sqlite3
-import constantes 
+
 
 class BDMeSH:
 
