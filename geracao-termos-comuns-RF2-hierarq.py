@@ -1,6 +1,8 @@
+import multiprocessing
+from multiprocessing.dummy import Process
 import sqlite3 
 import constantes
-import json
+from MeSHbancoEstrutura import BDMeSH
 
 #inicializa os bancos
 MeSHconn = sqlite3.connect(constantes.BD_SQL_MESH)
@@ -55,26 +57,24 @@ def procuraNoSnomedDescritorOriginal(desc):
                                     ).fetchone() 
     return dataSet[0]
 
-def procuraNoSnomedDeHieraquiaMesh(codHierarquico):
+def procuraNoSnomedPelaHierarquiaDeTermosMesh(codHierarquico):
     """ Dado um código hierárquico do MeSH, procura no Snomed os termos correspondentes
+        a partir de termos do MeSH
     
     Arguments:
         codHierarquico {str} -- Codigo do MeSH que representa uma estrutura hierarquica
     """    
     registro = 0
-    tOriginais = set()
+    termosOriginais = set()
     #tTratados = set()
     vocabulario = set()
-    
-    dataSet = MeSHcursor.execute(""" SELECT d.namedesc, t.nameterm FROM hierarquia h
-                                    JOIN descritores d on d.iddesc = h.iddesc
-                                    JOIN termos t on t.iddesc = d.iddesc
-                                    WHERE idhierarq LIKE (?)
-                                    GROUP BY d.namedesc """, (codHierarquico + '%', )).fetchall()
-    
-    for desc, term in dataSet:
-        vocabulario.add(desc)
-        vocabulario.add(term)
+
+    bancoMeSH = BDMeSH(constantes.BD_SQL_MESH)
+    with bancoMeSH:
+        dataSetTermos = bancoMeSH.selecionarTodosTermos()
+
+    for desc in dataSetTermos:
+        vocabulario.add(desc[0])
 
     quant = len(vocabulario)
 
@@ -83,15 +83,58 @@ def procuraNoSnomedDeHieraquiaMesh(codHierarquico):
         # encontradoTermoTratado = procuraNoSnomedDescritorTratado(termo)
         encontradoTermoOriginal = procuraNoSnomedDescritorOriginal(termo)
         if (encontradoTermoOriginal > 0):
-            tOriginais.add(termo)
+            termosOriginais.add(termo)
             print("Termo original: " + termo)
+        print("Termo: " + str(registro) + " de "  + str(quant)) 
+    
+    #grava o array dos termos comuns em txt
+    with open(constantes.TERMOS_COMUNS_ORIGINAIS, "w") as f:
+        for item in termosOriginais:
+            f.write("%s\n" % item)
 
-        print(str(registro) + " de "  + str(quant)) 
+def procuraNoSnomedPelaHierarquiaDeDescritoresMesh(codHierarquico):
+    """ Dado um código hierárquico do MeSH, procura no Snomed os termos correspondentes
+        a partir de descritores do MeSH
+    
+    Arguments:
+        codHierarquico {str} -- Codigo do MeSH que representa uma estrutura hierarquica
+    """    
+    registro = 0
+    descritoresOriginais = set()
+    #tTratados = set()
+    vocabulario = set()
 
-    #grava o array dos termos comuns em json
-    with open(constantes.TERMOS_COMUNS_JSON, 'w') as f:
-        json.dump(tOriginais, f, ensure_ascii=False, indent=4)
+    bancoMeSH = BDMeSH(constantes.BD_SQL_MESH)
+    with bancoMeSH:
+        dataSetDescritores = bancoMeSH.selecionarTodosDescritores()
 
+    for desc in dataSetDescritores:
+        vocabulario.add(desc[0])
+
+    quant = len(vocabulario)
+
+    for termo in vocabulario:
+        registro += 1
+        # encontradoTermoTratado = procuraNoSnomedDescritorTratado(termo)
+        encontradoTermoOriginal = procuraNoSnomedDescritorOriginal(termo)
+        if (encontradoTermoOriginal > 0):
+            descritoresOriginais.add(termo)
+            print("Descritor original: " + termo)
+        print("Descritor: " + str(registro) + " de "  + str(quant)) 
+    
+    #grava o array dos termos comuns em txt
+    with open(constantes.DESCRITORES_COMUNS_ORIGINAIS, "w") as f:
+        for item in descritoresOriginais:
+            f.write("%s\n" % item)
 
 if __name__ == "__main__":
-    procuraNoSnomedDeHieraquiaMesh('D')
+    # a categoria Diseases [C] - https://meshb.nlm.nih.gov/treeView 
+
+    proc1 = multiprocessing.Process(target= procuraNoSnomedPelaHierarquiaDeDescritoresMesh, args=('C',))
+    proc2 = multiprocessing.Process(target= procuraNoSnomedPelaHierarquiaDeTermosMesh, args=('C',)) 
+
+    proc1.start()
+    proc2.start()
+
+    proc1.join()
+    proc2.join()

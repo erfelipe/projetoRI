@@ -121,12 +121,22 @@ class BDMeSH:
         return dataset[0]
 
     def selecionarTodosDescritores(self):
+        """ Retorna todos os descritores cadastrados no MeSH
+        
+        Returns:
+            dataset -- conjunto de termos descritores em ordem alfabetica
+        """        
         dataset = self.cursor.execute("""   select namedesc from descritores                                          
                                             order by namedesc """,
                                     ).fetchall()
         return dataset
 
     def selecionarTodosTermos(self):
+        """ Retorna todos os termos de entrada (entry terms) cadastrados no MeSH
+        
+        Returns:
+            str -- conjunto de termos de entrada em ordem alfabetica
+        """        
         dataset = self.cursor.execute("""   select nameterm from termos                                          
                                             order by nameterm """,
                                     ).fetchall()
