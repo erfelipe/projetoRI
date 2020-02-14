@@ -1,19 +1,15 @@
 import csv
 import snomedRF2bancoEstrutura as banco
-import os 
-from pathlib import Path
+import constantes
 
-bancoDeDados = banco.BDSnomed("/Volumes/SD-64-Interno/BancosSQL/db-snomed-RF2.sqlite3")
-SNOMEDbaseDir = "/Volumes/SD-64-Interno/SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z/Snapshot/Terminology/" 
-
-def main():
-    arqSQL = Path("db-snomed-RF2.sqlite3")
-    if arqSQL.exists():
-        os.remove(arqSQL)
-    with bancoDeDados:
-       bancoDeDados.criarBancoDeDados()
-
-def ProcessarArquivoRF2(arquivo, tabela):
+def processarArquivoRF2(arquivo, tabela):
+    """ Realiza a leitura do arquivo SNOMED no formato textual RF2 para processamento e gravacao no formato relacional
+    
+    Arguments:
+        arquivo {str} -- Nome completo do arquivo com seu caminho (path)
+        tabela {str} -- Nome da tabela a ser processada 
+    """    
+    bancoDeDados = banco.BDSnomed(constantes.BD_SQL_SNOMED)
     with open(arquivo) as arq:
         conteudo = csv.reader(arq, delimiter='\t')
         with bancoDeDados:
@@ -36,12 +32,16 @@ def ProcessarArquivoRF2(arquivo, tabela):
                 for linha in conteudo:
                     bancoDeDados.inserirTextDefinition(linha)
 
-if __name__ == "__main__":
-    main()
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_Concept_Snapshot_INT_20190731.txt", 'concept')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_Description_Snapshot-en_INT_20190731.txt", 'description')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_Relationship_Snapshot_INT_20190731.txt", 'relationship')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_sRefset_OWLExpressionSnapshot_INT_20190731.txt", 'srefset')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_StatedRelationship_Snapshot_INT_20190731.txt", 'statedrelationship')
-    ProcessarArquivoRF2(SNOMEDbaseDir+"sct2_TextDefinition_Snapshot-en_INT_20190731.txt", 'textdefinition')
+def importaRF2ParaSqliteSNOMED():
+    """ Permite definir os arquivos e seu caminho para processamento e gravacao no modelo relacional
+    """    
+    SNOMEDbaseDir = constantes.PATH_SNOMED_TERMINOLOGY 
+    processarArquivoRF2(SNOMEDbaseDir+"sct2_Concept_Snapshot_INT_20190731.txt", 'concept')
+    processarArquivoRF2(SNOMEDbaseDir+"sct2_Description_Snapshot-en_INT_20190731.txt", 'description')
+    processarArquivoRF2(SNOMEDbaseDir+"sct2_Relationship_Snapshot_INT_20190731.txt", 'relationship')
+    processarArquivoRF2(SNOMEDbaseDir+"sct2_sRefset_OWLExpressionSnapshot_INT_20190731.txt", 'srefset')
+    processarArquivoRF2(SNOMEDbaseDir+"sct2_StatedRelationship_Snapshot_INT_20190731.txt", 'statedrelationship')
+    processarArquivoRF2(SNOMEDbaseDir+"sct2_TextDefinition_Snapshot-en_INT_20190731.txt", 'textdefinition')
 
+if __name__ == "__main__":
+    importaRF2ParaSqliteSNOMED()

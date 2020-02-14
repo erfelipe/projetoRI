@@ -88,7 +88,7 @@ def procuraNoSnomedPelaHierarquiaDeTermosMesh(codHierarquico):
         print("Termo: " + str(registro) + " de "  + str(quant)) 
     
     #grava o array dos termos comuns em txt
-    with open(constantes.TERMOS_COMUNS_ORIGINAIS, "w") as f:
+    with open(constantes.MESH_TERMOS_COMUNS_ORIGINAIS, "w") as f:
         for item in termosOriginais:
             f.write("%s\n" % item)
 

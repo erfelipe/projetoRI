@@ -11,10 +11,10 @@ MESH_XML_FILE = "/Volumes/SD-64-Interno/MeSH2020/desc2020.xml"
 TERMOS_COMUNS_JSON = "/Volumes/SD-64-Interno/Utils/termosComuns.json"
 
 #descritores/termos comuns em ambas terminologias
-TERMOS_COMUNS_ORIGINAIS = "/Volumes/SD-64-Interno/Utils/termosComunsOriginais.txt"
-TERMOS_COMUNS_TRATADOS = "/Volumes/SD-64-Interno/Utils/termosComunsTratados.txt"
-DESCRITORES_COMUNS_ORIGINAIS = "/Volumes/SD-64-Interno/Utils/descritoresComunsOriginais.txt"
-DESCRITORES_COMUNS_TRATADOS = "/Volumes/SD-64-Interno/Utils/descritoresComunsTratados.txt"
+MESH_TERMOS_COMUNS_ORIGINAIS = "/Volumes/SD-64-Interno/Utils/termosComunsOriginais.txt"
+MESH_TERMOS_COMUNS_TRATADOS = "/Volumes/SD-64-Interno/Utils/termosComunsTratados.txt"
+MESH_DESCRITORES_COMUNS_ORIGINAIS = "/Volumes/SD-64-Interno/Utils/descritoresComunsOriginais.txt"
+MESH_DESCRITORES_COMUNS_TRATADOS = "/Volumes/SD-64-Interno/Utils/descritoresComunsTratados.txt"
 
 #arquivo de log para debug
 LOG_FILE = "/Volumes/SD-64-Interno/Utils/log.txt"

@@ -1,6 +1,5 @@
 import sqlite3
 
-
 class BDMeSH:
 
     def __init__(self, nameDB):
@@ -17,6 +16,8 @@ class BDMeSH:
         self.conn.close() 
 
     def criarBancoDeDados(self): 
+        """ Cria a estrutura do banco de dados da terminologia MeSH
+        """        
         self.cursor.execute("""  CREATE TABLE if not exists descritores 
                             ( 
                              iddesc   text PRIMARY KEY NOT NULL, 
@@ -40,25 +41,21 @@ class BDMeSH:
         self.cursor.execute("CREATE INDEX idx_termos_nameterm ON termos (nameterm);")
 
     def inserirNoBancoDeDados(self, desc):
+        """ Insere os dados no modelo relacional mapeado para o MeSH
+        
+        Arguments:
+            desc {class} -- Classe que contém tanto o descritor principal como os termos hierarquicos
+        """        
         iddesc = desc.iddesc
         descricao = desc.namedesc
-        # self.cursor.execute(" SELECT count(iddesc) from descritores where (iddesc = ?)", (iddesc, ) )
-        # result = self.cursor.fetchone()
-        # if (result[0] < 1):
         self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc) VALUES (?, ?)", (iddesc, descricao.lower(),))
         
         termos = desc.terms 
         for tr in termos:
             for idtermo, termo in tr.items():
-                # self.cursor.execute(" SELECT COUNT(idterm) from termos where (iddesc = ? and nameterm = ?)", (iddesc, termo.lower(), ) )
-                # result = self.cursor.fetchone()
-                # if (result[0] < 1):
                 self.cursor.execute(" INSERT INTO termos (iddesc, idterm, nameterm) VALUES (?, ?, ?)", (iddesc, idtermo, termo.lower(),) )
 
         for hq in desc.hierarq:
-            # self.cursor.execute(" SELECT COUNT(iddesc) from hierarquia where (iddesc = ? and idhierarq = ?)", (iddesc, hq, ) )
-            # result = self.cursor.fetchone()
-            # if (result[0] < 1):
             self.cursor.execute(" INSERT INTO hierarquia (iddesc, idhierarq) VALUES (?, ?)", (iddesc, hq,) )
         
     # *********************************************
@@ -67,17 +64,34 @@ class BDMeSH:
 
     # dado uma string, descobrir descritor. pode-se usar termos de entrada. 
     # retorna o iddesc e o termo de entrada 
-    def selecionarIdDescritor_NomeDescritor(self, desc): 
+    def selecionarIdDescritorPeloNomeDescritor(self, desc): 
+        """[summary]
+        
+        Arguments:
+            desc {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
         dataset = self.cursor.execute("""   select descritores.iddesc as idesc 
                                             , descritores.namedesc
                                             from descritores 
                                             left join termos on descritores.iddesc = termos.iddesc
-                                            where (descritores.namedesc like ?) OR (termos.nameterm like ?) """, (desc, desc, )
+                                            where (descritores.namedesc like ?) OR (termos.nameterm like ?) 
+                                            group by idesc, namedesc """, (desc, desc, )
                                      ).fetchone()
         return dataset
 
     # um IdDescritor pode possuir varios IdsHierarquicos 
     def selecionarIdsHierarquiaPorIdDescritor(self, idDescritor):
+        """[summary]
+        
+        Arguments:
+            idDescritor {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
         dataset = self.cursor.execute("""   select idhierarq 
                                             from hierarquia h
                                             where (h.iddesc like ?) """, (idDescritor, )
@@ -86,6 +100,14 @@ class BDMeSH:
 
     # dado um IdHierarquico, quais termos estao associados a ele
     def selecionarTermosPorIdHierarquico(self, idhierarq):
+        """[summary]
+        
+        Arguments:
+            idhierarq {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
         dataset = self.cursor.execute("""   select d.namedesc, t.nameterm, idhierarq 
                                             from hierarquia h
                                             join descritores d on d.iddesc = h.iddesc
@@ -100,6 +122,14 @@ class BDMeSH:
 
     # qual IdDescritor o IdHierarquia esta relacionado
     def selecionarIdDescritorPorIdHierarquia(self, idhierarq):
+        """[summary]
+        
+        Arguments:
+            idhierarq {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
         dataset = self.cursor.execute("""   select iddesc
                                             from hierarquia 
                                             where (idhierarq like ?) """, (idhierarq+'%', )
@@ -107,6 +137,14 @@ class BDMeSH:
         return dataset
 
     def selectionarTermosDeEntrada(self, iddesc):
+        """[summary]
+        
+        Arguments:
+            iddesc {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
         dataset = self.cursor.execute("""   select nameterm from termos 
                                             where iddesc = ? 
                                             order by nameterm """, (iddesc, )
@@ -114,6 +152,14 @@ class BDMeSH:
         return dataset
 
     def nomeDoDescritor(self, iddesc):
+        """[summary]
+        
+        Arguments:
+            iddesc {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
         dataset = self.cursor.execute("""   select namedesc
                                             from descritores
                                             where (iddesc = ?) """, (iddesc, ) 
