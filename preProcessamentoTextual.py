@@ -34,7 +34,7 @@ def calc_hash(f):
 # Extract text from PDF
 def extraiPDF(f):
     resultado = []
-    tika.TikaClientOnly = True
+    #tika.TikaClientOnly = True
     raw = parser.from_file(f)
     metadados = raw["metadata"]
     conteudo  = raw["content"] 
@@ -170,3 +170,112 @@ def test():
         print(text)
         print('++++++++++++++++++')
 
+def suprimirSubstringComLimitadores(text, ini, fim):
+    """ Recebe um texto e simbolos como  () [] para retornar apenas o texto FORA dos delimitadores
+
+        Args: 
+            param1 (str): todo o texto a ser tratado
+            param2 (str): simbolo inicial -> ( [ {
+            param3 (str): simbolo final -> ) ] }
+
+        Returns:
+            str: string fora dos delimitadores
+    """
+    if not text:
+        return 'V A Z I O'
+    if (ini == fim):
+        posini = text.find(ini)
+        posfim = text.rfind(fim, posini+1)
+    else:
+        posini = text.find(ini)
+        posfim = text.rfind(fim)
+    if (posini < 0 or posfim < 0):
+        return text.strip()
+    elif ((posini >= 0 and posfim >= 0) and (posfim+1 > posini)):
+        text = text[:posini] + text[posfim+1:]
+        return suprimirSubstringComLimitadores(text, ini, fim)
+    else: 
+        return text
+
+def suprimirHifenInicioeFim(text):
+    """ Recebe um texto com hifen e retorna o mesmo texto sem o simbolo
+
+        Args:
+            param1 (str): texto com hifen nas extremidades
+
+        Returns:
+            str: texto sem hifen nas extremidades
+    """
+    if not (text.startswith('-') or text.endswith('-')):
+        return text.strip()
+    elif text.startswith('-'):
+        text = text[1:]
+        return suprimirHifenInicioeFim(text)
+    elif text.endswith('-'):
+        text = text[0:len(text)-1]
+        return suprimirHifenInicioeFim(text)
+
+def trataDescricao(text): 
+    """ Recebe a descricao do conceito e chama outras funcoes para tratar detalhes como:
+        excesso de espacoes, caracteres especiais, separadores, etc. 
+
+        Args: 
+            param1 (str): texto da descricao do termo 
+
+        Returns: 
+            str: texto da descricao do termo tratado 
+    """
+    #selecionar apenas o primeiro termo da lista com separador virgula 
+    resp = ''
+    listastr = text.split(',')
+    i = 0
+    for it in listastr:
+        if not (it.isnumeric()):
+            resp = listastr[i].strip()
+            break
+        i+=1
+
+    #suprimir palavras entre parenteses, entre ^^, entre ><, entre [] 
+    resp = suprimirSubstringComLimitadores(resp, '(', ')')
+    resp = suprimirSubstringComLimitadores(resp, '[', ']')
+    resp = suprimirSubstringComLimitadores(resp, '>', '<')
+    resp = suprimirSubstringComLimitadores(resp, '^', '^')
+
+    #suprimir caracteres numericos 
+    resp = ''.join(i for i in resp if not i.isdigit())
+
+    #suprimir termos particulares (-RETIRED-  ; NOS; O/E) 
+    #replace('mm', '') nao pode pq afetou palavras que possuem mm
+    resp = resp.replace('-RETIRED-', '').replace('NOS', '').replace('O/E', '').replace('&/or', '')
+
+    #tratamento de caracteres especiais (^, <, >, :, ',', ';', &, '/', '%') [exceto hifen]
+    #suprimir a palavra que contem esses caracteres? 
+    resp = resp.replace('#', '').replace('%', '').replace('\'-', '').replace('/', '').replace('\'', '').replace('\"', '').replace('^', '').replace('<', '').replace('>', '').replace(':', '').replace(',', '').replace(';', '').replace('&', '').replace('(', '').replace(')', '').replace('*', '').replace('.', '').replace('-', '').replace('?', '').replace('+', '').replace('|', '')
+
+    #retirar dois ou mais espacos em sequencia e dois ou mais hifens
+    resp = re.sub("[ ]{2,}", " ", resp)
+    resp = re.sub("[-]{2,}", " ", resp)
+
+    #retirar espacos antes e apos (trimmer)
+    resp = resp.strip()
+
+    #termo nao pode comecar ou terminar com hifen ou caracter especial e nao pode ter dois ou mais hifens juntos 
+    resp = suprimirHifenInicioeFim(resp)
+
+    #apos todas as regras, validar se ha string vazia como resultado! 
+    if not resp:
+        return text
+    else:
+        return resp
+
+def dateToTimeString(dt):
+        """ Ao receber uma data sem separador, formata como yyyy-mm-dd para compatibilidade com sqLite
+            
+            Args:
+                param1 (str): data a ser formatada (20170731)
+
+            Returns: 
+                str: data formatada (2017-07-31)
+        """
+        resp = dt[:4] + '-' + dt[4:6] + '-' + dt[6:]
+        return resp

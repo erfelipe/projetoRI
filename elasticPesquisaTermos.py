@@ -118,16 +118,26 @@ def searchElasticSnomed(termoProcurado, tipoTermo):
 
 if __name__ == "__main__":
 
-	meshDescritoresOriginais = ['haloferax', 'bartonella', 'toxascaris', 'platelet factor 4', 'time', 'perioperative care', 'oseltamivir', 'dracunculiasis', 'rhodobacter', 'cholecystolithiasis', 'amitrole', 'chloroflexus', 'osmium', 'ectopia lentis', 'streptococcus intermedius', 'swallows', 'babesia', 'momordica charantia', 'helicobacter mustelae', 'bdellovibrio bacteriovorus', 'histiocytosis', 'acholeplasma laidlawii', 'sarcophagidae', 'urinary fistula']
+	meshDescritoresOriginais = []
 
-	#print(tuple(zip(meshDescritoresOriginais, itertools.repeat('O'))))
+	# meshDescritoresOriginais.append('haloferax')
+	# meshDescritoresOriginais.append('bartonella')
+	# meshDescritoresOriginais.append('bartonella')
+	# meshDescritoresOriginais.append('toxascaris')
+	# meshDescritoresOriginais.append('platelet factor 4')
+	# meshDescritoresOriginais.append('perioperative care')
 
-	# with open(constantes.MESH_DESCRITORES_COMUNS_ORIGINAIS) as f:
-	# 	meshDescritoresOriginais.append(f.read().splitlines())
-	# f.close()
+	with open(constantes.MESH_DESCRITORES_COMUNS_ORIGINAIS) as f:
+		linhas =  f.read().splitlines()
+	f.close()
 
-	with multiprocessing.Pool(processes=4) as pool:
-		pool.starmap(searchElasticMeSH, zip(meshDescritoresOriginais, itertools.repeat('O')))
-		#pool.starmap(searchElasticSnomed, zip(meshDescritoresOriginais, itertools.repeat('O')))
+	for linha in linhas:
+		meshDescritoresOriginais.append(linha)
 
-	print(" ** CONCLUIDO ** ")
+	print(tuple(zip(meshDescritoresOriginais, itertools.repeat('O'))))
+
+	# with multiprocessing.Pool(processes=4) as pool:
+	# 	pool.starmap(searchElasticMeSH, zip(meshDescritoresOriginais, itertools.repeat('O')))
+	# 	pool.starmap(searchElasticSnomed, zip(meshDescritoresOriginais, itertools.repeat('O')))
+
+	print(" ** CONCLUIDO ** ") 

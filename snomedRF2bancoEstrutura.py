@@ -2,6 +2,7 @@ import sqlite3
 import re
 import logging
 import constantes
+import preProcessamentoTextual
 
 logging.basicConfig(filename=constantes.LOG_FILE, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -20,120 +21,8 @@ class BDSnomed:
         self.conn.commit() 
         self.conn.close() 
 
-    def dateToTimeString(self, dt):
-        """ Ao receber uma data sem separador, formata como yyyy-mm-dd para compatibilidade com sqLite
-            
-            Args:
-                param1 (str): data a ser formatada (20020131)
-
-            Returns: 
-                str: data formatada (2017-07-31)
-        """
-        resp = dt[:4] + '-' + dt[4:6] + '-' + dt[6:]
-        return resp
-
-    def suprimirSubstringComLimitadores(self, text, ini, fim):
-        """ Recebe um texto e simbolos como  () [] para retornar apenas o texto FORA dos delimitadores
-
-            Args: 
-                param1 (str): todo o texto a ser tratado
-                param2 (str): simbolo inicial -> ( [ {
-                param3 (str): simbolo final -> ) ] }
-
-            Returns:
-                str: string fora dos delimitadores
-        """
-        if not text:
-            return 'V A Z I O'
-        if (ini == fim):
-            posini = text.find(ini)
-            posfim = text.rfind(fim, posini+1)
-        else:
-            posini = text.find(ini)
-            posfim = text.rfind(fim)
-        if (posini < 0 or posfim < 0):
-            return text.strip()
-        elif ((posini >= 0 and posfim >= 0) and (posfim+1 > posini)):
-            text = text[:posini] + text[posfim+1:]
-            return self.suprimirSubstringComLimitadores(text, ini, fim)
-        else: 
-            return text
-
-    def suprimirHifenInicioeFim(self, text):
-        """ Recebe um texto com hifen e retorna o mesmo texto sem o simbolo
-
-            Args:
-                param1 (str): texto com hifen nas extremidades
-
-            Returns:
-                str: texto sem hifen nas extremidades
-        """
-        if not (text.startswith('-') or text.endswith('-')):
-            return text.strip()
-        elif text.startswith('-'):
-            text = text[1:]
-            return self.suprimirHifenInicioeFim(text)
-        elif text.endswith('-'):
-            text = text[0:len(text)-1]
-            return self.suprimirHifenInicioeFim(text)
-
-    def trataDescricao(self, text): 
-        """ Recebe a descricao do conceito e chama outras funcoes para tratar muitos detalhes
-            excesso de espacoes, caracteres especiais, separadores, etc. 
-
-            Args: 
-                param1 (str): texto da descricao do termo 
-
-            Returns: 
-                str: texto da descricao do termo tratado 
-        """
-        #selecionar apenas o primeiro termo da lista com separador virgula 
-        resp = ''
-        listastr = text.split(',')
-        i = 0
-        for it in listastr:
-            if not (it.isnumeric()):
-                resp = listastr[i].strip()
-                break
-            i+=1
-
-        #suprimir palavras entre parenteses, entre ^^, entre ><, entre [] 
-        resp = self.suprimirSubstringComLimitadores(resp, '(', ')')
-        resp = self.suprimirSubstringComLimitadores(resp, '[', ']')
-        resp = self.suprimirSubstringComLimitadores(resp, '>', '<')
-        resp = self.suprimirSubstringComLimitadores(resp, '^', '^')
-
-        #suprimir caracteres numericos 
-        resp = ''.join(i for i in resp if not i.isdigit())
-
-        #suprimir termos particulares (-RETIRED-  ; NOS; O/E) 
-        #replace('mm', '') nao pode pq afetou palavras que possuem mm
-        resp = resp.replace('-RETIRED-', '').replace('NOS', '').replace('O/E', '').replace('&/or', '')
-
-        #tratamento de caracteres especiais (^, <, >, :, ',', ';', &, '/', '%') [exceto hifen]
-        #suprimir a palavra que contem esses caracteres? 
-        resp = resp.replace('#', '').replace('%', '').replace('\'-', '').replace('/', '').replace('\'', '').replace('\"', '').replace('^', '').replace('<', '').replace('>', '').replace(':', '').replace(',', '').replace(';', '').replace('&', '').replace('(', '').replace(')', '').replace('*', '').replace('.', '').replace('-', '').replace('?', '').replace('+', '').replace('|', '')
-
-        #retirar dois ou mais espacos em sequencia e dois ou mais hifens
-        resp = re.sub("[ ]{2,}", " ", resp)
-        resp = re.sub("[-]{2,}", " ", resp)
-
-        #retirar espacos antes e apos (trimmer)
-        resp = resp.strip()
-
-        #termo nao pode comecar ou terminar com hifen ou caracter especial e nao pode ter dois ou mais hifens juntos 
-        resp = self.suprimirHifenInicioeFim(resp)
-
-        #apos todas as regras, validar se ha string vazia como resultado! 
-        if not resp:
-            return text
-        else:
-            return resp
-
-# *******************************************************************************************************
-
     def hierarquiaDeIDsPorIdConcept(self, IdConcept, resp = []):
-        """ Dado um ConceptId: 22298006, pesquisa seus IDs lidados a ele hierarquicamente
+        """ Dado um ConceptId: 22298006, pesquisa seus IDs ligados hierarquicamente
 
         Args: 
             param1 (str): identificador do conceito 
@@ -155,7 +44,7 @@ class BDSnomed:
 
         if len(dataSetAxioma) <= 0:
             return resp
-
+        axAbout = ''
         codigos = []
         objInterSize = len('ObjectIntersectionOf(') 
         for ax in dataSetAxioma: 
@@ -199,9 +88,10 @@ class BDSnomed:
                 if (cod == IdConcept):
                     isChild = True
             if isChild:
-                resp.append(axAbout) 
+                if axAbout:
+                    resp.append(axAbout) 
                 temMaisFilhos = self.hierarquiaDeIDsPorIdConcept(axAbout)
-                if (len(temMaisFilhos) > 0) and (type(temMaisFilhos) == str):
+                if (len(temMaisFilhos) > 0) and (type(temMaisFilhos) is str):
                     resp.append(temMaisFilhos)
         return resp
 
@@ -308,8 +198,6 @@ class BDSnomed:
             else:
                 return listFinding
 
-# *******************************************************************************************************
-
     def criarBancoDeDados(self): 
         """ Cria a estrutura do banco de dados
         """ 
@@ -390,8 +278,6 @@ class BDSnomed:
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationship_srcId ON relationship (sourceId);")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_statedrelationship_destId ON statedrelationship (destinationId);")
 
-# *******************************************************************************************************
-
     def inserirConcept(self, tupla):
         """ Insere registros na tabela concept 
 
@@ -402,7 +288,7 @@ class BDSnomed:
                 void
         """ 
         id = tupla[0]
-        effectiveTime = self.dateToTimeString(tupla[1])
+        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
         active = tupla[2]
         moduleId = tupla[3]
         definitionStatusId = tupla[4]
@@ -423,14 +309,14 @@ class BDSnomed:
             void
         """         
         id = tupla[0]
-        effectiveTime = self.dateToTimeString(tupla[1])
+        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
         active = tupla[2]
         moduleId = tupla[3]
         conceptId = tupla[4]
         languageCode = tupla[5]
         typeId = tupla[6]
         termOriginal = tupla[7]
-        term = self.trataDescricao(tupla[7])
+        term = preProcessamentoTextual.trataDescricao(tupla[7])
         caseSignificanceId = tupla[8]
         correspondenciaMeSH = 'N' #default nao
         correspondenciaMeSHoriginal = 'N' #default nao
@@ -443,7 +329,7 @@ class BDSnomed:
         
     def inserirRelationShip(self, tupla):
         id = tupla[0]
-        effectiveTime = self.dateToTimeString(tupla[1])
+        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
         active = tupla[2]
         moduleId = tupla[3]
         sourceId = tupla[4]
@@ -461,7 +347,7 @@ class BDSnomed:
 
     def inserirSrefSet(self, tupla):
         id = tupla[0]
-        effectiveTime = self.dateToTimeString(tupla[1])
+        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
         active = tupla[2]
         moduleId = tupla[3]
         refsetId = tupla[4]
@@ -476,7 +362,7 @@ class BDSnomed:
 
     def inserirStatedRelationShip(self, tupla):
         id = tupla[0]
-        effectiveTime = self.dateToTimeString(tupla[1])
+        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
         active = tupla[2]
         moduleId = tupla[3]
         sourceId = tupla[4]
@@ -493,7 +379,7 @@ class BDSnomed:
 
     def inserirTextDefinition(self, tupla):
         id = tupla[0]
-        effectiveTime = self.dateToTimeString(tupla[1])
+        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
         active = tupla[2]
         moduleId = tupla[3]
         conceptId = tupla[4]

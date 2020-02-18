@@ -1,4 +1,5 @@
-import sqlite3
+import sqlite3 
+import preProcessamentoTextual
 
 class BDMeSH:
 
@@ -21,14 +22,16 @@ class BDMeSH:
         self.cursor.execute("""  CREATE TABLE if not exists descritores 
                             ( 
                              iddesc   text PRIMARY KEY NOT NULL, 
-                             namedesc text NOT NULL ); 
+                             namedesc text NOT NULL,
+                             namedescTratado text NOT NULL ); 
                     """) 
         
         self.cursor.execute("""  CREATE TABLE if not exists termos 
                             (
                              iddesc   text NOT NULL,
                              idterm   text NOT NULL,
-                             nameterm text NOT NULL );
+                             nameterm text NOT NULL,
+                             nametermTratado text NOT NULL );
                     """) 
 
         self.cursor.execute(""" CREATE TABLE if not exists hierarquia
@@ -48,12 +51,14 @@ class BDMeSH:
         """        
         iddesc = desc.iddesc
         descricao = desc.namedesc
-        self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc) VALUES (?, ?)", (iddesc, descricao.lower(),))
+        descricaoTratada = preProcessamentoTextual.trataDescricao(descricao)
+        self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc, namedescTratado) VALUES (?, ?)", (iddesc, descricao.lower(),descricaoTratada,))
         
         termos = desc.terms 
         for tr in termos:
             for idtermo, termo in tr.items():
-                self.cursor.execute(" INSERT INTO termos (iddesc, idterm, nameterm) VALUES (?, ?, ?)", (iddesc, idtermo, termo.lower(),) )
+                termoTratado = preProcessamentoTextual.trataDescricao(termo)
+                self.cursor.execute(" INSERT INTO termos (iddesc, idterm, nameterm) VALUES (?, ?, ?)", (iddesc, idtermo, termo.lower(), termoTratado.lower(),) )
 
         for hq in desc.hierarq:
             self.cursor.execute(" INSERT INTO hierarquia (iddesc, idhierarq) VALUES (?, ?)", (iddesc, hq,) )
@@ -65,13 +70,13 @@ class BDMeSH:
     # dado uma string, descobrir descritor. pode-se usar termos de entrada. 
     # retorna o iddesc e o termo de entrada 
     def selecionarIdDescritorPeloNomeDescritor(self, desc): 
-        """[summary]
+        """ Dado um determinado descritor "heart attack", retorna o ID e seu nome de descricao
         
         Arguments:
-            desc {[type]} -- [description]
+            desc {str} -- Descritor em string
         
         Returns:
-            [type] -- [description]
+            [dataset] -- Array com ID e nome do descritor, de um indice (0) apenas
         """        
         dataset = self.cursor.execute("""   select descritores.iddesc as idesc 
                                             , descritores.namedesc
@@ -84,13 +89,13 @@ class BDMeSH:
 
     # um IdDescritor pode possuir varios IdsHierarquicos 
     def selecionarIdsHierarquiaPorIdDescritor(self, idDescritor):
-        """[summary]
+        """ Dado um determinado ID, selecionar seus IDs hierarquicos
         
         Arguments:
-            idDescritor {[type]} -- [description]
+            idDescritor {str} -- Identificador do descritor 0099988
         
         Returns:
-            [type] -- [description]
+            [dataset] -- Array com varios IDs
         """        
         dataset = self.cursor.execute("""   select idhierarq 
                                             from hierarquia h
