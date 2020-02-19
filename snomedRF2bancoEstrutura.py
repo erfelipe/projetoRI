@@ -42,7 +42,7 @@ class BDSnomed:
         """
         dataSetAxioma = self.selecionarAxiomasPorConceptID(IdConcept)
 
-        if len(dataSetAxioma) <= 0:
+        if (len(dataSetAxioma) <= 0) or (len(resp) > constantes.LIMITE_HIERARQUICO):
             return resp
         axAbout = ''
         codigos = []
@@ -161,12 +161,15 @@ class BDSnomed:
             Returns:
                 array: Vários termos encapsulados em um array de string
         """
-        if (IDs is not None) and (len(IDs) > 0) and (isinstance(IDs,list)):
+        if (IDs is not None) and (len(IDs) > 0) and (isinstance(IDs, list)): 
+            while (len(IDs) > 999): 
+                itemRemovido = IDs.pop(-1) 
+                print("Item " + str(len(IDs)) + " para query descricao removido: " + itemRemovido) 
             sql = "select d.term from description d where d.conceptId in ({seq}) group by d.term ".format(seq = ','.join(['?']*len(IDs))) 
             dataset = self.cursor.execute(sql, IDs).fetchall()
             resposta = []
             for d in dataset:
-                resposta.append(d[0])
+                resposta.append(d[0]) 
             return resposta 
         else:
             if (IDs is not None) and (isinstance(IDs, str)):

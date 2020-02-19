@@ -84,6 +84,7 @@ def searchElasticSnomed(termoProcurado, tipoTermo):
 		if iDPrincipal:
 			termosProximosConceitualmente = bancoSNOMED.selecionarDescricoesPorIDsConcept(iDPrincipal)
 			logging.info("SNOMED - idPrincipal: %s - termos proximos conceitualmente: %s", str(iDPrincipal), str(termosProximosConceitualmente))
+
 			iDsHierarquicos = bancoSNOMED.hierarquiaDeIDsPorIdConcept(iDPrincipal)
 			logging.info("SNOMED - idPrincipal: %s - termos hierarquicos: %s", str(iDPrincipal), str(iDsHierarquicos))
 			termosHierarquicos = bancoSNOMED.selecionarDescricoesPorIDsConcept(iDsHierarquicos)
@@ -134,9 +135,17 @@ if __name__ == "__main__":
 	for linha in linhas:
 		meshDescritoresOriginais.append(linha)
 
-	print(tuple(zip(meshDescritoresOriginais, itertools.repeat('O'))))
+	# print(tuple(zip(meshDescritoresOriginais, itertools.repeat('O'))))
+	# searchElasticSnomed('insecta', 'O')
 
-	# with multiprocessing.Pool(processes=4) as pool:
+	total = str(len(meshDescritoresOriginais)) 
+	i = 1 
+	for descritor in meshDescritoresOriginais: 
+		print(str(i) + " de " + str(total) + ' processando: ' + descritor) 
+		searchElasticSnomed(descritor, 'O') 
+		i += 1 
+
+	# with multiprocessing.Pool(processes=2) as pool:
 	# 	pool.starmap(searchElasticMeSH, zip(meshDescritoresOriginais, itertools.repeat('O')))
 	# 	pool.starmap(searchElasticSnomed, zip(meshDescritoresOriginais, itertools.repeat('O')))
 
