@@ -17,10 +17,10 @@ def validaConceptList(cList):
         return True    
 
 def main():
-   
-    tree = et.parse(constantes.MESH_XML_FILE)  #desc2019-resumo.xml 
+    tree = et.parse(constantes.TERMINOLOGIA_MESH_XML)  #desc2019-resumo.xml 
     raiz = tree.getroot() 
-
+    lang = raiz.get("LanguageCode")
+    
     for descRecords in raiz.findall("DescriptorRecord"):
         descUI = descRecords.findall("DescriptorUI")
         dr = descUI[0].text      
@@ -52,7 +52,7 @@ def main():
                             conjunto[ui[0].text] = utils.textoNormalizado(nome[0].text)
                             conceitosRelacionados.append(conjunto)
         
-        desc = Descritor(dr, nomeDescritor, numerosHierarquicos, conceitosRelacionados) 
+        desc = Descritor(dr, nomeDescritor, numerosHierarquicos, conceitosRelacionados, lang) 
         
         bancoMESH = BDMeSH(constantes.BD_SQL_MESH)
         with bancoMESH:

@@ -23,7 +23,8 @@ class BDMeSH:
                             ( 
                              iddesc   text PRIMARY KEY NOT NULL, 
                              namedesc text NOT NULL,
-                             namedescTratado text NOT NULL ); 
+                             namedescTratado text NOT NULL,
+                             language text NOT NULL ); 
                     """) 
         
         self.cursor.execute("""  CREATE TABLE if not exists termos 
@@ -31,7 +32,8 @@ class BDMeSH:
                              iddesc   text NOT NULL,
                              idterm   text NOT NULL,
                              nameterm text NOT NULL,
-                             nametermTratado text NOT NULL );
+                             nametermTratado text NOT NULL,
+                             language text NOT NULL );
                     """) 
 
         self.cursor.execute(""" CREATE TABLE if not exists hierarquia
@@ -41,7 +43,9 @@ class BDMeSH:
                     """)
 
         self.cursor.execute("CREATE INDEX idx_descritores_namedesc ON descritores (namedesc);")
+        self.cursor.execute("CREATE INDEX idx_descritores_namedescTratado ON descritores (namedescTratado);")
         self.cursor.execute("CREATE INDEX idx_termos_nameterm ON termos (nameterm);")
+        self.cursor.execute("CREATE INDEX idx_termos_nametermTratado ON termos (nametermTratado);")
 
     def inserirNoBancoDeDados(self, desc):
         """ Insere os dados no modelo relacional mapeado para o MeSH
@@ -49,16 +53,17 @@ class BDMeSH:
         Arguments:
             desc {class} -- Classe que contém tanto o descritor principal como os termos hierarquicos
         """        
+        lang = desc.language
         iddesc = desc.iddesc
         descricao = desc.namedesc
         descricaoTratada = preProcessamentoTextual.trataDescricao(descricao)
-        self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc, namedescTratado) VALUES (?, ?)", (iddesc, descricao.lower(),descricaoTratada,))
+        self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc, namedescTratado, language) VALUES (?, ?, ?, ?)", (iddesc, descricao.lower(), descricaoTratada, lang, ))
         
         termos = desc.terms 
         for tr in termos:
             for idtermo, termo in tr.items():
                 termoTratado = preProcessamentoTextual.trataDescricao(termo)
-                self.cursor.execute(" INSERT INTO termos (iddesc, idterm, nameterm) VALUES (?, ?, ?)", (iddesc, idtermo, termo.lower(), termoTratado.lower(),) )
+                self.cursor.execute(" INSERT INTO termos (iddesc, idterm, nameterm, nametermTratado, language) VALUES (?, ?, ?, ?, ?)", (iddesc, idtermo, termo.lower(), termoTratado.lower(), lang, ))
 
         for hq in desc.hierarq:
             self.cursor.execute(" INSERT INTO hierarquia (iddesc, idhierarq) VALUES (?, ?)", (iddesc, hq,) )
