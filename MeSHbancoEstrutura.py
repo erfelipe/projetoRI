@@ -57,7 +57,7 @@ class BDMeSH:
         iddesc = desc.iddesc
         descricao = desc.namedesc
         descricaoTratada = preProcessamentoTextual.trataDescricao(descricao)
-        self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc, namedescTratado, language) VALUES (?, ?, ?, ?)", (iddesc, descricao.lower(), descricaoTratada, lang, ))
+        self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc, namedescTratado, language) VALUES (?, ?, ?, ?)", (iddesc, descricao.lower(), descricaoTratada.lower(), lang, ))
         
         termos = desc.terms 
         for tr in termos:
@@ -161,20 +161,50 @@ class BDMeSH:
                                     ).fetchall()
         return dataset
 
-    def nomeDoDescritor(self, iddesc):
-        """[summary]
+    def selecionarNomeDoDescritor(self, iddesc):
+        """ Dado um codigo de descritor, retorna sua descricao textual
         
         Arguments:
-            iddesc {[type]} -- [description]
+            iddesc {str} -- Codigo do descritor, exemplo D000001
         
         Returns:
-            [type] -- [description]
+            str -- A descricao por extenso do descritor
         """        
         dataset = self.cursor.execute("""   select namedesc
                                             from descritores
                                             where (iddesc = ?) """, (iddesc, ) 
                                     ).fetchone()
         return dataset[0]
+
+    def selecionarNomeDoDescritorTratado(self, iddesc):
+        """ Dado um codigo de descritor, retorna sua descricao textual
+        
+        Arguments:
+            iddesc {str} -- Codigo do descritor, exemplo D000001
+        
+        Returns:
+            str -- A descricao por extenso do descritor tratado, sem caracteres especiais
+        """        
+        dataset = self.cursor.execute("""   select namedescTratado
+                                            from descritores
+                                            where (iddesc = ?) """, (iddesc, ) 
+                                    ).fetchone()
+        return dataset[0]
+
+    def selecionarNomesDeAmbosDescritores(self, iddesc):
+        """ Dado um codigo de descritor, retorna suas descricoes textuais
+        
+        Arguments:
+            iddesc {str} -- Codigo do descritor, exemplo D000001
+        
+        Returns:
+            str -- A descricao por extenso dos descritores: original e tratado, sem caracteres especiais
+        """        
+        dataset = self.cursor.execute("""   select namedesc, namedescTratado
+                                            from descritores
+                                            where (iddesc = ?) """, (iddesc, ) 
+                                    ).fetchone()
+        return dataset
 
     def selecionarTodosDescritores(self):
         """ Retorna todos os descritores cadastrados no MeSH
@@ -195,5 +225,18 @@ class BDMeSH:
         """        
         dataset = self.cursor.execute("""   select nameterm from termos                                          
                                             order by nameterm """,
+                                    ).fetchall()
+        return dataset
+    
+    def selecionarNomesTermosPorIdHierarquia(self, idhierarq):
+        """ Retorna as descricoes dos termos de entrada (entry terms) cadastrados no MeSH, com e sem tratamento
+        
+        Returns:
+            str -- conjunto de termos orignais e tratados
+        """        
+        dataset = self.cursor.execute("""   select t.nameterm, t.nametermTratado 
+                                            from termos t 
+                                            join hierarquia h on h.iddesc = t.iddesc 
+                                            where (h.idhierarq like ?) """, (idhierarq+'%', )
                                     ).fetchall()
         return dataset

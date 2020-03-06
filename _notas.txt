@@ -23,6 +23,9 @@ Problemas:
 
 - Vários termos estão separados entre vírgula, (como proceder)? 
 * A principio, explicitar como problema e ignorar na consulta;
+# Revisar essa regra
+
+# Revisar a regra do hífen, ao invés de unir os termos, deixar um espaço
 
 - Como considerar o nível de relação em comparação dos instrumentos? (is-a X entry terms)? 
 * No MeSH usar BT e NT em comparacao com o snomed que eh taxonomico (hierarquia) ;

@@ -221,10 +221,8 @@ class BDSnomed:
                              languageCode text NOT NULL,
                              typeId text NOT NULL,
                              termOriginal text NOT NULL,
-                             term text NOT NULL,
-                             caseSignificanceId text NOT NULL,
-                             correspondenciaMeSH text NOT NULL,
-                             correspondenciaMeSHoriginal text NOT NULL );
+                             termTratado text NOT NULL,
+                             caseSignificanceId text NOT NULL);
                     """) 
 
         self.cursor.execute(""" CREATE TABLE if not exists relationship 
@@ -275,7 +273,7 @@ class BDSnomed:
                             caseSignificanceId text NOT NULL );
                     """)
 
-        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_description_term ON description (term);")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_description_term ON description (termTratado);")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_description_termOriginal ON description (termOriginal);")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationship_destId ON relationship (destinationId);")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationship_srcId ON relationship (sourceId);")
@@ -319,14 +317,12 @@ class BDSnomed:
         languageCode = tupla[5]
         typeId = tupla[6]
         termOriginal = tupla[7]
-        term = preProcessamentoTextual.trataDescricao(tupla[7])
+        termTratado = preProcessamentoTextual.trataDescricao(tupla[7])
         caseSignificanceId = tupla[8]
-        correspondenciaMeSH = 'N' #default nao
-        correspondenciaMeSHoriginal = 'N' #default nao
         """ Por motivos de performance farei insercao direta, sem validacao """
         if (active == '1'):
             try:
-                self.cursor.execute(" INSERT INTO description (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal, term, caseSignificanceId, correspondenciaMeSH, correspondenciaMeSHoriginal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal, term, caseSignificanceId, correspondenciaMeSH, correspondenciaMeSHoriginal, ))
+                self.cursor.execute(" INSERT INTO description (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal, termTratado, caseSignificanceId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal.lower(), termTratado.lower(), caseSignificanceId, ))
             except Exception as identifier:
                 print('* Erro na inserção do ID' + id + identifier)
         

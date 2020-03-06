@@ -1,5 +1,6 @@
 import elasticsearch 
-import tratamentoPDF
+import preProcessamentoTextual
+import constantes
 
 es = elasticsearch.Elasticsearch()
 
@@ -11,18 +12,18 @@ es.indices.open("articles")
 #for hit in results['hits']['hits']:
 #    print("%(dcDescription)s %(dcLanguage)s: %(dcTitle)s" % hit["_source"])
 
-arquivos = tratamentoPDF.list_PDFs("/Volumes/SD-64-Interno/artigosPDFbmc")
+arquivos = preProcessamentoTextual.list_PDFs(constantes.PDF_ARTIGOS)
 
 for arq in arquivos:
-    chavehash = tratamentoPDF.calc_hash(arq)
+    chavehash = preProcessamentoTextual.calc_hash(arq)
     print("verificando...")
     results = es.search(index="articles", body={"query": {"match": {"dcIdentifier": chavehash } }})
     if (results['hits']['total']['value'] <= 0):
         print('Tratando: ' + arq)
-        texto = tratamentoPDF.extraiPDF(arq)
-        corpo = tratamentoPDF.limparTudo(texto[0])
+        texto = preProcessamentoTextual.extraiPDF(arq)
+        corpo = preProcessamentoTextual.limparTudo(texto[0])
         metadados = (texto[1])
-        docJSON  = tratamentoPDF.montaDocJSONporTexto(chavehash, corpo, metadados)
+        docJSON  = preProcessamentoTextual.montaDocJSONporTexto(chavehash, corpo, metadados)
     
         es.index(index="articles", body=docJSON)
         print("Arquivo gravado: " + arq + " | " + chavehash)

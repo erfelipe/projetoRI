@@ -35,7 +35,7 @@ def processarArquivoRF2(arquivo, tabela):
 def importaRF2ParaSqliteSNOMED():
     """ Permite definir os arquivos e seu caminho para processamento e gravacao no modelo relacional
     """    
-    SNOMEDbaseDir = constantes.PATH_SNOMED_TERMINOLOGY 
+    SNOMEDbaseDir = constantes.TERMINOLOGIA_SNOMED 
     processarArquivoRF2(SNOMEDbaseDir+"sct2_Concept_Snapshot_INT_20190731.txt", 'concept')
     processarArquivoRF2(SNOMEDbaseDir+"sct2_Description_Snapshot-en_INT_20190731.txt", 'description')
     processarArquivoRF2(SNOMEDbaseDir+"sct2_Relationship_Snapshot_INT_20190731.txt", 'relationship')
