@@ -82,6 +82,7 @@ def searchElasticSnomed(termoProcurado, tipoTermo):
 		#dos vários conceitos, procura se um principal	
 		iDPrincipal = bancoSNOMED.selecionarIdPrincipal(iDsRelacionados)
 		if iDPrincipal:
+			termoPrincipal = bancoSNOMED.selecionarTermoOriginalPrincipal(iDPrincipal, 'en')
 			termosProximosConceitualmente = bancoSNOMED.selecionarDescricoesPorIDsConcept(iDPrincipal)
 			logging.info("SNOMED - idPrincipal: %s - termos proximos conceitualmente: %s", str(iDPrincipal), str(termosProximosConceitualmente))
 
@@ -89,6 +90,7 @@ def searchElasticSnomed(termoProcurado, tipoTermo):
 			logging.info("SNOMED - idPrincipal: %s - termos hierarquicos: %s", str(iDPrincipal), str(iDsHierarquicos))
 			termosHierarquicos = bancoSNOMED.selecionarDescricoesPorIDsConcept(iDsHierarquicos)
 		else:
+			termoPrincipal = ""
 			logging.error("SNOMED - idPrincipal: %s nao identificado iDPrincipal (!)", str(iDPrincipal), exc_info=True) 
 			termosProximosConceitualmente = []
 			termosHierarquicos = [] 
@@ -104,7 +106,7 @@ def searchElasticSnomed(termoProcurado, tipoTermo):
 		# Grava no sqlite 
 		bancoElastic = BDelastic(constantes.BD_SQL_ELASTIC) 
 		with bancoElastic:
-			idBancoTermoProcurado = bancoElastic.insereTermoProcurado('S', tipoTermo, termoProcurado, quantTermoProcurado, iDPrincipal, 'a descobrir', quantTermoProcurado )
+			idBancoTermoProcurado = bancoElastic.insereTermoProcurado('S', tipoTermo, termoProcurado, quantTermoProcurado, iDPrincipal, termoPrincipal, quantTermoProcurado )
 			# Procura as listas no elastic e grava no banco
 			for termopConceitual in termosProximosConceitualmente:
 				quant = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termopConceitual, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']

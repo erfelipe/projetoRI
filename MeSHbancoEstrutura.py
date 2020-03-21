@@ -206,6 +206,22 @@ class BDMeSH:
                                     ).fetchone()
         return dataset
 
+    def selecionarNomesDescritoresPorIdHierarquia(self, idhierarq):
+        """ Retorna os descritores originais e tratados a partir de uma hierarquia
+        
+        Arguments:
+            idhierarq {str} -- Codigo da hierarquia, exemplo  C26017
+
+        Returns:
+            dataset -- Conjunto de todas as descricoes a partir de um codigo hierarquico
+        """        
+        dataset = self.cursor.execute( """ select d.namedesc, d.namedescTratado 
+                                            from descritores d 
+                                            join hierarquia h on h.iddesc = d.iddesc 
+                                            where (h.idhierarq like ?) """, (idhierarq+'%',)
+                                            ).fetchall()
+        return dataset
+
     def selecionarTodosDescritores(self):
         """ Retorna todos os descritores cadastrados no MeSH
         

@@ -152,6 +152,42 @@ class BDSnomed:
         else: 
             return "" 
 
+    def selecionarTermoOriginalPrincipal(self, IdPrincipal, idioma):
+        """ Dado um identificador, seleciona o descritor principal dentre os varios que respondem ao mesmo codigo
+        
+        Arguments:
+            IdPrincipal {str} -- Exemplo: 22298006
+            idioma {str} -- Exemplo: en
+        
+        Returns:
+            str -- A descricao do termo 
+        """        
+        if (IdPrincipal): 
+            dataSet = self.cursor.execute(""" select d.termOriginal 
+                                            from description d 
+                                            where (d.typeId = '900000000000003001') 
+                                                and (d.conceptId = ?) 
+                                                and (d.languageCode like ?) """, (IdPrincipal, idioma,)).fetchone()
+            return dataSet[0]
+
+    def selecionarTermoTratadoPrincipal(self, IdPrincipal, idioma):
+        """ Dado um identificador, seleciona o descritor principal dentre os varios que respondem ao mesmo codigo
+        
+        Arguments:
+            IdPrincipal {str} -- Exemplo: 22298006
+            idioma {str} -- Exemplo: en
+        
+        Returns:
+            str -- A descricao do termo 
+        """        
+        if (IdPrincipal): 
+            dataSet = self.cursor.execute(""" select d.termTratado 
+                                            from description d 
+                                            where (d.typeId = '900000000000003001') 
+                                                and (d.conceptId = ?) 
+                                                and (d.languageCode like ?) """, (IdPrincipal, idioma,)).fetchone()
+            return dataSet[0]
+
     def selecionarDescricoesPorIDsConcept(self, IDs):
         """ Recebe uma lista (array) de conceptIDs e procura todas as descricoes associadas ao conjunto
 

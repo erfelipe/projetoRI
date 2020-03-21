@@ -91,7 +91,7 @@ def procuraNoSnomedPelaHierarquiaDeTermosMesh(codHierarquico):
     quant = len(vocabularioTratado)
 
     for termo in vocabularioTratado:
-        reigstro += 1
+        registro += 1
         encontradoTermoTratado = procuraNoSnomedDescritorTratado(termo)
         if (encontradoTermoTratado > 0):
             termosTratados.add(termo)
@@ -102,6 +102,12 @@ def procuraNoSnomedPelaHierarquiaDeTermosMesh(codHierarquico):
     with open(constantes.MESH_TERMOS_COMUNS_ORIGINAIS, "w") as f:
         for item in termosOriginais:
             f.write("%s\n" % item)
+
+    #grava o array dos termos tratados em txt
+    with open(constantes.MESH_TERMOS_COMUNS_TRATADOS, "w") as f:
+        for item in termosOriginais:
+            f.write("%s\n" % item)
+    
 
 def procuraNoSnomedPelaHierarquiaDeDescritoresMesh(codHierarquico):
     """ Dado um código hierárquico do MeSH, procura no Snomed os termos correspondentes
@@ -118,14 +124,12 @@ def procuraNoSnomedPelaHierarquiaDeDescritoresMesh(codHierarquico):
 
     bancoMeSH = BDMeSH(constantes.BD_SQL_MESH)
     with bancoMeSH:
-        dataSetDescritores = bancoMeSH.selecionarIdDescritorPorIdHierarquia(codHierarquico)
+        dataSetNomesDescritores = bancoMeSH.selecionarNomesDescritoresPorIdHierarquia(codHierarquico)
 
-    descritores = []
-    for desc in dataSetDescritores:
+    for dn, dt in dataSetNomesDescritores:
         with bancoMeSH:
-            descritores = bancoMeSH.selecionarNomesDeAmbosDescritores(desc[0]) 
-            vocabularioOriginal.add(descritores[0])
-            vocabularioTratado.add(descritores[1]) 
+            vocabularioOriginal.add(dn)
+            vocabularioTratado.add(dt) 
 
     quant = len(vocabularioOriginal)
 
@@ -163,7 +167,7 @@ def procuraNoSnomedPelaHierarquiaDeDescritoresMesh(codHierarquico):
 if __name__ == "__main__":
     # a categoria Diseases [C] - https://meshb.nlm.nih.gov/treeView 
 
-    procuraNoSnomedPelaHierarquiaDeTermosMesh('C')
+    procuraNoSnomedPelaHierarquiaDeDescritoresMesh('C')
 
     # proc1 = multiprocessing.Process(target= procuraNoSnomedPelaHierarquiaDeDescritoresMesh, args=('C',))
     # proc2 = multiprocessing.Process(target= procuraNoSnomedPelaHierarquiaDeTermosMesh, args=('C',)) 
