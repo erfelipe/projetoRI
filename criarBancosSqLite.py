@@ -22,8 +22,10 @@ def criarBancoSNOMED():
     """    
     resp = input("Criar sqLite SNOMED CT? (S/N): ")
     if ((resp == 'S') or (resp == 's')):
-        if os.path.exists(constantes.BD_SQL_SNOMED):
-            os.remove(constantes.BD_SQL_SNOMED)
+        resp = input("EXCLUIR arq sqLite SNOMED CT? (S/N): ")
+        if ((resp == 'S') or (resp == 's')):
+            if os.path.exists(constantes.BD_SQL_SNOMED):
+                os.remove(constantes.BD_SQL_SNOMED)
         bancoSnomed = BDSnomed(constantes.BD_SQL_SNOMED)
         with bancoSnomed:
             bancoSnomed.criarBancoDeDados() 
@@ -32,13 +34,16 @@ def criarBancoSNOMED():
 def criarBancoMeSH():
     """ Exclui e cria novo banco sqLite para armazenar a terminologia MeSH em formato relacional
     """    
-    resp = input("Criar sqLite MESH? (S/N): ")
-    if ((resp == 'S') or (resp == 's')):
-        if os.path.exists(constantes.BD_SQL_MESH):
-            os.remove(constantes.BD_SQL_MESH)
+    respCriar = input("Criar sqLite MESH? (S/N): ")
+    if ((respCriar == 'S') or (respCriar == 's')):
+        respExcluir = input("EXCLUIR arq sqLite MESH? (S/N): ")
+        if ((respExcluir == 'S') or (respExcluir == 's')):
+            if os.path.exists(constantes.BD_SQL_MESH):
+                os.remove(constantes.BD_SQL_MESH)
         bancoMESH = BDMeSH(constantes.BD_SQL_MESH)
         with bancoMESH:
-            bancoMESH.criarBancoDeDados() 
+            if ((respExcluir == 'S') or (respExcluir == 's')):
+                bancoMESH.criarBancoDeDados() 
             MeSHbancoFromXml.main()
 
 if __name__ == "__main__":

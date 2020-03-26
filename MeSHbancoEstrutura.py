@@ -21,10 +21,10 @@ class BDMeSH:
         """        
         self.cursor.execute("""  CREATE TABLE if not exists descritores 
                             ( 
-                             iddesc   text PRIMARY KEY NOT NULL, 
+                             iddesc   text NOT NULL, 
                              namedesc text NOT NULL,
                              namedescTratado text NOT NULL,
-                             language text NOT NULL ); 
+                             lang text NOT NULL ); 
                     """) 
         
         self.cursor.execute("""  CREATE TABLE if not exists termos 
@@ -33,13 +33,14 @@ class BDMeSH:
                              idterm   text NOT NULL,
                              nameterm text NOT NULL,
                              nametermTratado text NOT NULL,
-                             language text NOT NULL );
+                             lang text NOT NULL );
                     """) 
 
         self.cursor.execute(""" CREATE TABLE if not exists hierarquia
                             (iddesc    text NOT NULL,
                              idhierarq text NOT NULL,
-                             PRIMARY KEY (iddesc, idhierarq));
+                             lang  text NOT NULL,
+                             PRIMARY KEY (iddesc, idhierarq, lang));
                     """)
 
         self.cursor.execute("CREATE INDEX idx_descritores_namedesc ON descritores (namedesc);")
@@ -57,16 +58,16 @@ class BDMeSH:
         iddesc = desc.iddesc
         descricao = desc.namedesc
         descricaoTratada = preProcessamentoTextual.trataDescricao(descricao)
-        self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc, namedescTratado, language) VALUES (?, ?, ?, ?)", (iddesc, descricao.lower(), descricaoTratada.lower(), lang, ))
+        self.cursor.execute(" INSERT INTO descritores (iddesc, namedesc, namedescTratado, lang) VALUES (?, ?, ?, ?)", (iddesc, descricao.lower(), descricaoTratada.lower(), lang, ))
         
         termos = desc.terms 
         for tr in termos:
             for idtermo, termo in tr.items():
                 termoTratado = preProcessamentoTextual.trataDescricao(termo)
-                self.cursor.execute(" INSERT INTO termos (iddesc, idterm, nameterm, nametermTratado, language) VALUES (?, ?, ?, ?, ?)", (iddesc, idtermo, termo.lower(), termoTratado.lower(), lang, ))
+                self.cursor.execute(" INSERT INTO termos (iddesc, idterm, nameterm, nametermTratado, lang) VALUES (?, ?, ?, ?, ?)", (iddesc, idtermo, termo.lower(), termoTratado.lower(), lang, ))
 
         for hq in desc.hierarq:
-            self.cursor.execute(" INSERT INTO hierarquia (iddesc, idhierarq) VALUES (?, ?)", (iddesc, hq,) )
+            self.cursor.execute(" INSERT INTO hierarquia (iddesc, idhierarq, lang) VALUES (?, ?, ?)", (iddesc, hq, lang,) )
         
     # *********************************************
     #  Para cada DESCRITOR pode haver varios TERMOS
@@ -74,47 +75,60 @@ class BDMeSH:
 
     # dado uma string, descobrir descritor. pode-se usar termos de entrada. 
     # retorna o iddesc e o termo de entrada 
-    def selecionarIdDescritorPeloNomeDescritor(self, desc): 
+    def selecionarIdDescritorPeloNomeDescritor(self, desc, tipoTermo, idioma): 
         """ Dado um determinado descritor "heart attack", retorna o ID e seu nome de descricao
         
         Arguments:
             desc {str} -- Descritor em string
+            tipoTermo {str} -- O = original e T = tratado
+            idioma {str} -- en = ingles e es = espanhol 
         
         Returns:
             [dataset] -- Array com ID e nome do descritor, de um indice (0) apenas
         """        
-        dataset = self.cursor.execute("""   select descritores.iddesc as idesc 
-                                            , descritores.namedesc
+        if (tipoTermo == 'O'): #original
+            dataset = self.cursor.execute("""   select descritores.iddesc as idesc 
+                                            , descritores.namedesc 
                                             from descritores 
-                                            left join termos on descritores.iddesc = termos.iddesc
-                                            where (descritores.namedesc like ?) OR (termos.nameterm like ?) 
-                                            group by idesc, namedesc """, (desc, desc, )
+                                            left join termos on descritores.iddesc = termos.iddesc 
+                                            where (descritores.lang like ?) and (termos.lang like ?) and (descritores.namedesc like ?) OR (termos.nameterm like ?) 
+                                            group by idesc, namedesc """, (idioma, idioma, desc, desc, )
+                                     ).fetchone()
+        else: #tratado
+            dataset = self.cursor.execute("""   select descritores.iddesc as idesc 
+                                            , descritores.namedescTratado 
+                                            from descritores 
+                                            left join termos on descritores.iddesc = termos.iddesc 
+                                            where (descritores.lang like ?) and (termos.lang like ?) and (descritores.namedescTratado like ?) OR (termos.nametermTratado like ?) 
+                                            group by idesc, namedesc """, (idioma, idioma, desc, desc, )
                                      ).fetchone()
         return dataset
 
     # um IdDescritor pode possuir varios IdsHierarquicos 
-    def selecionarIdsHierarquiaPorIdDescritor(self, idDescritor):
+    def selecionarIdsHierarquiaPorIdDescritor(self, idDescritor, idioma):
         """ Dado um determinado ID, selecionar seus IDs hierarquicos
         
         Arguments:
             idDescritor {str} -- Identificador do descritor 0099988
+            idioma {str} -- eng = ingles, es = espanhol, etc...
         
         Returns:
             [dataset] -- Array com varios IDs
         """        
         dataset = self.cursor.execute("""   select idhierarq 
                                             from hierarquia h
-                                            where (h.iddesc like ?) """, (idDescritor, )
+                                            where (hierarquia.lang like ?) and (h.iddesc like ?) """, (idioma, idDescritor, )
                                     ).fetchall()
         return dataset 
 
     # dado um IdHierarquico, quais termos estao associados a ele
-    def selecionarTermosPorIdHierarquico(self, idhierarq):
+    def selecionarTermosPorIdHierarquico(self, idhierarq, idioma):
         """[summary]
         
         Arguments:
             idhierarq {[type]} -- [description]
-        
+            idioma {str} -- eng = ingles, es = espanhol, etc...
+
         Returns:
             [type] -- [description]
         """        
@@ -122,7 +136,7 @@ class BDMeSH:
                                             from hierarquia h
                                             join descritores d on d.iddesc = h.iddesc
                                             join termos t on t.iddesc = d.iddesc
-                                            where (idhierarq like ?) """, (idhierarq+'%', )
+                                            where (hierarquia.lang like ?) and (idhierarq like ?) """, (idioma, idhierarq+'%', )
                                     ).fetchall()
         listagem = set()
         for linha in dataset:
@@ -146,19 +160,27 @@ class BDMeSH:
                                     ).fetchall()
         return dataset
 
-    def selectionarTermosDeEntrada(self, iddesc):
+    def selectionarTermosDeEntrada(self, iddesc, tipoTermo, idioma):
         """[summary]
         
         Arguments:
             iddesc {[type]} -- [description]
-        
-        Returns:
-            [type] -- [description]
-        """        
-        dataset = self.cursor.execute("""   select nameterm from termos 
-                                            where iddesc = ? 
-                                            order by nameterm """, (iddesc, )
-                                    ).fetchall()
+            tipoTermo {str} -- O = original e T = tratado
+            idioma {str} -- eng = ingles, es = espanhol, etc...      
+
+        Returns: 
+            [type] -- [description] 
+        """  
+        if (tipoTermo == 'O'): #original
+            dataset = self.cursor.execute("""   select nameterm from termos 
+                                                where  (termos.lang like ?) and (iddesc = ?) 
+                                                order by nameterm """, (idioma, iddesc, )
+                                        ).fetchall()
+        else: #tratado
+            dataset = self.cursor.execute("""   select nametermTratado from termos 
+                                                where  (termos.lang like ?) and (iddesc = ?) 
+                                                order by nameterm """, (idioma, iddesc, )
+                                        ).fetchall()
         return dataset
 
     def selecionarNomeDoDescritor(self, iddesc):

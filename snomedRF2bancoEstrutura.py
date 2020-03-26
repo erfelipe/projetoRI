@@ -89,9 +89,10 @@ class BDSnomed:
                     isChild = True
             if isChild:
                 if axAbout:
-                    resp.append(axAbout) 
+                    if (len(resp) < constantes.LIMITE_HIERARQUICO):
+                        resp.append(axAbout) 
                 temMaisFilhos = self.hierarquiaDeIDsPorIdConcept(axAbout)
-                if (len(temMaisFilhos) > 0) and (type(temMaisFilhos) is str):
+                if (len(temMaisFilhos) > 0) and (type(temMaisFilhos) is str) and (len(resp) < constantes.LIMITE_HIERARQUICO):
                     resp.append(temMaisFilhos)
         return resp
 
@@ -152,48 +153,40 @@ class BDSnomed:
         else: 
             return "" 
 
-    def selecionarTermoOriginalPrincipal(self, IdPrincipal, idioma):
+    def selecionarTermoPrincipal(self, IdPrincipal, idioma, tipoTermo):
         """ Dado um identificador, seleciona o descritor principal dentre os varios que respondem ao mesmo codigo
         
         Arguments:
             IdPrincipal {str} -- Exemplo: 22298006
             idioma {str} -- Exemplo: en
+            tipoTermo {str} -- O = original e T = tratado
         
         Returns:
             str -- A descricao do termo 
         """        
         if (IdPrincipal): 
-            dataSet = self.cursor.execute(""" select d.termOriginal 
-                                            from description d 
-                                            where (d.typeId = '900000000000003001') 
-                                                and (d.conceptId = ?) 
-                                                and (d.languageCode like ?) """, (IdPrincipal, idioma,)).fetchone()
+            if (tipoTermo == 'O'): #termo original
+                dataSet = self.cursor.execute(""" select d.termOriginal 
+                                                from description d 
+                                                where (d.typeId = '900000000000003001') 
+                                                    and (d.conceptId = ?) 
+                                                    and (d.languageCode like ?) """, (IdPrincipal, idioma,)).fetchone()
+            else: #termo tratado
+                dataSet = self.cursor.execute(""" select d.termTratado 
+                                                    from description d 
+                                                    where (d.typeId = '900000000000003001') 
+                                                        and (d.conceptId = ?) 
+                                                        and (d.languageCode like ?) """, (IdPrincipal, idioma,)).fetchone()
             return dataSet[0]
 
-    def selecionarTermoTratadoPrincipal(self, IdPrincipal, idioma):
-        """ Dado um identificador, seleciona o descritor principal dentre os varios que respondem ao mesmo codigo
-        
-        Arguments:
-            IdPrincipal {str} -- Exemplo: 22298006
-            idioma {str} -- Exemplo: en
-        
-        Returns:
-            str -- A descricao do termo 
-        """        
-        if (IdPrincipal): 
-            dataSet = self.cursor.execute(""" select d.termTratado 
-                                            from description d 
-                                            where (d.typeId = '900000000000003001') 
-                                                and (d.conceptId = ?) 
-                                                and (d.languageCode like ?) """, (IdPrincipal, idioma,)).fetchone()
-            return dataSet[0]
-
-    def selecionarDescricoesPorIDsConcept(self, IDs):
-        """ Recebe uma lista (array) de conceptIDs e procura todas as descricoes associadas ao conjunto
+    def selecionarDescricoesPorIDsConcept(self, IDs, tipoTermo, idioma):
+        """ Recebe uma lista (array) de conceptIDs ou apenas um ID (str) e procura todas as descricoes associadas ao conjunto
 
             Args: 
-                param1 (array ou str): Concept ID(s)
-
+                IDs {array ou str} -- Concept ID(s)
+                tipoTermo {str} -- O = original e T = tratado
+                idioma {str} -- en = ingles e es = espanhol
+            
             Returns:
                 array: Vários termos encapsulados em um array de string
         """
@@ -201,20 +194,31 @@ class BDSnomed:
             while (len(IDs) > 999): 
                 itemRemovido = IDs.pop(-1) 
                 print("Item " + str(len(IDs)) + " para query descricao removido: " + itemRemovido) 
-            sql = "select d.term from description d where d.conceptId in ({seq}) group by d.term ".format(seq = ','.join(['?']*len(IDs))) 
-            dataset = self.cursor.execute(sql, IDs).fetchall()
+            if (tipoTermo == 'O'): #termo original
+                sql = "select d.termOriginal from description d where (d.languageCode = \'{lang}\') and (d.conceptId in ({seq})) group by d.termOriginal ".format(lang = idioma, seq = ','.join(['?']*len(IDs))) 
+            else: 
+                sql = "select d.termTratado from description d where (d.languageCode = \'{lang}\') and (d.conceptId in ({seq})) group by d.termTratado ".format(lang = idioma, seq = ','.join(['?']*len(IDs))) 
+            dataset = self.cursor.execute(sql, IDs).fetchall() 
             resposta = []
             for d in dataset:
                 resposta.append(d[0]) 
             return resposta 
         else:
-            if (IDs is not None) and (isinstance(IDs, str)):
-                dataset = self.cursor.execute(""" 
-                    select d.term 
-                    from description d 
-                    where d.conceptId = (?) 
-                    group by d.term 
-                    """, (IDs,)).fetchall() 
+            if (IDs is not None) and (isinstance(IDs, str)): 
+                if (tipoTermo == 'O'): #termo original
+                    dataset = self.cursor.execute(""" 
+                        select d.termOriginal 
+                        from description d 
+                        where d.languageCode = ? and d.conceptId = (?) 
+                        group by d.termOriginal 
+                        """, (idioma, IDs,)).fetchall() 
+                else: 
+                    dataset = self.cursor.execute(""" 
+                        select d.termTratado 
+                        from description d 
+                        where d.languageCode = ? and d.conceptId = (?) 
+                        group by d.termTratado 
+                        """, (idioma, IDs,)).fetchall()
                 resposta = []
                 for d in dataset:
                     resposta.append(d[0])

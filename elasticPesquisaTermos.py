@@ -9,7 +9,7 @@ import itertools
 
 logging.basicConfig(filename=constantes.LOG_FILE, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-def searchElasticMeSH(termoProcurado, tipoTermo):
+def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	"""Realiza a pesquisa com todas as caracteristicas do instrumento terminologico MeSH
 	   considerando termos hierarquicos (este instrumento nao possui termos relacionados)
 	
@@ -20,20 +20,20 @@ def searchElasticMeSH(termoProcurado, tipoTermo):
 	# Procura os todos os termos relacionados
 	bancoMeSH = BDMeSH(constantes.BD_SQL_MESH)
 	with bancoMeSH:
-		resposta = bancoMeSH.selecionarIdDescritorPeloNomeDescritor(termoProcurado) 
+		resposta = bancoMeSH.selecionarIdDescritorPeloNomeDescritor(termoProcurado, tipoTermo, idioma) 
 		idDescritor = str(resposta[0]) 
 		descritorPrincipal = str(resposta[1]) 
 		
 		print("MeSH processando: " + termoProcurado + " id " + str(idDescritor) + " principal: " + descritorPrincipal)
 		
-		resposta = bancoMeSH.selecionarIdsHierarquiaPorIdDescritor(idDescritor)
+		resposta = bancoMeSH.selecionarIdsHierarquiaPorIdDescritor(idDescritor, idioma)
 		termosHierarquicos = set()
 		for h in resposta:
-				data = bancoMeSH.selecionarTermosPorIdHierarquico(h[0])
+				data = bancoMeSH.selecionarTermosPorIdHierarquico(h[0], idioma)
 				for item in data:
 						termosHierarquicos.add(item)
 
-		resposta = bancoMeSH.selectionarTermosDeEntrada(idDescritor)
+		resposta = bancoMeSH.selectionarTermosDeEntrada(idDescritor, tipoTermo, idioma)
 		termosEntrada = set()
 		for ent in resposta:
 				if (ent[0] != descritorPrincipal and ent[0] != termoProcurado):
@@ -64,13 +64,14 @@ def searchElasticMeSH(termoProcurado, tipoTermo):
 			quantTh = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tH, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
 			bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tH, quantTh, 'H')
 
-def searchElasticSnomed(termoProcurado, tipoTermo):
+def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 	"""Realiza a pesquisa com todas as caracteristicas do instrumento terminologico SNOMED CT
 	   considerando termos hierarquicos e relacionados (este instrumento possui o conceito de termos relacionados)
 	
 	Arguments:
 		termoProcurado {str} -- Termo comum selecionado previamente em uma lista comum
-		tipoTermo {str} -- O = original e T = tratado
+		tipoTermo {str} -- O = original e T = tratado 
+		idioma {str} -- en = ingles e es = espanhol 
 	"""
 	#pelo nome do termo, identifica se o seu código de conceito 
 	bancoSNOMED = BDSnomed(constantes.BD_SQL_SNOMED) 
@@ -82,13 +83,13 @@ def searchElasticSnomed(termoProcurado, tipoTermo):
 		#dos vários conceitos, procura se um principal	
 		iDPrincipal = bancoSNOMED.selecionarIdPrincipal(iDsRelacionados)
 		if iDPrincipal:
-			termoPrincipal = bancoSNOMED.selecionarTermoOriginalPrincipal(iDPrincipal, 'en')
-			termosProximosConceitualmente = bancoSNOMED.selecionarDescricoesPorIDsConcept(iDPrincipal)
+			termoPrincipal = bancoSNOMED.selecionarTermoPrincipal(iDPrincipal, 'en', tipoTermo) 
+			termosProximosConceitualmente = bancoSNOMED.selecionarDescricoesPorIDsConcept(iDPrincipal, tipoTermo, idioma) 
 			logging.info("SNOMED - idPrincipal: %s - termos proximos conceitualmente: %s", str(iDPrincipal), str(termosProximosConceitualmente))
 
 			iDsHierarquicos = bancoSNOMED.hierarquiaDeIDsPorIdConcept(iDPrincipal)
 			logging.info("SNOMED - idPrincipal: %s - termos hierarquicos: %s", str(iDPrincipal), str(iDsHierarquicos))
-			termosHierarquicos = bancoSNOMED.selecionarDescricoesPorIDsConcept(iDsHierarquicos)
+			termosHierarquicos = bancoSNOMED.selecionarDescricoesPorIDsConcept(iDsHierarquicos, tipoTermo, idioma)
 		else:
 			termoPrincipal = ""
 			logging.error("SNOMED - idPrincipal: %s nao identificado iDPrincipal (!)", str(iDPrincipal), exc_info=True) 
@@ -121,6 +122,8 @@ def searchElasticSnomed(termoProcurado, tipoTermo):
 
 if __name__ == "__main__":
 
+	searchElasticMeSH('heart attack', 'O')
+
 	meshDescritoresOriginais = []
 
 	# meshDescritoresOriginais.append('haloferax')
@@ -144,7 +147,7 @@ if __name__ == "__main__":
 	i = 1 
 	for descritor in meshDescritoresOriginais: 
 		print(str(i) + " de " + str(total) + ' processando: ' + descritor) 
-		searchElasticSnomed(descritor, 'O') 
+		searchElasticSnomed(descritor, 'O', 'en') 
 		i += 1 
 
 	# with multiprocessing.Pool(processes=2) as pool:
