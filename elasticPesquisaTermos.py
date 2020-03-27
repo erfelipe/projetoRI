@@ -29,7 +29,7 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 		resposta = bancoMeSH.selecionarIdsHierarquiaPorIdDescritor(idDescritor, idioma)
 		termosHierarquicos = set()
 		for h in resposta:
-				data = bancoMeSH.selecionarTermosPorIdHierarquico(h[0], idioma)
+				data = bancoMeSH.selecionarTermosPorIdHierarquico(h[0], tipoTermo, idioma)
 				for item in data:
 						termosHierarquicos.add(item)
 
@@ -122,7 +122,7 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 
 if __name__ == "__main__":
 
-	searchElasticMeSH('heart attack', 'O')
+	searchElasticMeSH('infarto do miocárdio[myocardial infarction]', 'O', 'por')
 
 	meshDescritoresOriginais = []
 

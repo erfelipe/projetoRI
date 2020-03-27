@@ -5,7 +5,7 @@ BD_SQL_SNOMED = "/Volumes/SD-64-Interno/BancosSQL/db-snomed-RF2.sqlite3"
 
 #terminologias medicas
 TERMINOLOGIA_SNOMED_PATH = "/Volumes/SD-64-Interno/SnomedCT_SpanishRelease-es_PRODUCTION_20191031T120000Z/RF2Release/Snapshot/Terminology/"
-TERMINOLOGIA_MESH_XML = "/Volumes/SD-64-Interno/MeSH2019/mtms/spadesc2019.xml"
+TERMINOLOGIA_MESH_XML = "/Volumes/SD-64-Interno/MeSH2019/mtms/pordesc2019.xml"
 
 #deprecated
 TERMOS_COMUNS_JSON = "/Volumes/SD-64-Interno/Utils/termosComuns.json"

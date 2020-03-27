@@ -81,7 +81,7 @@ class BDMeSH:
         Arguments:
             desc {str} -- Descritor em string
             tipoTermo {str} -- O = original e T = tratado
-            idioma {str} -- en = ingles e es = espanhol 
+            idioma {str} -- en = ingles e spa = espanhol 
         
         Returns:
             [dataset] -- Array com ID e nome do descritor, de um indice (0) apenas
@@ -117,27 +117,36 @@ class BDMeSH:
         """        
         dataset = self.cursor.execute("""   select idhierarq 
                                             from hierarquia h
-                                            where (hierarquia.lang like ?) and (h.iddesc like ?) """, (idioma, idDescritor, )
+                                            where (h.lang like ?) and (h.iddesc like ?) """, (idioma, idDescritor, )
                                     ).fetchall()
         return dataset 
 
     # dado um IdHierarquico, quais termos estao associados a ele
-    def selecionarTermosPorIdHierarquico(self, idhierarq, idioma):
+    def selecionarTermosPorIdHierarquico(self, idhierarq, tipoTermo, idioma):
         """[summary]
         
         Arguments:
-            idhierarq {[type]} -- [description]
+            idhierarq {str} -- codigo para identificar a hierarquia do termo
             idioma {str} -- eng = ingles, es = espanhol, etc...
+            tipoTermo {str} -- O = original e T = tratado
 
         Returns:
-            [type] -- [description]
-        """        
-        dataset = self.cursor.execute("""   select d.namedesc, t.nameterm, idhierarq 
-                                            from hierarquia h
-                                            join descritores d on d.iddesc = h.iddesc
-                                            join termos t on t.iddesc = d.iddesc
-                                            where (hierarquia.lang like ?) and (idhierarq like ?) """, (idioma, idhierarq+'%', )
-                                    ).fetchall()
+            set -- array com descricao, nome do termo e id hierarquico
+        """     
+        if (tipoTermo == 'O'): # original
+            dataset = self.cursor.execute("""   select d.namedesc, t.nameterm, h.idhierarq 
+                                                from hierarquia h
+                                                join descritores d on d.iddesc = h.iddesc
+                                                join termos t on t.iddesc = d.iddesc
+                                                where (h.lang like ?) and (idhierarq like ?) """, (idioma, idhierarq+'%', )
+                                        ).fetchall()
+        else:
+            dataset = self.cursor.execute("""   select d.namedescTratado, t.nametermTratado, h.idhierarq 
+                                                from hierarquia h
+                                                join descritores d on d.iddesc = h.iddesc
+                                                join termos t on t.iddesc = d.iddesc
+                                                where (h.lang like ?) and (idhierarq like ?) """, (idioma, idhierarq+'%', )
+                                        ).fetchall()
         listagem = set()
         for linha in dataset:
             listagem.add(linha[0])
