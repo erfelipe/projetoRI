@@ -27,7 +27,7 @@ def textoNormalizado(texto):
             lang="en"                       # set to 'de' for German special handling
     )
     return resp
-
+    
 def validaHierarquiaDescritores(idhierarq, lista):
     resposta = []
     tamanho = len(idhierarq)

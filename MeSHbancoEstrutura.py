@@ -287,3 +287,153 @@ class BDMeSH:
                                             where (h.idhierarq like ?) """, (idhierarq+'%', )
                                     ).fetchall()
         return dataset
+
+    def listaTermosDeEntrada(self, termoProcurado, tipoTermo, idioma):
+        """[summary]
+        
+        Arguments:
+            termoProcurado {[type]} -- [description]
+            tipoTermo {[type]} -- [description]
+            idioma {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
+        resultado = self.selecionarIdDescritorPeloNomeDescritor(termoProcurado, tipoTermo, idioma) 
+        idDescritor = str(resultado[0]) 
+        descritorPrincipal = str(resultado[1]) 
+        
+        resultado = self.selectionarTermosDeEntrada(idDescritor, tipoTermo, idioma) 
+        termosEntrada = set()
+        for ent in resultado:
+            if (ent[0] != descritorPrincipal and ent[0] != termoProcurado):
+                termosEntrada.add(ent[0])
+        return termosEntrada
+
+    def listaTermosHierarquicos(self, termoProcurado, tipoTermo, idioma):
+        """[summary]
+        
+        Arguments:
+            termoProcurado {[type]} -- [description]
+            tipoTermo {[type]} -- [description]
+            idioma {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
+        resultado = self.selecionarIdDescritorPeloNomeDescritor(termoProcurado, tipoTermo, idioma) 
+        idDescritor = str(resultado[0]) 
+        descritorPrincipal = str(resultado[1]) 
+
+        resultado = self.selecionarIdsHierarquiaPorIdDescritor(idDescritor, idioma)
+        termosHierarquicos = set()
+        for h in resultado:
+            data = self.selecionarTermosPorIdHierarquico(h[0], tipoTermo, idioma)
+            for item in data:
+                termosHierarquicos.add(item)
+        if (descritorPrincipal in termosHierarquicos):
+            termosHierarquicos.remove(descritorPrincipal)
+        return termosHierarquicos
+
+    def substituiTermosDaFrasePLN(self, frase, termo, lista):
+        """[summary]
+        
+        Arguments:
+            frase {[type]} -- [description]
+            lista {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
+        novasFrases = []
+        for item in lista:
+            novaFrase = frase.replace(termo, item)
+            novasFrases.append(novaFrase)
+        return novasFrases
+
+    def possuiCorrespondenciaNoMeSH(self, idioma, termo, tipoTermo):
+        """[summary]
+        
+        Arguments:
+            idioma {[type]} -- [description]
+            termo {[type]} -- [description]
+            tipoTermo {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
+        if (tipoTermo == 'O'): #original
+            dataset = self.cursor.execute(""" select count(d.iddesc) 
+                                                from descritores d 
+                                                left join termos t on d.iddesc = t.iddesc 
+                                                where (d.lang = ?) and ((d.namedesc like ?) or (t.nameterm like ?)) """, (idioma, termo, termo, )
+                                                ).fetchone()
+        else:
+            dataset = self.cursor.execute(""" select count(d.iddesc) 
+                                                from descritores d 
+                                                left join termos t on d.iddesc = t.iddesc 
+                                                where (d.lang = ?) and ((d.namedescTratado like ?) or (t.nametermTratado like ?)) """, (idioma, termo, termo, )
+                                                ).fetchone()            
+        return dataset[0]
+
+    def identificaSeEstaPresenteNoMeSH(self, tipoTermo, idioma, palavras, inicioPesquisa, fimPesquisa, tEncontrado):
+        """[summary]
+        
+        Arguments:
+            tipoTermo {[type]} -- [description]
+            idioma {[type]} -- [description]
+            palavras {[type]} -- [description]
+            inicioPesquisa {[type]} -- [description]
+            fimPesquisa {[type]} -- [description]
+            tEncontrado {[type]} -- [description]
+        
+        Returns:
+            [type] -- [description]
+        """        
+        if (fimPesquisa >= len(palavras)):
+            return tEncontrado
+        else:
+            if (int(fimPesquisa) > int(inicioPesquisa)):
+                termo = "" 
+                ini = inicioPesquisa
+                while (ini <= fimPesquisa):
+                    termo = str(termo) + " " + str(palavras[ini])
+                    ini += 1
+                termo = termo.strip()
+            else:
+                termo = palavras[inicioPesquisa] 
+            if (self.possuiCorrespondenciaNoMeSH(idioma, termo, tipoTermo) > 0): 
+                tEncontrado = termo 
+            fimPesquisa += 1 
+            return self.identificaSeEstaPresenteNoMeSH(tipoTermo, idioma, palavras, inicioPesquisa, fimPesquisa, tEncontrado) 
+
+    def identificarTermosPelaPLN(self, frase, idioma):
+        """[summary]
+        
+        Arguments:
+            frase {[type]} -- [description]
+            idioma {[type]} -- [description]
+        """
+        fraseOriginal = frase
+        fraseTratada = preProcessamentoTextual.cleanEspecialsChars(fraseOriginal).strip()
+        palavras = fraseTratada.lower().split(" ")
+        inicioPesquisa = 0
+        termosPresentesNoMeSH = []
+        for _ in palavras:
+            tPresenteNoMeSH = self.identificaSeEstaPresenteNoMeSH('O', idioma, palavras, int(inicioPesquisa), int(inicioPesquisa), "")
+            if tPresenteNoMeSH:
+                print(tPresenteNoMeSH)
+                termosPresentesNoMeSH.append(tPresenteNoMeSH)
+                termosEntrada = self.listaTermosDeEntrada(tPresenteNoMeSH, 'O', idioma) 
+                for t in termosEntrada:
+                    print(t)
+                print('----')
+
+                novasFrases = self.substituiTermosDaFrasePLN(fraseOriginal, tPresenteNoMeSH, termosEntrada)
+                for nf in novasFrases:
+                    print(nf)
+
+                # termosHierarquicos = self.listaTermosHierarquicos(tPresenteNoMeSH, 'O', idioma)
+                # for t in (termosHierarquicos):
+                #     print(t)
+            inicioPesquisa += 1
