@@ -25,6 +25,9 @@ PUT articles
       "dcSubject": {
         "type": "text"
       }
+      "dcSource": {
+        "type": "text"
+      }
     }
   }
 }

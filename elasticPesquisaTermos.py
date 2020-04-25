@@ -53,19 +53,36 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	es = elasticsearch.Elasticsearch()
 	es.indices.open("articles")
 	quantTermoProcurado = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termoProcurado, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
-	quantDescritorPrincipal = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": descritorPrincipal, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
+	#quantDescritorPrincipal = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": descritorPrincipal, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
 
 	# Grava no sqlite 
 	bancoElastic = BDelastic(constantes.BD_SQL_ELASTIC)
 	with bancoElastic:
-		idBancoTermoProcurado = bancoElastic.insereTermoProcurado('M', tipoTermo, termoProcurado, quantTermoProcurado, idDescritor, descritorPrincipal, quantDescritorPrincipal )
+		#idBancoTermoProcurado = bancoElastic.insereTermoProcurado('M', tipoTermo, termoProcurado, quantTermoProcurado, idDescritor, descritorPrincipal, quantDescritorPrincipal )
 		# Procura as listas no elastic e grava no banco
-		for tE in termosEntrada:
-			quantTe = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tE, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
-			bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tE, quantTe, 'E')
+		# for tE in termosEntrada:
+		# 	print(tE)
+		# 	#quantTe = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tE, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
+		# 	#bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tE, quantTe, 'E')
+			
+		# 	identificadores = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tE, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']
+			
+		# 	quantTe = identificadores['total']['value']
+		# 	print("quant: " + str(quantTe))
+			
+		# 	for id in identificadores['hits']:
+		# 		print(id["_id"])
+		
+		print("TERMOS HIERARQUICOS")
 		for tH in termosHierarquicos:
-			quantTh = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tH, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
-			bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tH, quantTh, 'H')
+			print(tH)
+			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tH, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']
+			#bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tH, quantTh, 'H')
+			quantTh = resultSet['total']['value']
+			print("quant: " + str(quantTh))
+
+			for item in resultSet['hits']:
+				print(item["_source"]["dcIdentifier"])
 
 def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 	"""Realiza a pesquisa com todas as caracteristicas do instrumento terminologico SNOMED CT
@@ -129,10 +146,11 @@ if __name__ == "__main__":
 	with mesh:
 		mesh.identificarTermosPelaPLN('how to avoid a heart attack today?', 'eng')
 
+	print( " ======== ")
+	searchElasticMeSH('heart attack', 'O', 'eng')
+    
 	exit()
-
-	searchElasticMeSH('infarto do miocárdio[myocardial infarction]', 'O', 'por')
-
+	
 	meshDescritoresOriginais = []
 
 	# meshDescritoresOriginais.append('haloferax')

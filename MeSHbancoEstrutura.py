@@ -14,7 +14,7 @@ class BDMeSH:
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self.conn.commit()
-        self.conn.close() 
+        self.conn.close()
 
     def criarBancoDeDados(self): 
         """ Cria a estrutura do banco de dados da terminologia MeSH
@@ -91,7 +91,7 @@ class BDMeSH:
                                             , descritores.namedesc 
                                             from descritores 
                                             left join termos on descritores.iddesc = termos.iddesc 
-                                            where (descritores.lang like ?) and (termos.lang like ?) and (descritores.namedesc like ?) OR (termos.nameterm like ?) 
+                                            where (descritores.lang like ?) and (termos.lang like ?) and ((descritores.namedesc like ?) OR (termos.nameterm like ?)) 
                                             group by idesc, namedesc """, (idioma, idioma, desc, desc, )
                                      ).fetchone()
         else: #tratado
@@ -99,7 +99,7 @@ class BDMeSH:
                                             , descritores.namedescTratado 
                                             from descritores 
                                             left join termos on descritores.iddesc = termos.iddesc 
-                                            where (descritores.lang like ?) and (termos.lang like ?) and (descritores.namedescTratado like ?) OR (termos.nametermTratado like ?) 
+                                            where (descritores.lang like ?) and (termos.lang like ?) and ((descritores.namedescTratado like ?) OR (termos.nametermTratado like ?)) 
                                             group by idesc, namedesc """, (idioma, idioma, desc, desc, )
                                      ).fetchone()
         return dataset
@@ -134,18 +134,20 @@ class BDMeSH:
             set -- array com descricao, nome do termo e id hierarquico
         """     
         if (tipoTermo == 'O'): # original
-            dataset = self.cursor.execute("""   select d.namedesc, t.nameterm, h.idhierarq 
+            dataset = self.cursor.execute("""   select d.namedesc, t.nameterm
                                                 from hierarquia h
                                                 join descritores d on d.iddesc = h.iddesc
                                                 join termos t on t.iddesc = d.iddesc
-                                                where (h.lang like ?) and (idhierarq like ?) """, (idioma, idhierarq+'%', )
+                                                where (d.lang like ?) and (t.lang like ?) and (idhierarq like ?) 
+                                                group by d.namedesc, t.nameterm """, (idioma, idioma, idhierarq+'%', )
                                         ).fetchall()
         else:
-            dataset = self.cursor.execute("""   select d.namedescTratado, t.nametermTratado, h.idhierarq 
+            dataset = self.cursor.execute("""   select d.namedescTratado, t.nametermTratado
                                                 from hierarquia h
                                                 join descritores d on d.iddesc = h.iddesc
                                                 join termos t on t.iddesc = d.iddesc
-                                                where (h.lang like ?) and (idhierarq like ?) """, (idioma, idhierarq+'%', )
+                                                where (d.lang like ?) and (t.lang like ?) and (idhierarq like ?) 
+                                                group by d.namedescTratado, t.nametermTratado """, (idioma, idioma, idhierarq+'%', )
                                         ).fetchall()
         listagem = set()
         for linha in dataset:
@@ -423,6 +425,7 @@ class BDMeSH:
             tPresenteNoMeSH = self.identificaSeEstaPresenteNoMeSH('O', idioma, palavras, int(inicioPesquisa), int(inicioPesquisa), "")
             if tPresenteNoMeSH:
                 print(tPresenteNoMeSH)
+                print('----')
                 termosPresentesNoMeSH.append(tPresenteNoMeSH)
                 termosEntrada = self.listaTermosDeEntrada(tPresenteNoMeSH, 'O', idioma) 
                 for t in termosEntrada:
