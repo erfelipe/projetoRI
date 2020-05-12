@@ -1,7 +1,6 @@
 # leitura de sistema de arquivo
 import os
-# extracao do texto em pdf para raw
-import tika
+# extracao do texto em pdf para texto puro
 from tika import parser
 # Tkinter help the dialog box
 import tkinter as tk
@@ -19,6 +18,8 @@ from cleantext import clean
 from string import punctuation
 # limpar o texto de espaços repetidos com regex
 import re
+# extracao do texto em pdf para texto puro 
+import fitz
 
 # Calcula o hash de uma arquivo
 def calc_hash(f):
@@ -31,18 +32,44 @@ def calc_hash(f):
             buf = afile.read(BLOCKSIZE)
     return hasher.hexdigest()
 
-# Extract text from PDF
-def extraiPDF(f):
+def extraiPDFtika(arq):
+    """Extrai texto do arquivo PDF usando a biblioteca tika-python
+
+    Arguments:
+        arq {str} -- Arquivo PDF com path
+
+    Returns:
+        list -- Um array contendo duas posicoes: conteudo(texto) e metadados
+    """    
     resultado = []
     #tika.TikaClientOnly = True
-    raw = parser.from_file(f)
+    raw = parser.from_file(arq)
     metadados = raw["metadata"]
     conteudo  = raw["content"] 
-    #conteudo  = str(conteudo)
     #conteudo  = conteudo.encode('utf-8', errors='ignore')
     conteudo  = (conteudo).replace('\n', '').replace('\r\n', '').replace('\r', '').replace('\\', '').replace('\t', ' ')
     resultado.append(conteudo)
     resultado.append(metadados)
+    return resultado
+
+def extraiPDFpyMuPdf(arq):
+    """Extrai texto do arquivo PDF usando a biblioteca pyMuPdf
+
+    Arguments:
+        arq {str} -- Arquivo PDF com path
+
+    Returns:
+        list -- Um array contendo duas posicoes: conteudo(texto) e metadados
+    """    
+    resultado = [] 
+    raw = fitz.open(arq)
+    textoCompleto = ""
+    for page in raw:
+        texto = page.getText("text")
+        textoCompleto = textoCompleto + texto
+    
+    resultado.append(textoCompleto)
+    resultado.append(raw.metadata)
     return resultado
 
 # List of files from directory choosed 
@@ -57,28 +84,100 @@ def list_PDFs(dir):
 def lista_sem_duplicidade2(lista):
     return set(lista)
 
-def montaDocJSONporTexto(hs, tx, mt):
-    descricao = tx
+def montaDocJSONporTextoUsingTika(chavehash, corpo, metadados, nomeArq):
+    """Organiza os dados no formato JSON, apropriado para a gravacao no elasticSearch
+
+    Arguments:
+        chavehash {str} -- codigo hash em sha1
+        corpo {str} -- texto do corpo do artigo
+        metadados {dict} -- dicionario com os metadados do artigo
+        nomeArq {str} -- nome do arquivo pdf
+
+    Returns:
+        str -- uma string em formato JSON
+    """    
+    descricao = ''
     assunto = ''
     titulo = ''
     autores = ''
     data = ''
-    if "dc:description" in mt:
-        assunto = mt["dc:description"]
-    if "dc:title" in mt:
-        titulo = mt["dc:title"]
-    if "dc:creator" in mt:
-        autores = mt["dc:creator"]
-    if "date" in mt:
-        data = mt["date"]
-    
-    estrutura = { 	"dcIdentifier" : hs,
+    idioma = ''
+    formato = ''
+    palavraChave = ''
+    if "dc:description" in metadados:
+        descricao = metadados["dc:description"]
+    if "dc:subject" in metadados:
+        assunto = metadados["dc:subject"]
+    if "dc:title" in metadados:
+        titulo = metadados["dc:title"]
+    if "dc:creator" in metadados:
+        autores = metadados["dc:creator"]
+    if "date" in metadados:
+        data = metadados["date"]
+    if "dc:language" in metadados:
+        idioma = metadados["dc:language"]
+    if "Content-Type" in metadados:
+        formato = metadados["Content-Type"]
+    if "Keywords" in metadados:
+        palavraChave = metadados["Keywords"]
+    estrutura = { 	"dcIdentifier" : chavehash,
                     "dcDate" : data,
-                    "dcLanguage" : "en",
+                    "dcLanguage" : idioma,
                     "dcCreator" : autores, 
                     "dcTitle" : titulo,
                     "dcSubject" : assunto,
-                    "dcDescription" : descricao }
+                    "dcDescription" : descricao,
+                    "dcSource" : nomeArq,
+                    "dcFormat" :  formato,
+                    "keywords" :  palavraChave,
+                    "textBody" : corpo}
+    return estrutura 
+
+def montaDocJSONporTextoUsingPyMuPdf(chavehash, corpo, metadados, nomeArq):
+    """Organiza os dados no formato JSON, apropriado para a gravacao no elasticSearch
+
+    Arguments:
+        chavehash {str} -- codigo hash em sha1
+        corpo {str} -- texto do corpo do artigo
+        metadados {dict} -- dicionario com os metadados do artigo
+        nomeArq {str} -- nome do arquivo pdf
+
+    Returns:
+        str -- uma string em formato JSON
+    """    
+    data = ''
+    autores = ''
+    titulo = ''
+    assunto = ''
+    descricao = ''
+    idioma = 'en'
+    formato = ''
+    palavraChave = ''
+    if "creationDate" in metadados:
+        data = metadados["creationDate"]
+    if "author" in metadados:
+        autores = metadados["author"]
+    if "title" in metadados:
+        titulo = metadados["title"]
+    if "subject" in metadados:
+        assunto = metadados["subject"]
+    if "dc:description" in metadados:
+        descricao = metadados["dc:description"]
+    if "format" in metadados:
+        formato = metadados["format"]
+    if "Keywords" in metadados:
+        palavraChave = metadados["keywords"]
+    estrutura = { 	"dcIdentifier" : chavehash,
+                    "dcDate" : data,
+                    "dcLanguage" : idioma,
+                    "dcCreator" : autores, 
+                    "dcTitle" : titulo,
+                    "dcSubject" : assunto,
+                    "dcDescription" : descricao,
+                    "dcSource" : nomeArq,
+                    "dcFormat" :  formato,
+                    "keywords" :  palavraChave,
+                    "textBody" : corpo}
     return estrutura 
 
 def cleanEspecialsChars(text):

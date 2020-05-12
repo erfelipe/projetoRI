@@ -24,8 +24,17 @@ PUT articles
       },
       "dcSubject": {
         "type": "text"
-      }
+      },
       "dcSource": {
+        "type": "text"
+      },
+      "dcFormat": {
+        "type": "text"
+      },
+      "keywords": {
+        "type": "text"
+      },
+      "textBody": { 
         "type": "text"
       }
     }
@@ -35,3 +44,18 @@ PUT articles
 GET /articles/_search
 
 GET /articles/_mapping
+
+----------
+Dicionario:
+----------
+dcIdentifier - chave hash 
+dcDate - tika: metadados["date"] - pyMuPdf: metadados["creationDate"]
+dcLanguage - tika: metadados["dc:language"] - pyMuPdf: "en" (fixo) 
+dcCreator - tika: metadados["dc:creator"] - pyMuPdf: metadados["author"]
+dcTitle - tika: metadados["dc:title"] - pyMuPdf: metadados["title"]
+dcDescription - tika: metadados["dc:description"] - pyMuPdf: None
+dcSubject - tika: metadados["dc:subject"] - pyMuPdf: metadados["subject"] 
+dcSource - tika: nomeDoArquivo - pyMuPdf: nomeDoArquivo
+dcFormat - tika: metadados["Content-Type"] - pyMuPdf: metadados["format"]
+keywords  - tika: metadados["Keywords"] - pyMuPdf: metadados["keywords"]
+textBody - tika: corpoDoTexo - pyMuPdf: corpoDoTexo 

@@ -23,4 +23,4 @@ LOG_FILE = "/Volumes/SD-64-Interno/Utils/log.txt"
 LIMITE_HIERARQUICO = 20 
 
 #artigos
-PDF_ARTIGOS = "/Volumes/SD-64-Interno/artigosPDFbmc"
+PDF_ARTIGOS = "/Volumes/SD-64-Interno/artigosPDFbmc" 

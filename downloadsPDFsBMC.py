@@ -28,6 +28,8 @@ def abrirArquivo(arq):
     f = open(os.path.join(caminhoDestino, arq), "r")
     if f.mode == "r":
         texto = f.read()
+    else:
+        texto = ""    
     return texto
 
 #retorna um array com os arquivos html
