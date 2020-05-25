@@ -14,8 +14,8 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	   considerando termos hierarquicos (este instrumento nao possui termos relacionados)
 	
 	Arguments:
-		termoProcurado {str} -- Termo comum selecionado previamente em uma lista comum
-		tipoTermo {str} -- O = original e T = tratado
+		termoProcurado {str} -- Termo comum selecionado previamente em uma lista comum OU por entrada de linguagem natural (nova versao) 
+		tipoTermo {str} -- O = original e T = tratado 
 	"""
 	# Procura os todos os termos relacionados
 	bancoMeSH = BDMeSH(constantes.BD_SQL_MESH)
@@ -52,8 +52,8 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
     # Procura os termos no elastic e grava no banco
 	es = elasticsearch.Elasticsearch()
 	es.indices.open("articles")
-	quantTermoProcurado = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termoProcurado, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
-	#quantDescritorPrincipal = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": descritorPrincipal, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
+	quantTermoProcurado = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termoProcurado, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']['total']['value']
+	#quantDescritorPrincipal = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": descritorPrincipal, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']['total']['value']
 
 	# Grava no sqlite 
 	bancoElastic = BDelastic(constantes.BD_SQL_ELASTIC)
@@ -76,7 +76,7 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 		print("TERMOS HIERARQUICOS")
 		for tH in termosHierarquicos:
 			print(tH)
-			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tH, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']
+			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tH, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
 			#bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tH, quantTh, 'H')
 			quantTh = resultSet['total']['value']
 			print("quant: " + str(quantTh))

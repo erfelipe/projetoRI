@@ -18,6 +18,7 @@ MESH_DESCRITORES_COMUNS_TRATADOS = "/Volumes/SD-64-Interno/Utils/descritoresComu
 
 #arquivo de log para debug
 LOG_FILE = "/Volumes/SD-64-Interno/Utils/log.txt"
+LOG_PREPROCESSAMENTOTEXTUAL = "/Volumes/SD-64-Interno/Utils/PreProcessamentoTextual.txt"
 
 #limites para hierarquia terminologia dos instrumentos
 LIMITE_HIERARQUICO = 20 

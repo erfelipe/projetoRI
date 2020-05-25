@@ -9,9 +9,9 @@ from tkinter import filedialog
 import fnmatch
 # hash creation
 import hashlib
-import json
+#import json
 # trocar aspas simples para duplas no JSON
-import ast
+#import ast
 # limpar o texto com diversas funcoes
 from cleantext import clean
 # limpar o texto com caracteres especiais
@@ -20,9 +20,20 @@ from string import punctuation
 import re
 # extracao do texto em pdf para texto puro 
 import fitz
+import logging
+import constantes
 
-# Calcula o hash de uma arquivo
+logging.basicConfig(level=logging.DEBUG, filename=constantes.LOG_PREPROCESSAMENTOTEXTUAL, filemode='w', format='%(process)d - %(name)s - %(levelname)s - %(message)s')
+
 def calc_hash(f):
+    """Calcula o hash de uma arquivo com base no SHA1
+
+    Arguments:
+        f {file} -- Nome do arquivo a ser gerado o hash
+
+    Returns:
+        str -- Codigo hash do arquivo recebido
+    """    
     BLOCKSIZE = 65536
     hasher = hashlib.sha1()
     with open(f, 'rb') as afile:
@@ -62,15 +73,19 @@ def extraiPDFpyMuPdf(arq):
         list -- Um array contendo duas posicoes: conteudo(texto) e metadados
     """    
     resultado = [] 
-    raw = fitz.open(arq)
-    textoCompleto = ""
-    for page in raw:
-        texto = page.getText("text")
-        textoCompleto = textoCompleto + texto
-    
-    resultado.append(textoCompleto)
-    resultado.append(raw.metadata)
-    return resultado
+    try:
+        raw = fitz.open(arq)
+        textoCompleto = ""
+        for page in raw:
+            texto = page.getText("text")
+            textoCompleto = textoCompleto + texto
+
+        resultado.append(textoCompleto)
+        resultado.append(raw.metadata)
+        return resultado
+    except Exception as e:
+        logging.error('Erro na extração do arquivo PDF: ' + arq + str(e))
+        return ""
 
 # List of files from directory choosed 
 def list_PDFs(dir):
@@ -200,7 +215,7 @@ def cleanHifen(text):
 	text = text.replace('- ', ' ')
 	return text
 
-def cleanURLText(text):
+def cleanManyThingsInText(text):
     resp = clean(text,
     fix_unicode=True,               # fix various unicode errors
     to_ascii=True,                  # transliterate to closest ASCII representation
@@ -209,10 +224,10 @@ def cleanURLText(text):
     no_urls=True,                   # replace all URLs with a special token
     no_emails=True,                 # replace all email addresses with a special token
     no_phone_numbers=True,          # replace all phone numbers with a special token
-    no_numbers=True,                # replace all numbers with a special token
-    no_digits=True,                 # replace all digits with a special token
+    no_numbers=False,               # replace all numbers with a special token
+    no_digits=False,                # replace all digits with a special token
     no_currency_symbols=True,       # replace all currency symbols with a special token
-    no_punct=False,                 # fully remove punctuation
+    no_punct=True,                 # fully remove punctuation
     replace_with_url=" ",
     replace_with_email=" ",
     replace_with_phone_number=" ",
@@ -234,40 +249,13 @@ def limparTudo(text):
     text =  cleanLineBreaks(text)
     #na sequencia da quebra de linha, devem ser tratados os hifens 
     text =  cleanHifen(text)
-    #antes de retirar os caracteres especiais, deve ser tratado o clean para urls, emails, etc.. 
-    text =  cleanURLText(text)
+    #antes de retirar os caracteres especiais, devem ser tratadas as urls, emails, lowercase, retirar pontuacao 
+    text =  cleanManyThingsInText(text)
     #apos retirar urls deve se tratar os numeros e caracteres especiais: pontuacao, etc...
     text =  cleanEspecialsChars(text)
     #retirar o exceço de espaçoes entre os termos
     text =  cleanMoreSpaces(text)
     return text
-
-def test():
-    files = []
-    #files.append('/home/eduardo/Documentos/workspace/ArtigosBMC/s12877-019-1235-7.pdf')
-    #files.append('/home/eduardo/Documentos/workspace/ArtigosBMC/s12877-019-1238-4.pdf')
-	#files.append('/home/eduardo/Documentos/workspace/ArtigosBMC/s12877-019-1248-2.pdf')
-    files.append('/home/eduardo/Documentos/workspace/ArtigosBMC/1-s2.0-S0167739X15001028-main.pdf')
-
-    for f in files:
-		# Parse data from file
-        file_data = parser.from_file(f)
-        # Get files text content
-        text = file_data['content']
-        print('------------------')
-        #na verdade alguns termos que podem ser suprimidos como fig, image
-        text = cleanStopWords(text)
-        #a exclusão de quebra de linha afeta os termos hifenizados
-        text = cleanLineBreaks(text)
-        #na sequencia da quebra de linha, devem ser tratados os hifens 
-        text = cleanHifen(text)
-        #antes de retirar os caracteres especiais, deve ser tratado o clean para urls, emails, etc.. 
-        text = cleanURLText(text)
-        #apos retirar urls deve se tratar os numeros e caracteres especiais: pontuacao, etc...
-        text = cleanEspecialsChars(text)
-        text = cleanMoreSpaces(text)
-        print(text)
-        print('++++++++++++++++++')
 
 def suprimirSubstringComLimitadores(text, ini, fim):
     """ Recebe um texto e simbolos como  () [] para retornar apenas o texto FORA dos delimitadores
@@ -316,7 +304,7 @@ def suprimirHifenInicioeFim(text):
 
 def trataDescricao(text): 
     """ Recebe a descricao do conceito e chama outras funcoes para tratar detalhes como:
-        excesso de espacoes, caracteres especiais, separadores, etc. 
+        excesso de espacos, caracteres especiais, separadores, etc. 
 
         Args: 
             param1 (str): texto da descricao do termo 
@@ -378,3 +366,23 @@ def dateToTimeString(dt):
         """
         resp = dt[:4] + '-' + dt[4:6] + '-' + dt[6:]
         return resp
+
+def saveText(texto, fileName, nameLib):
+    """Save the text in a file
+
+    Arguments:
+        texto {str} -- text in str format
+        fileName {str} -- filename (without path in this code)
+        nameLib {str} -- name of extractor project
+    """    
+    arq = open(fileName + "-" + nameLib + ".txt", "w")
+    arq.write(texto) 
+    arq.close()
+
+if __name__ == "__main__":
+    arquivo = "/Volumes/SD-64-Interno/artigosPDFbmc/s12877-019-1277-x.pdf" 
+    fileName = os.path.basename(arquivo)
+    arquivoExtraido = extraiPDFpyMuPdf(arquivo)
+    saveText(arquivoExtraido[0], fileName, 'pyMuPdf-extraido')
+    arquivoLimpo = limparTudo(arquivoExtraido[0]) 
+    saveText(arquivoLimpo, fileName, 'pyMuPdf-limpo') 
