@@ -447,3 +447,5 @@ class BDSnomed:
         elif tabela == 'textdefinition':
             self.inserirTextDefinition(linha)
 
+    def listaTermosProximosConceitualmente(self, termoProcurado, tipoTermo, idioma):
+        pass

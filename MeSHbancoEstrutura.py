@@ -73,8 +73,6 @@ class BDMeSH:
     #  Para cada DESCRITOR pode haver varios TERMOS
     # *********************************************
 
-    # dado uma string, descobrir descritor. pode-se usar termos de entrada. 
-    # retorna o iddesc e o termo de entrada 
     def selecionarIdDescritorPeloNomeDescritor(self, desc, tipoTermo, idioma): 
         """ Dado um determinado descritor "heart attack", retorna o ID e seu nome de descricao
         
@@ -84,7 +82,7 @@ class BDMeSH:
             idioma {str} -- en = ingles e spa = espanhol 
         
         Returns:
-            [dataset] -- Array com ID e nome do descritor, de um indice (0) apenas
+            list -- Array com ID e nome do descritor
         """        
         if (tipoTermo == 'O'): #original
             dataset = self.cursor.execute("""   select descritores.iddesc as idesc 
@@ -104,95 +102,55 @@ class BDMeSH:
                                      ).fetchone()
         return dataset
 
-    # um IdDescritor pode possuir varios IdsHierarquicos 
-    def selecionarIdsHierarquiaPorIdDescritor(self, idDescritor, idioma):
-        """ Dado um determinado ID, selecionar seus IDs hierarquicos
-        
-        Arguments:
-            idDescritor {str} -- Identificador do descritor 0099988
-            idioma {str} -- eng = ingles, es = espanhol, etc...
-        
-        Returns:
-            [dataset] -- Array com varios IDs
-        """        
-        dataset = self.cursor.execute("""   select idhierarq 
-                                            from hierarquia h
-                                            where (h.lang like ?) and (h.iddesc like ?) """, (idioma, idDescritor, )
-                                    ).fetchall()
-        return dataset 
+    def selecionarDescritoresPorIdHierarquico(self, idhierarq, tipoTermo, idioma):
+        """ Retorna uma lista somente com os descritores a partir de um determinado id hierarquico 
+            Ou seja, considera-se neste contexto de termos hierarquicos, as duas classes de palavras da terminologia
 
-    # dado um IdHierarquico, quais termos estao associados a ele
-    def selecionarTermosPorIdHierarquico(self, idhierarq, tipoTermo, idioma):
-        """[summary]
-        
         Arguments:
-            idhierarq {str} -- codigo para identificar a hierarquia do termo
-            idioma {str} -- eng = ingles, es = espanhol, etc...
-            tipoTermo {str} -- O = original e T = tratado
+            idhierarq {str} -- codigo para identificar a hierarquia do termo 
+            idioma {str} -- eng = ingles, es = espanhol, etc... 
+            tipoTermo {str} -- O = original e T = tratado 
 
         Returns:
-            set -- array com descricao, nome do termo e id hierarquico
+            list -- array (set) com descritores de forma unica, sem repeticao 
         """     
         if (tipoTermo == 'O'): # original
-            dataset = self.cursor.execute("""   select d.namedesc, t.nameterm
+            dataset = self.cursor.execute("""   select d.namedesc 
                                                 from hierarquia h
                                                 join descritores d on d.iddesc = h.iddesc
-                                                join termos t on t.iddesc = d.iddesc
-                                                where (d.lang like ?) and (t.lang like ?) and (idhierarq like ?) 
-                                                group by d.namedesc, t.nameterm """, (idioma, idioma, idhierarq+'%', )
+                                                where (d.lang like ?) and (idhierarq like ?) 
+                                                group by d.namedesc """, (idioma, idhierarq+'%', )
                                         ).fetchall()
         else:
-            dataset = self.cursor.execute("""   select d.namedescTratado, t.nametermTratado
+            dataset = self.cursor.execute("""   select d.namedescTratado 
                                                 from hierarquia h
                                                 join descritores d on d.iddesc = h.iddesc
-                                                join termos t on t.iddesc = d.iddesc
-                                                where (d.lang like ?) and (t.lang like ?) and (idhierarq like ?) 
-                                                group by d.namedescTratado, t.nametermTratado """, (idioma, idioma, idhierarq+'%', )
+                                                where (d.lang like ?) and (idhierarq like ?) 
+                                                group by d.namedescTratado """, (idioma, idhierarq+'%', )
                                         ).fetchall()
-        listagem = set()
-        for linha in dataset:
-            listagem.add(linha[0])
-            listagem.add(linha[1])
-        return listagem
+        listagem = set() 
+        for linha in dataset: 
+            listagem.add(linha[0]) 
+        return listagem 
 
-    # qual IdDescritor o IdHierarquia esta relacionado
-    def selecionarIdDescritorPorIdHierarquia(self, idhierarq):
-        """[summary]
+    def selecionarIdDescritoresPorIdHierarquico(self, idhierarq, idioma):
+        """ Retorna os ids dos descritores associados ao id hierarquico e em seu respectivo idioma
         
         Arguments:
-            idhierarq {[type]} -- [description]
-        
+            idhierarq {str} -- identificador hierarquico 
+            idioma {str} -- eng = ingles, es = espanhol, etc... 
+
         Returns:
-            [type] -- [description]
-        """        
-        dataset = self.cursor.execute("""   select iddesc
-                                            from hierarquia 
-                                            where (idhierarq like ?) """, (idhierarq+'%', )
+            str -- Retorna os ids descritores associados ao id hierarquico 
+        """ 
+        dataset = self.cursor.execute("""   select d.iddesc
+                                            from hierarquia h
+                                            join descritores d on d.iddesc = h.iddesc
+                                            where (h.idhierarq like ?) and (d.lang like ?) 
+                                            group by d.iddesc """, (idhierarq+'%', idioma, )
                                     ).fetchall()
         return dataset
 
-    def selectionarTermosDeEntrada(self, iddesc, tipoTermo, idioma):
-        """[summary]
-        
-        Arguments:
-            iddesc {[type]} -- [description]
-            tipoTermo {str} -- O = original e T = tratado
-            idioma {str} -- eng = ingles, es = espanhol, etc...      
-
-        Returns: 
-            [type] -- [description] 
-        """  
-        if (tipoTermo == 'O'): #original
-            dataset = self.cursor.execute("""   select nameterm from termos 
-                                                where  (termos.lang like ?) and (iddesc = ?) 
-                                                order by nameterm """, (idioma, iddesc, )
-                                        ).fetchall()
-        else: #tratado
-            dataset = self.cursor.execute("""   select nametermTratado from termos 
-                                                where  (termos.lang like ?) and (iddesc = ?) 
-                                                order by nameterm """, (idioma, iddesc, )
-                                        ).fetchall()
-        return dataset
 
     def selecionarNomeDoDescritor(self, iddesc):
         """ Dado um codigo de descritor, retorna sua descricao textual
@@ -225,7 +183,7 @@ class BDMeSH:
         return dataset[0]
 
     def selecionarNomesDeAmbosDescritores(self, iddesc):
-        """ Dado um codigo de descritor, retorna suas descricoes textuais
+        """ Dado um codigo de descritor, retorna suas descricoes textuais, original e tratado
         
         Arguments:
             iddesc {str} -- Codigo do descritor, exemplo D000001
@@ -266,6 +224,31 @@ class BDMeSH:
                                     ).fetchall()
         return dataset
 
+    def selecionarDescritoresHierarquicos(self, termoProcurado, tipoTermo, idioma):
+        """ Retorna uma lista com os descritores hierarquicos a partir de um termo procurado da terminologia MeSH
+
+        Arguments:
+            termoProcurado {str} -- Termo da terminologia MeSH 
+            tipoTermo {str} -- 'O' = original
+            idioma {str} -- 'eng' = ingles
+        
+        Returns:
+            list -- Array com termos hierarquicos, unicos (set) 
+        """        
+        resultado = self.selecionarIdDescritorPeloNomeDescritor(termoProcurado, tipoTermo, idioma) 
+        idDescritor = str(resultado[0]) 
+        descritorPrincipal = str(resultado[1]) 
+
+        resultado = self.selecionarIdsHierarquiaPorIdDescritor(idDescritor, idioma)
+        descHierarquicos = set()
+        for id in resultado:
+            DescritoresPorIdHierarquico = self.selecionarDescritoresPorIdHierarquico(id[0], tipoTermo, idioma)
+            for desc in DescritoresPorIdHierarquico:
+                descHierarquicos.add(desc)
+        if (descritorPrincipal in descHierarquicos):
+            descHierarquicos.remove(descritorPrincipal)
+        return descHierarquicos
+
     def selecionarTodosTermos(self):
         """ Retorna todos os termos de entrada (entry terms) cadastrados no MeSH
         
@@ -290,62 +273,103 @@ class BDMeSH:
                                     ).fetchall()
         return dataset
 
-    def listaTermosDeEntrada(self, termoProcurado, tipoTermo, idioma):
-        """[summary]
+    def selecionarTermosDeEntradaPeloIdDescritor(self, iddesc, tipoTermo, idioma):
+        """ Dado um identificador de descritor, retorna os termos de entrada (entry terms) 
         
         Arguments:
-            termoProcurado {[type]} -- [description]
-            tipoTermo {[type]} -- [description]
-            idioma {[type]} -- [description]
+            iddesc {str} -- Identificador do descritor
+            tipoTermo {str} -- O = original e T = tratado
+            idioma {str} -- eng = ingles, es = espanhol, etc...      
+
+        Returns: 
+            list -- Nomes dos termos associados a determinado descritor
+        """  
+        if (tipoTermo == 'O'): #original
+            dataset = self.cursor.execute("""   select nameterm from termos 
+                                                where  (termos.lang like ?) and (iddesc = ?) 
+                                                order by nameterm """, (idioma, iddesc, )
+                                        ).fetchall()
+        else: #tratado
+            dataset = self.cursor.execute("""   select nametermTratado from termos 
+                                                where  (termos.lang like ?) and (iddesc = ?) 
+                                                order by nameterm """, (idioma, iddesc, )
+                                        ).fetchall()
+        return dataset
+
+    def selecionarTermosDeEntradaDeUmDescritor(self, termoProcurado, tipoTermo, idioma):
+        """ A partir do termo procurado, indentifica os termos de entrada relacionados ao mesmo
+        
+        Arguments:
+            termoProcurado {str} -- Termo previamente selecionado da terminologia MeSH
+            tipoTermo {str} -- 'O' = original
+            idioma {str} -- 'eng' = ingles
         
         Returns:
-            [type] -- [description]
+            set -- Array com elementos unicos (sem repeticao) 
         """        
         resultado = self.selecionarIdDescritorPeloNomeDescritor(termoProcurado, tipoTermo, idioma) 
         idDescritor = str(resultado[0]) 
         descritorPrincipal = str(resultado[1]) 
         
-        resultado = self.selectionarTermosDeEntrada(idDescritor, tipoTermo, idioma) 
+        resultado = self.selecionarTermosDeEntradaPeloIdDescritor(idDescritor, tipoTermo, idioma) 
         termosEntrada = set()
         for ent in resultado:
             if (ent[0] != descritorPrincipal and ent[0] != termoProcurado):
                 termosEntrada.add(ent[0])
         return termosEntrada
 
-    def listaTermosHierarquicos(self, termoProcurado, tipoTermo, idioma):
-        """[summary]
-        
+    def selecionarTermosDeEntradaHierarquicos(self, termoProcurado, tipoTermo, idioma):
+        """ A partir do termo procurado, indentifica os termos de entrada relacionados em seus sub descritores
+
         Arguments:
-            termoProcurado {[type]} -- [description]
-            tipoTermo {[type]} -- [description]
-            idioma {[type]} -- [description]
-        
+            termoProcurado {str} -- Termo previamente selecionado da terminologia MeSH
+            tipoTermo {str} -- 'O' = original
+            idioma {str} -- 'eng' = ingles
+
         Returns:
-            [type] -- [description]
+            set -- Array com elementos unicos (sem repeticao) 
         """        
         resultado = self.selecionarIdDescritorPeloNomeDescritor(termoProcurado, tipoTermo, idioma) 
-        idDescritor = str(resultado[0]) 
-        descritorPrincipal = str(resultado[1]) 
+        idDescritorPrincipal = str(resultado[0]) 
+        idsHierarquicos = self.selecionarIdsHierarquiaPorIdDescritor(idDescritorPrincipal, idioma)
 
-        resultado = self.selecionarIdsHierarquiaPorIdDescritor(idDescritor, idioma)
-        termosHierarquicos = set()
-        for h in resultado:
-            data = self.selecionarTermosPorIdHierarquico(h[0], tipoTermo, idioma)
-            for item in data:
-                termosHierarquicos.add(item)
-        if (descritorPrincipal in termosHierarquicos):
-            termosHierarquicos.remove(descritorPrincipal)
-        return termosHierarquicos
+        termosEntradaHierarquicos = set()
+        for idHierarquico in idsHierarquicos:
+            IdDescritores = self.selecionarIdDescritoresPorIdHierarquico(idHierarquico[0], idioma)
+            for idDesc in IdDescritores:
+                termosEntrada = self.selecionarTermosDeEntradaPeloIdDescritor(idDesc[0], tipoTermo, idioma) 
+                for termo in termosEntrada:
+                    termosEntradaHierarquicos.add(termo[0])
+        
+        return termosEntradaHierarquicos
 
-    def substituiTermosDaFrasePLN(self, frase, termo, lista):
-        """[summary]
+    def selecionarIdsHierarquiaPorIdDescritor(self, idDescritor, idioma):
+        """ Dado um determinado ID, selecionar seus IDs hierarquicos
+            obs: um IdDescritor pode possuir varios IdsHierarquicos 
         
         Arguments:
-            frase {[type]} -- [description]
-            lista {[type]} -- [description]
+            idDescritor {str} -- Identificador do descritor 0099988
+            idioma {str} -- eng = ingles, es = espanhol, etc...
         
         Returns:
-            [type] -- [description]
+            dataset -- Array com varios IDs
+        """        
+        dataset = self.cursor.execute("""   select idhierarq 
+                                            from hierarquia h
+                                            where (h.lang like ?) and (h.iddesc like ?) """, (idioma, idDescritor, )
+                                    ).fetchall()
+        return dataset 
+
+    def substituiTermosDaFrasePLN(self, frase, termo, lista):
+        """ Retorna novas frases a partir do termo encontrado na terminologia, substituindo o termo na parte da frase
+            pelos outros termos hierarquicos ou de entrada, passados pela lista 
+        
+        Arguments:
+            frase {str} -- Frase original em linguagem natural
+            lista {list} -- Termos hierarquicos ou de entrada, relacionados ao termo encontrado na terminologia
+        
+        Returns:
+            list -- Array com as frases modificadas com termos hierarquicos ou de entrada no lugar do termo original
         """        
         novasFrases = []
         for item in lista:
@@ -354,15 +378,15 @@ class BDMeSH:
         return novasFrases
 
     def possuiCorrespondenciaNoMeSH(self, idioma, termo, tipoTermo):
-        """[summary]
+        """ Recebe um termo e pesquisa na terminologia se ha correspondencia identica
         
         Arguments:
-            idioma {[type]} -- [description]
-            termo {[type]} -- [description]
-            tipoTermo {[type]} -- [description]
+            idioma {str} -- 'eng' = ingles
+            termo {str} -- Termo a ser pesquisado na terminologia MeSH
+            tipoTermo {str} -- 'O' = Original
         
         Returns:
-            [type] -- [description]
+            int -- Quantidade de termos identicos encontrados. Se > 0, foi encontrado. 
         """        
         if (tipoTermo == 'O'): #original
             dataset = self.cursor.execute(""" select count(d.iddesc) 
@@ -379,18 +403,19 @@ class BDMeSH:
         return dataset[0]
 
     def identificaSeEstaPresenteNoMeSH(self, tipoTermo, idioma, palavras, inicioPesquisa, fimPesquisa, tEncontrado):
-        """[summary]
+        """ Recebe uma frase, quebra em tokens e deste array resultante, faz pesquisas incrementais para encontrar
+            qual termo esta presente na terminologia MeSH
         
         Arguments:
-            tipoTermo {[type]} -- [description]
-            idioma {[type]} -- [description]
-            palavras {[type]} -- [description]
-            inicioPesquisa {[type]} -- [description]
-            fimPesquisa {[type]} -- [description]
-            tEncontrado {[type]} -- [description]
+            tipoTermo {str} -- 'O' = Original
+            idioma {str} -- 'en' = ingles
+            palavras {list} -- Array com os termos da frase ja separados, em minuscula, sem pontuacao
+            inicioPesquisa {int} -- Posicao do array onde comeca a pesquia
+            fimPesquisa {int} -- Posicao do array para marcar o termino da pesquisa
+            tEncontrado {str} -- Temos encontrado na terminologia MeSH
         
         Returns:
-            [type] -- [description]
+            str -- Termo encontrado na terminologia MeSH
         """        
         if (fimPesquisa >= len(palavras)):
             return tEncontrado
@@ -410,11 +435,12 @@ class BDMeSH:
             return self.identificaSeEstaPresenteNoMeSH(tipoTermo, idioma, palavras, inicioPesquisa, fimPesquisa, tEncontrado) 
 
     def identificarTermosPelaPLN(self, frase, idioma):
-        """[summary]
+        """ Recebe uma frase de entrada em Linguagem Natural e identifica quais os termos da frase estao presentes 
+            na terminologia MeSH
         
         Arguments:
-            frase {[type]} -- [description]
-            idioma {[type]} -- [description]
+            frase {str} -- Frase em Linguagem Natural
+            idioma {str} -- 'O' = original
         """
         fraseOriginal = frase
         fraseTratada = preProcessamentoTextual.cleanEspecialsChars(fraseOriginal).strip()
@@ -427,7 +453,7 @@ class BDMeSH:
                 print(tPresenteNoMeSH)
                 print('----')
                 termosPresentesNoMeSH.append(tPresenteNoMeSH)
-                termosEntrada = self.listaTermosDeEntrada(tPresenteNoMeSH, 'O', idioma) 
+                termosEntrada = self.selecionarTermosDeEntradaDeUmDescritor(tPresenteNoMeSH, 'O', idioma) 
                 for t in termosEntrada:
                     print(t)
                 print('----')

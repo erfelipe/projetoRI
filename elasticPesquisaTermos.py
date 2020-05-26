@@ -7,7 +7,7 @@ import constantes
 import logging 
 import itertools
 
-logging.basicConfig(filename=constantes.LOG_FILE, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.StreamHandler().setLevel(logging.DEBUG)
 
 def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	"""Realiza a pesquisa com todas as caracteristicas do instrumento terminologico MeSH
@@ -20,35 +20,16 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	# Procura os todos os termos relacionados
 	bancoMeSH = BDMeSH(constantes.BD_SQL_MESH)
 	with bancoMeSH:
-		# resposta = bancoMeSH.selecionarIdDescritorPeloNomeDescritor(termoProcurado, tipoTermo, idioma) 
-		# idDescritor = str(resposta[0]) 
-		# descritorPrincipal = str(resposta[1]) 
-		
-		# print("MeSH processando: " + termoProcurado + " id " + str(idDescritor) + " principal: " + descritorPrincipal)
-		
-		# resposta = bancoMeSH.selecionarIdsHierarquiaPorIdDescritor(idDescritor, idioma)
-		# termosHierarquicos = set()
-		# for h in resposta:
-		# 		data = bancoMeSH.selecionarTermosPorIdHierarquico(h[0], tipoTermo, idioma)
-		# 		for item in data:
-		# 				termosHierarquicos.add(item)
+		# termosEntrada = bancoMeSH.selecionarTermosDeEntradaDeUmDescritor(termoProcurado, tipoTermo, idioma) 
+		# print(termosEntrada)
 
-		# resposta = bancoMeSH.selectionarTermosDeEntrada(idDescritor, tipoTermo, idioma)
-		# termosEntrada = set()
-		# for ent in resposta:
-		# 		if (ent[0] != descritorPrincipal and ent[0] != termoProcurado):
-		# 				termosEntrada.add(ent[0])
-		# 		if (ent[0] in termosHierarquicos):
-		# 				termosHierarquicos.remove(ent[0])
-		
-		# if (termoProcurado in termosHierarquicos):
-		# 		termosHierarquicos.remove(termoProcurado)
-		# if (descritorPrincipal in termosHierarquicos):
-		# 		termosHierarquicos.remove(descritorPrincipal)
+		termosEntradaHierarquicos = bancoMeSH.selecionarTermosDeEntradaHierarquicos(termoProcurado, tipoTermo, idioma)
+		print(termosEntradaHierarquicos)
 
-		termosEntrada = bancoMeSH.listaTermosDeEntrada(termoProcurado, tipoTermo, idioma) 
-		termosHierarquicos = bancoMeSH.listaTermosHierarquicos(termoProcurado, tipoTermo, idioma)
+		descritoresHierarquicos = bancoMeSH.selecionarDescritoresHierarquicos(termoProcurado, tipoTermo, idioma)
+		print(descritoresHierarquicos)
 
+	exit()	
     # Procura os termos no elastic e grava no banco
 	es = elasticsearch.Elasticsearch()
 	es.indices.open("articles")
@@ -73,10 +54,9 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 		# 	for id in identificadores['hits']:
 		# 		print(id["_id"])
 		
-		print("TERMOS HIERARQUICOS")
-		for tH in termosHierarquicos:
-			print(tH)
-			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tH, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
+		logging.info("Processando termos hierarquicos do MeSH")
+		for desc in descritoresHierarquicos:
+			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": desc, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
 			#bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tH, quantTh, 'H')
 			quantTh = resultSet['total']['value']
 			print("quant: " + str(quantTh))
@@ -142,11 +122,12 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 
 if __name__ == "__main__":
 
-	mesh = BDMeSH(constantes.BD_SQL_MESH)
-	with mesh:
-		mesh.identificarTermosPelaPLN('how to avoid a heart attack today?', 'eng')
+	# mesh = BDMeSH(constantes.BD_SQL_MESH)
+	# with mesh:
+	# 	mesh.identificarTermosPelaPLN('how to avoid a heart attack today?', 'eng')
 
-	print( " ======== ")
+	# print( " ======== ")
+
 	searchElasticMeSH('heart attack', 'O', 'eng')
     
 	exit()
