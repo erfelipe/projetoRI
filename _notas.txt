@@ -35,3 +35,7 @@ Problemas:
 
 
 # Considerar na ontologia, como as demais relacoes podem adicionar valor a consulta, (object properties) estude isso! Preste atençao no RANGE que deve ser o elo de ligacao entre os termos. 
+
+
+	quantTermoProcurado = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termoProcurado, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']['total']['value']
+	#quantDescritorPrincipal = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": descritorPrincipal, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']['total']['value']

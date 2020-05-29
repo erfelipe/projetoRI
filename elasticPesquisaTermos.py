@@ -6,8 +6,9 @@ from elasticBancoEstrutura import BDelastic
 import constantes 
 import logging 
 import itertools
+import json 
 
-logging.StreamHandler().setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	"""Realiza a pesquisa com todas as caracteristicas do instrumento terminologico MeSH
@@ -16,54 +17,37 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	Arguments:
 		termoProcurado {str} -- Termo comum selecionado previamente em uma lista comum OU por entrada de linguagem natural (nova versao) 
 		tipoTermo {str} -- O = original e T = tratado 
+		idioma {str} -- 'en' = ingles
+
+	Returns:
+		dict -- Um dicionario com uma lista de conjunto complexo da pesquisa de descritores e termos do MeSH 
 	"""
-	# Procura os todos os termos relacionados
 	bancoMeSH = BDMeSH(constantes.BD_SQL_MESH)
 	with bancoMeSH:
-		# termosEntrada = bancoMeSH.selecionarTermosDeEntradaDeUmDescritor(termoProcurado, tipoTermo, idioma) 
-		# print(termosEntrada)
-
-		termosEntradaHierarquicos = bancoMeSH.selecionarTermosDeEntradaHierarquicos(termoProcurado, tipoTermo, idioma)
-		print(termosEntradaHierarquicos)
-
 		descritoresHierarquicos = bancoMeSH.selecionarDescritoresHierarquicos(termoProcurado, tipoTermo, idioma)
-		print(descritoresHierarquicos)
+		termosEntradaHierarquicos = bancoMeSH.selecionarTermosDeEntradaHierarquicos(termoProcurado, tipoTermo, idioma)
 
-	exit()	
-    # Procura os termos no elastic e grava no banco
 	es = elasticsearch.Elasticsearch()
 	es.indices.open("articles")
-	quantTermoProcurado = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termoProcurado, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']['total']['value']
-	#quantDescritorPrincipal = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": descritorPrincipal, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']['total']['value']
+	itensEncontrados = []
+	logging.debug("Processando termos hierarquicos do MeSH")
+	for desc in descritoresHierarquicos:
+		resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": desc, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
+		for item in resultSet['hits']:
+			itensEncontrados.append([desc, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
 
-	# Grava no sqlite 
-	bancoElastic = BDelastic(constantes.BD_SQL_ELASTIC)
-	with bancoElastic:
-		#idBancoTermoProcurado = bancoElastic.insereTermoProcurado('M', tipoTermo, termoProcurado, quantTermoProcurado, idDescritor, descritorPrincipal, quantDescritorPrincipal )
-		# Procura as listas no elastic e grava no banco
-		# for tE in termosEntrada:
-		# 	print(tE)
-		# 	#quantTe = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tE, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']['total']['value']
-		# 	#bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tE, quantTe, 'E')
-			
-		# 	identificadores = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": tE, "type": "phrase", "fields": [ "dcTitle", "dcDescription" ]}}})['hits']
-			
-		# 	quantTe = identificadores['total']['value']
-		# 	print("quant: " + str(quantTe))
-			
-		# 	for id in identificadores['hits']:
-		# 		print(id["_id"])
-		
-		logging.info("Processando termos hierarquicos do MeSH")
-		for desc in descritoresHierarquicos:
-			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": desc, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
-			#bancoElastic.insereTermoAssociado(idBancoTermoProcurado, tH, quantTh, 'H')
-			quantTh = resultSet['total']['value']
-			print("quant: " + str(quantTh))
+	for termo in termosEntradaHierarquicos:
+		resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termo, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
+		for item in resultSet['hits']:
+			itensEncontrados.append([termo, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
+	resposta = {}
+	resposta["MeSH"] = itensEncontrados
 
-			for item in resultSet['hits']:
-				print(item["_source"]["dcIdentifier"])
+	with open('search.json', 'w') as f:
+		json.dump(resposta, f, indent=4)
 
+	return resposta
+	
 def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 	"""Realiza a pesquisa com todas as caracteristicas do instrumento terminologico SNOMED CT
 	   considerando termos hierarquicos e relacionados (este instrumento possui o conceito de termos relacionados)
@@ -122,11 +106,13 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 
 if __name__ == "__main__":
 
-	# mesh = BDMeSH(constantes.BD_SQL_MESH)
-	# with mesh:
-	# 	mesh.identificarTermosPelaPLN('how to avoid a heart attack today?', 'eng')
+	mesh = BDMeSH(constantes.BD_SQL_MESH)
+	with mesh:
+		mesh.identificarTermosPelaPLN('how to avoid a heart attack today?', 'eng')
 
-	# print( " ======== ")
+	print( " ======== ")
+
+	searchElasticSnomed('heart attack', 'O', 'eng')
 
 	searchElasticMeSH('heart attack', 'O', 'eng')
     

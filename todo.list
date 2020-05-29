@@ -1,8 +1,0 @@
-
-OK - Resolver o codigo de popular, observando se o hash jah foi armazenado antes 
-- Parse para tratar o retorno dos itens filhos, atualmente vem o codigo e o label misturado 
-- Querys: a) boleana pelo label inicial, b) gerador de sub-query para os itens filhos de 1 nivel 
-
-# Vou usar quantos níveis de profundidade na pesquisa dos termos filhos? 
-
-

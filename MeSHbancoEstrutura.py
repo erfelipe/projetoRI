@@ -412,7 +412,7 @@ class BDMeSH:
             palavras {list} -- Array com os termos da frase ja separados, em minuscula, sem pontuacao
             inicioPesquisa {int} -- Posicao do array onde comeca a pesquia
             fimPesquisa {int} -- Posicao do array para marcar o termino da pesquisa
-            tEncontrado {str} -- Temos encontrado na terminologia MeSH
+            tEncontrado {str} -- Termo encontrado na terminologia MeSH
         
         Returns:
             str -- Termo encontrado na terminologia MeSH
