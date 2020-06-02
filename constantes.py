@@ -21,7 +21,7 @@ LOG_FILE = "/Volumes/SD-64-Interno/Utils/log.txt"
 LOG_PREPROCESSAMENTOTEXTUAL = "/Volumes/SD-64-Interno/Utils/PreProcessamentoTextual.txt"
 
 #limites para hierarquia terminologia dos instrumentos
-LIMITE_HIERARQUICO = 20 
+LIMITE_HIERARQUICO = 200
 
 #artigos
 PDF_ARTIGOS = "/Volumes/SD-64-Interno/artigosPDFbmc" 
