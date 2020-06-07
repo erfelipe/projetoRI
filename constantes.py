@@ -7,7 +7,7 @@ BD_SQL_SNOMED = "/Volumes/SD-64-Interno/BancosSQL/db-snomed-RF2.sqlite3"
 TERMINOLOGIA_SNOMED_PATH = "/Volumes/SD-64-Interno/SnomedCT_SpanishRelease-es_PRODUCTION_20191031T120000Z/RF2Release/Snapshot/Terminology/"
 TERMINOLOGIA_MESH_XML = "/Volumes/SD-64-Interno/MeSH2020/desc2020.xml"
 
-#deprecated
+#deprecated 
 TERMOS_COMUNS_JSON = "/Volumes/SD-64-Interno/Utils/termosComuns.json"
 
 #descritores/termos comuns em ambas terminologias

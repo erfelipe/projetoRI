@@ -450,15 +450,15 @@ class BDSnomed:
                 return listFinding
 
     def selecionarIdPrincipalDoTermo(self, termo):
-        """[summary]
+        """ A partir de um termo, seleciona-se o identificador principal
 
         Arguments:
-            termo {[type]} -- [description]
-            tipoTermo {[type]} -- [description]
-            idioma {[type]} -- [description]
+            termo {str} -- Termo procurado
+            tipoTermo {str} -- 'O' = original
+            idioma {str} -- 'en' = ingles 
 
         Returns:
-            [type] -- [description]
+            str -- Codigo identificador 
         """   
         iDsRelacionados = self.selecionarConceptIdsPorTermo(termo)
         logging.info("SNOMED - termo: %s - idsRelacionados: %s" , str(termo), str(iDsRelacionados))

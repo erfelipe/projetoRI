@@ -120,7 +120,7 @@ def procuraNoSnomedPelaHierarquiaDeDescritoresMesh(codHierarquico):
     descritoresOriginais = set()
     descritoresTratados = set()
     vocabularioOriginal = set()
-    vocabularioTratado = set()
+    vocabularioTratado = set() 
 
     bancoMeSH = BDMeSH(constantes.BD_SQL_MESH)
     with bancoMeSH:

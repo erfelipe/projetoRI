@@ -240,7 +240,7 @@ class BDMeSH:
         descritorPrincipal = str(resultado[1]) 
 
         resultado = self.selecionarIdsHierarquiaPorIdDescritor(idDescritor, idioma)
-        descHierarquicos = set()
+        descHierarquicos = set() 
         for id in resultado:
             DescritoresPorIdHierarquico = self.selecionarDescritoresPorIdHierarquico(id[0], tipoTermo, idioma)
             for desc in DescritoresPorIdHierarquico:

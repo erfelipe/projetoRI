@@ -7,7 +7,7 @@ TIKA_JAR_URL="http://search.maven.org/remotecontent?filepath=org/apache/tika/tik
 TIKA_WORKSPACE=$HOME/tika
 TIKA_FILE_NAME="tika_server.jar"
 
-echo -e "Usuario corrent $CURRENT_USER"
+echo -e "Usuario corrent $CURRENT_USER" 
 
 if [ ! -f $TIKA_WORKSPACE/$TIKA_FILE_NAME ]; then
 	echo -e "Fazendo download do tika-server.jar"

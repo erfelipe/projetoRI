@@ -25,7 +25,7 @@ def processarPDFparaElastic():
             metadados = (doc[1])
             nomeArq = os.path.basename(arq)
             docJSON  = preProcessamentoTextual.montaDocJSONporTextoUsingPyMuPdf(chavehash, corpo, metadados, nomeArq)
-        
+         
             es.index(index="articles", body=docJSON)
             logging.info("Arquivo gravado: " + arq + " | " + chavehash)
         else:

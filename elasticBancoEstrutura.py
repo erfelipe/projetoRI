@@ -14,7 +14,7 @@ class BDelastic:
         self.conn.commit()
         self.conn.close() 
 
-    def criarBancoDeDados(self): 
+    def criarBancoDeDados(self):  
         """ Executa comandos para criacao da estrutura do banco de dados
             Args: 
                 self: referencia a propria classe

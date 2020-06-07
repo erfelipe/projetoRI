@@ -36,7 +36,7 @@ def main():
             for tn in tnumber:
                 numerosHierarquicos.append(normalizaTreeNumberList(tn.text))
 
-        conceitosRelacionados = []
+        conceitosRelacionados = [] 
         conceptList = descRecords.findall("ConceptList")
         for cl in conceptList:
             concept = cl.findall("Concept")

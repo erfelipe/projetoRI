@@ -5,7 +5,7 @@ def textoSingular(texto):
     resp = singularize(texto)
     return resp
 
-def textoNormalizado(texto):
+def textoNormalizado(texto): 
     resp = clean(texto,
             fix_unicode=True,               # fix various unicode errors
             to_ascii=True,                  # transliterate to closest ASCII representation

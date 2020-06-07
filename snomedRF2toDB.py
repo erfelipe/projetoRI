@@ -57,7 +57,7 @@ def tematicaDoArquivoSnomed(arquivo):
     Returns:
         str -- A segunda parte do nome, neste exemplo 'concept'
     """
-    partes = arquivo.split('_')
+    partes = arquivo.split('_') 
     return partes[1].lower()
 
 def importaRF2ParaSqliteSNOMED():

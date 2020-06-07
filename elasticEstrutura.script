@@ -45,7 +45,7 @@ GET /articles/_search
 
 GET /articles/_mapping
 
-----------
+---------- 
 Dicionario:
 ----------
 dcIdentifier - chave hash 

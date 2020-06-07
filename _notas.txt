@@ -20,7 +20,7 @@ Metodologia:
 Problemas:
 - A conversão do PDF para TXT não é "perfeita".
 * Consultar o site do greenstone com relaçao a termos errados, se ha alguma soluçao. 
-
+ 
 - Vários termos estão separados entre vírgula, (como proceder)? 
 * A principio, explicitar como problema e ignorar na consulta;
 # Revisar essa regra

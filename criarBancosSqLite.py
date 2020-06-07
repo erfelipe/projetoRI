@@ -31,7 +31,7 @@ def criarBancoSNOMED():
             bancoSnomed.criarBancoDeDados() 
         snomedRF2toDB.importaRF2ParaSqliteSNOMED()
 
-def criarBancoMeSH():
+def criarBancoMeSH(): 
     """ Exclui e cria novo banco sqLite para armazenar a terminologia MeSH em formato relacional
     """    
     respCriar = input("Criar sqLite MESH? (S/N): ")

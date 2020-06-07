@@ -227,7 +227,7 @@ def cleanManyThingsInText(text):
     no_numbers=False,               # replace all numbers with a special token
     no_digits=False,                # replace all digits with a special token
     no_currency_symbols=True,       # replace all currency symbols with a special token
-    no_punct=True,                 # fully remove punctuation
+    no_punct=True,                  # fully remove punctuation
     replace_with_url=" ",
     replace_with_email=" ",
     replace_with_phone_number=" ",
@@ -368,7 +368,7 @@ def dateToTimeString(dt):
         return resp
 
 def saveText(texto, fileName, nameLib):
-    """Save the text in a file
+    """ Salva o arquivo texto com nome da biblioteca usada 
 
     Arguments:
         texto {str} -- text in str format

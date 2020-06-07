@@ -12,7 +12,7 @@ urlBasePagina = 'https://bmcgeriatr.biomedcentral.com/articles?searchType=journa
 urlBasePdf = 'https://bmcgeriatr.biomedcentral.com/track/pdf/'
 caminhoDestino = '/Volumes/SD-64-Interno/artigosPDFbmc/'
 
-def gravarArquivo(texto, arq):
+def gravarArquivo(texto, arq): 
     f = open(os.path.join(caminhoDestino, arq), "w+")
     f.write(texto)
     print('Arquivo gravado: ' + arq)

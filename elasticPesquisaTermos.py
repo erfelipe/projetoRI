@@ -1,8 +1,8 @@
+from logging import debug
 import multiprocessing 
 import elasticsearch 
 from MeSHbancoEstrutura import BDMeSH 
 from snomedRF2bancoEstrutura import BDSnomed 
-from elasticBancoEstrutura import BDelastic 
 import constantes 
 import logging 
 import itertools
@@ -87,6 +87,67 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 
 	return resposta
 
+def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
+	"""[summary]
+
+	Arguments:
+		mesh {[type]} -- [description]
+		snomed {[type]} -- [description]
+		termoProcurado {[type]} -- [description]
+	"""
+	listaMeSH = mesh["MeSH"] 
+	listaSnomed = snomed["SNOMED"] 
+	itemsIguais = set()
+	for itemMesh in listaMeSH: 
+		hashMesh = itemMesh[1] 
+		for itemSnomed in listaSnomed: 
+			hashSnomed = itemSnomed[1] 
+			if hashSnomed == hashMesh: 
+				itemsIguais.add(hashSnomed) 
+	totalArtigosMeSH = len(listaMeSH) 
+	totalArtigosSnomed = len(listaSnomed) 
+	totalArtigosComuns = len(itemsIguais) 
+	totalArtigosUnicosSnomed = totalArtigosMeSH - totalArtigosComuns
+	resultado = {}
+	resultado['termo'] = termoProcurado
+	resultado['totalArtigosMeSH'] = totalArtigosMeSH
+	resultado['totalArtigosSnomed'] = totalArtigosSnomed 
+	resultado['totalArtigosComuns'] = totalArtigosComuns
+	resultado['totalArtigosUnicosSnomed'] = totalArtigosUnicosSnomed 
+
+	totalArtigosRepetidosMesh = quantItemsRepetidosEmUmaLista(listaMeSH)
+	totalArtigosRepetidosSnomed = quantItemsRepetidosEmUmaLista(listaSnomed)
+	resultado['totalArtigosRepetidosMesh'] = totalArtigosRepetidosMesh
+	resultado['totalArtigosRepetidosSnomed'] = totalArtigosRepetidosSnomed
+
+	with open('resultadoComparacao.json', 'w') as f:
+		json.dump(resultado, f, indent=4)
+
+def quantItemsRepetidosEmUmaLista(listaTratada):
+	""" Realiza uma contagem de itens repetidos em uma lista (array) 
+		Considerando uma lista unica (set) da propria lista, exclui-se o item pesquisado para que nao seja contado duas vezes
+
+	Arguments:
+		lista {list} -- Listagem de itens (array)
+
+	Returns:
+		int -- Quantidade de itens repetidos em uma determinada lista
+	"""	
+	listaTotal = []
+	for item in listaTratada:
+		listaTotal.append(item[1])
+	quantItemsRepetidos = 0
+	listaUnica = set(listaTotal) 
+	for item in listaUnica:
+		if item in listaTotal:
+			listaTotal.remove(item)
+		for itemTotal in listaTotal:
+			if (item == itemTotal):
+				quantItemsRepetidos += 1
+		listaSemItemAtual = [it for it in listaTotal if it != item]
+		listaTotal = listaSemItemAtual
+	return quantItemsRepetidos
+
 if __name__ == "__main__":
 
 	# mesh = BDMeSH(constantes.BD_SQL_MESH)
@@ -95,9 +156,18 @@ if __name__ == "__main__":
 
 	# print( " ======== ")
 
-	searchElasticSnomed('heart attack', 'O', 'en')
-	# searchElasticMeSH('heart attack', 'O', 'eng')
+	termoProcurado = 'heart attack'
+
+	listaSnomed = searchElasticSnomed(termoProcurado, 'O', 'en')
+	listaMeSH = searchElasticMeSH(termoProcurado, 'O', 'eng')
     
+	listaFinal = {**listaSnomed, **listaMeSH}
+	
+	comparaResultadosDasTerminologias(listaMeSH, listaSnomed, termoProcurado)
+
+	with open('search.json', 'w') as f:
+		json.dump(listaFinal, f, indent=4)
+
 	# with multiprocessing.Pool(processes=2) as pool:
 	# 	pool.starmap(searchElasticMeSH, zip(meshDescritoresOriginais, itertools.repeat('O')))
 	# 	pool.starmap(searchElasticSnomed, zip(meshDescritoresOriginais, itertools.repeat('O')))

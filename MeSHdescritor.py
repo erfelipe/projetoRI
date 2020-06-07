@@ -5,4 +5,4 @@ class Descritor:
         self.namedesc = namedesc
         self.hierarq = hierarq
         self.terms = terms
-        self.language = language
+        self.language = language 
