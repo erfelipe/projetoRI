@@ -1,5 +1,6 @@
 from inflection import singularize
 from cleantext import clean
+import constantes
 
 def textoSingular(texto):
     resp = singularize(texto)
@@ -37,3 +38,23 @@ def validaHierarquiaDescritores(idhierarq, lista):
             resposta.append(item[0])
     return resposta
 
+def carregarDescritoresComunsOriginaisMeSH(quantidade):
+    """ Le o arquivo de descritores comuns e retorna os itens em lista (array)
+
+    Args:
+        quantidade (int): 0 para todos ou maior que zero para um conjunto especifico de itens
+
+    Returns:
+        list: Uma lista (array) com os descritores do arquivo
+    """
+    with open(constantes.MESH_DESCRITORES_COMUNS_ORIGINAIS, 'r') as file:
+        lista = file.read().splitlines()
+        listaMinuscula = [x.lower() for x in lista]
+
+        if quantidade > 0:
+            return listaMinuscula[:quantidade]
+        else:
+            return listaMinuscula
+
+if __name__ == "__main__":
+    pass

@@ -1,21 +1,22 @@
-from elasticBancoEstrutura import BDelastic 
+import estatisticaBancoEstrutura
 from MeSHbancoEstrutura import BDMeSH
-import MeSHbancoFromXml 
+import MeSHbancoFromXml
+from estatisticaBancoEstrutura import BDestatistica 
 from snomedRF2bancoEstrutura import BDSnomed
 import snomedRF2toDB
 import constantes
 import os
 
-def criarBancoElastic():
-    """ Exclui e cria novo banco sqLite para armazenar as respostas do ElasticSearch
+def criarBancoEstatistica():
+    """ Exclui e cria novo banco sqLite para armazenar as estatisticas das consultas expandidas
     """    
-    resp = input("Criar sqLite ELASTIC? (S/N): ")
+    resp = input("Criar sqLite ESTATISTICA? (S/N): ")
     if ((resp == 'S') or (resp == 's')):
-        if os.path.exists(constantes.BD_SQL_ELASTIC):
-            os.remove(constantes.BD_SQL_ELASTIC)        
-        bancoElastic = BDelastic(constantes.BD_SQL_ELASTIC)
-        with bancoElastic:
-            bancoElastic.criarBancoDeDados()
+        if os.path.exists(constantes.BD_SQL_ESTATISTICA):
+            os.remove(constantes.BD_SQL_ESTATISTICA)        
+        banco = BDestatistica(constantes.BD_SQL_ESTATISTICA)
+        with banco:
+            banco.criarBancoDeDados()
 
 def criarBancoSNOMED():
     """ Exclui e cria novo banco sqLite para armazenar a terminologia SNOMED em formato relacional
@@ -47,6 +48,6 @@ def criarBancoMeSH():
             MeSHbancoFromXml.main()
 
 if __name__ == "__main__":
-    criarBancoElastic()
+    criarBancoEstatistica()
     criarBancoSNOMED()
     criarBancoMeSH()

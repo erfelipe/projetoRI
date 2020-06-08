@@ -236,8 +236,12 @@ class BDMeSH:
             list -- Array com termos hierarquicos, unicos (set) 
         """        
         resultado = self.selecionarIdDescritorPeloNomeDescritor(termoProcurado, tipoTermo, idioma) 
-        idDescritor = str(resultado[0]) 
-        descritorPrincipal = str(resultado[1]) 
+        if resultado is not None:
+            idDescritor = str(resultado[0]) 
+            descritorPrincipal = str(resultado[1]) 
+        else:
+            idDescritor = ""
+            descritorPrincipal = ""
 
         resultado = self.selecionarIdsHierarquiaPorIdDescritor(idDescritor, idioma)
         descHierarquicos = set() 
@@ -330,7 +334,10 @@ class BDMeSH:
             set -- Array com elementos unicos (sem repeticao) 
         """        
         resultado = self.selecionarIdDescritorPeloNomeDescritor(termoProcurado, tipoTermo, idioma) 
-        idDescritorPrincipal = str(resultado[0]) 
+        if resultado is not None:
+            idDescritorPrincipal = str(resultado[0]) 
+        else:
+            idDescritorPrincipal = ""
         idsHierarquicos = self.selecionarIdsHierarquiaPorIdDescritor(idDescritorPrincipal, idioma)
 
         termosEntradaHierarquicos = set()

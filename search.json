@@ -1,630 +1,327 @@
 {
     "SNOMED": [
         [
-            "postoperative myocardial infarction",
-            "ecd8dea23be40124ae6ab575ea4e844fdb8512ae",
-            "1471-2318-9-S1-A11.pdf",
+            "pulmonary arterial hypertension",
+            "aa08cd269ee6f0928c91c57b2107c4d33b9a0e23",
+            "s12877-018-0718-2.pdf",
+            "Frail-VIG index: a concise frailty evaluation tool for rapid geriatric assessment"
+        ],
+        [
+            "pulmonary arterial hypertension",
+            "dc6127b9f59216b720c5cbeca889ba0970b145b3",
+            "s12877-017-0658-2.pdf",
+            "Prevalence and treatment of diabetes mellitus and hypertension among older adults with intellectual disability in comparison with the general population"
+        ],
+        [
+            "pulmonary arterial hypertension associated with congenital heart disease",
+            "dc6127b9f59216b720c5cbeca889ba0970b145b3",
+            "s12877-017-0658-2.pdf",
+            "Prevalence and treatment of diabetes mellitus and hypertension among older adults with intellectual disability in comparison with the general population"
+        ],
+        [
+            "pulmonary hypertension",
+            "81168dade3f34a1881f99b7e40fdb09fb58c600b",
+            "1471-2318-11-71.pdf",
             null
         ],
         [
-            "cardiac infarction",
-            "24a1a97c9a770abde3798f49cdc51ac7eba7ccb5",
-            "1471-2318-6-16.pdf",
+            "pulmonary hypertension",
+            "b6553e415baed8d6a6750eabee59cab89897b37d",
+            "1471-2318-10-85.pdf",
             null
         ],
         [
-            "cardiac infarction",
-            "5a6019ed6b38e5d5d575e18aa456113498797cbb",
-            "1471-2318-12-27.pdf",
+            "pulmonary hypertension",
+            "91e4bf8f7d64de6362f0a69c26a6ba9810300474",
+            "s12877-018-0989-7.pdf",
+            "Use of over the counter products in older cardiovascular patients admitted to a tertiary care center in USA"
+        ],
+        [
+            "pulmonary hypertension",
+            "534873a70bb6e68277e4514e4ddafd6c283296d1",
+            "1471-2318-4-6.pdf",
             null
         ],
         [
-            "cardiac infarction",
-            "cca81a5f9f8f2103147c1e02b3ad2446ba71b036",
-            "1471-2318-14-10.pdf",
-            null
+            "pulmonary hypertension",
+            "64d99f8655f5a447c8f263b66b49c740fa00de65",
+            "s12877-015-0093-1.pdf",
+            "New relative intensity ambulatory accelerometer thresholds for elderly men and women: the Generation 100 study"
         ],
         [
-            "heart attack",
-            "3790aee97e010487ac00229374229a62c26e53d7",
-            "s12877-017-0652-8.pdf",
-            "Association of multiple chronic conditions and pain among older black and white adults with diabetes mellitus"
-        ],
-        [
-            "heart attack",
-            "7f7cba5ea5e998b3cd5c34f0f9798f1ca607c213",
-            "1471-2318-13-73.pdf",
-            null
-        ],
-        [
-            "heart attack",
-            "a93e5d963822a0a4a845e057162766a0b82cd97f",
-            "s12877-019-1392-8.pdf",
-            "Internet use and self-rated health among Swedish 70-year-olds: a cross-sectional study"
-        ],
-        [
-            "heart attack",
-            "c040233d7d16cfeef18629cc682eff3e1c5b5f3b",
-            "1471-2318-13-85.pdf",
-            null
-        ],
-        [
-            "heart attack",
-            "53cf5bd851c608d3620aaa2a850e71e0545adb27",
-            "s12877-019-1149-4.pdf",
-            "Body weight, frailty, and chronic pain in older adults: a cross-sectional study"
-        ],
-        [
-            "heart attack",
-            "fb3a4b25a8805bebc48fee67669a16a92c4ad0b9",
-            "1471-2318-13-30.pdf",
-            null
-        ],
-        [
-            "heart attack",
-            "98a5263dd4fe7575be7b2c9316635aae63c4e28a",
-            "s12877-019-1138-7.pdf",
-            "Impact of drug burden index on adverse health outcomes in Irish community-dwelling older people: a cohort study"
-        ],
-        [
-            "heart attack",
-            "75d9eac3848c861d2e107b8f3d6eb20aa540ca68",
-            "s12877-015-0079-z.pdf",
-            "Purchasing and Using Personal Emergency Response Systems (PERS): how decisions are made by community-dwelling seniors in Canada"
-        ],
-        [
-            "heart attack",
-            "9336e1c304391ee540204cecb2699b2f52f20ec6",
-            "1471-2318-12-35.pdf",
-            null
-        ],
-        [
-            "heart attack",
-            "66f4939f6c32bca9e9e345c00fd5b93582c10450",
-            "1471-2318-10-26.pdf",
-            null
-        ],
-        [
-            "mi - myocardial infarction",
-            "5e19f82542cbabe3f4d783eb8017960d54bbbbe6",
-            "s12877-017-0651-9.pdf",
-            "Relationships between cognitive function and body composition among community-dwelling older adults: a cross-sectional study"
-        ],
-        [
-            "mi - myocardial infarction",
-            "f791f4da3aeb3638b6cf6bd0a0797ed649d0a87e",
-            "s12877-018-0787-2.pdf",
-            "The relative burden of community-acquired pneumonia hospitalizations in older adults: a retrospective observational study in the United States"
-        ],
-        [
-            "mi - myocardial infarction",
-            "f99f9c9550ec2a49066a62230ab6bef2e5b939d3",
-            "1471-2318-14-8.pdf",
-            null
-        ],
-        [
-            "mi - myocardial infarction",
-            "1dac42b3a638a798a1767e7d2fea40a5c354165c",
-            "s12877-016-0347-6.pdf",
-            "The prevalence of stroke and depression and factors associated with depression in elderly people with and without stroke"
-        ],
-        [
-            "mi - myocardial infarction",
-            "3399329cb004dad065c90b337c4da52b88e9fedc",
-            "s12877-019-1242-8.pdf",
-            "Prognostic value of frailty in elderly patients with acute coronary syndrome: a systematic review and meta-analysis"
-        ],
-        [
-            "mi - myocardial infarction",
-            "2d9bf8d75c195ecc78acda9d604c74e69aee55b3",
-            "s12877-019-1256-2.pdf",
-            "A retrospective cross-sectional study of type 2 diabetes overtreatment in patients admitted to the geriatric ward"
-        ],
-        [
-            "mi - myocardial infarction",
-            "638b7adca711bbf35a3aa67e7b8103fb55b65e9f",
-            "s12877-018-0861-9.pdf",
-            "Continuity and utilization of health and community care in elderly patients with heart failure before and after hospitalization"
-        ],
-        [
-            "mi - myocardial infarction",
-            "67842aa7419c242734eb7ba6524fb258a283f01e",
-            "s12877-018-0876-2.pdf",
-            "Age dependency of risk factors for cognitive decline"
-        ],
-        [
-            "mi - myocardial infarction",
-            "d75c9cd80104f674425fbe17f5e58e95a632aede",
-            "s12877-018-0952-7.pdf",
-            "Regional variation in healthcare spending and mortality among senior high-cost healthcare users in Ontario, Canada: a retrospective matched cohort study"
-        ],
-        [
-            "mi - myocardial infarction",
-            "5f626bd54d27845e9eb874e814b09314f60f021d",
-            "s12877-017-0574-5.pdf",
-            "12877_2017_574_Article 1..19"
-        ],
-        [
-            "myocardial infarct",
-            "f97337fc2089976b3841ea528e3765581954fc0d",
-            "1471-2318-11-58.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "284f197df4080a506ed72338fcffa7a43ce699b5",
-            "1471-2318-10-37.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "181473ee1577971c504d0653dfcda6c08d949e4c",
-            "1471-2318-2-2.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "c949037aef801cddbbb8ccb36d5745a224119fc8",
-            "s12877-016-0333-z.pdf",
-            "Hospitalization of elderly diabetic patients: characteristics, reasons for admission, and gender differences"
-        ],
-        [
-            "myocardial infarct",
-            "5fdb070ca7fe5594838655b6c32052f013b5a504",
-            "1471-2318-11-3.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "42d2e1d4ad15667651ae988aa59e646c1d028056",
-            "s12877-019-1373-y.pdf",
-            "How older patients prioritise their multiple health problems: a qualitative study"
-        ],
-        [
-            "myocardial infarct",
-            "ee0af572eab461b5f3af26f0890cb2f867ecfa36",
-            "1471-2318-14-1.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "7bf6a8ab336e813c0aa242f341b72bdef1afc2a9",
-            "1471-2318-13-120.pdf",
-            null
-        ],
-        [
-            "myocardial infarction",
-            "3e1a90c44b52313632a8f2482386d73fd86aa595",
-            "s12877-018-0777-4.pdf",
-            "Single and dual antiplatelet therapy in elderly patients of medically managed myocardial infarction"
-        ],
-        [
-            "myocardial infarction",
-            "74de549fdaf2da2bcef36646a8e24635ebe493cc",
-            "s12877-018-0827-y.pdf",
-            "Determinants of adherence and effects on health-related quality of life after myocardial infarction: a prospective cohort study"
-        ],
-        [
-            "myocardial infarction",
-            "aacaf53fe751b4f5f0693da4e1dd4bf1f15bfaca",
-            "1471-2318-14-74.pdf",
-            null
-        ],
-        [
-            "myocardial infarction",
-            "3399329cb004dad065c90b337c4da52b88e9fedc",
-            "s12877-019-1242-8.pdf",
-            "Prognostic value of frailty in elderly patients with acute coronary syndrome: a systematic review and meta-analysis"
-        ],
-        [
-            "myocardial infarction",
-            "492781425af57abd8e5d43dd0e98e7484d3d90f4",
-            "s12877-017-0572-7.pdf",
-            "12877_2017_572_Article 1..31"
-        ],
-        [
-            "myocardial infarction",
-            "024ff7ef4b8561c3db2661736509f797f39bfb48",
-            "1471-2318-13-115.pdf",
-            null
-        ],
-        [
-            "myocardial infarction",
-            "627c520cefc8605a7289c6d8a013ac5f813586c5",
-            "s12877-018-0726-2.pdf",
-            "Overweight or obese BMI is associated with earlier, but not later survival after common acute illnesses"
-        ],
-        [
-            "myocardial infarction",
-            "85d765bb2e79a448f28c94db80ed66c1887edc9e",
-            "1471-2318-14-34.pdf",
-            null
-        ],
-        [
-            "myocardial infarction",
-            "09338266241bb7461f2e7a36b402759bbeee0726",
-            "s12877-017-0575-4.pdf",
-            "12877_2017_575_Article 119..143"
-        ],
-        [
-            "myocardial infarction",
-            "e6cea195ed1c2b4560d64aa3902d44ec79423ac2",
-            "s12877-019-1214-z.pdf",
-            "Associations between prevalent multimorbidity combinations and prospective disability and self-rated health among older adults in Europe"
+            "pulmonary hypertension",
+            "c90eeaaeccafa40072e7a59b8db7a8cb981993a0",
+            "s12877-018-0807-2.pdf",
+            "Predictive biomarkers for death and rehospitalization in comorbid frail elderly heart failure patients"
         ]
+    ],
+    "SNOMEDtotalTermosPesquisados": [
+        "associated pulmonary arterial hypertension",
+        "associated pulmonary arterial hypertension (disorder)",
+        "braddock syndrome",
+        "braddock syndrome (disorder)",
+        "chronic thromboembolic pulmonary hypertension",
+        "drug-induced pulmonary hypertension",
+        "eisenmenger syndrome",
+        "eisenmenger's syndrome",
+        "eisenmenger's syndrome (disorder)",
+        "episodic pulmonary hypertension",
+        "episodic pulmonary hypertension (disorder)",
+        "facultative pulmonary hypertension with shunt at atrial level",
+        "facultative pulmonary hypertension with shunt at atrial level (disorder)",
+        "familial primary pulmonary hypertension",
+        "familial primary pulmonary hypertension (disorder)",
+        "familial pulmonary capillary haemangiomatosis",
+        "familial pulmonary capillary hemangiomatosis",
+        "familial pulmonary capillary hemangiomatosis (disorder)",
+        "heritable pulmonary arterial hypertension",
+        "heritable pulmonary arterial hypertension (disorder)",
+        "heritable pulmonary arterial hypertension due to activin a receptor type ii-like kinase 1 or endoglin mutation",
+        "heritable pulmonary arterial hypertension due to activin a receptor type ii-like kinase 1 or endoglin mutation (disorder)",
+        "heritable pulmonary arterial hypertension due to acvrl1 or endoglin mutation",
+        "heritable pulmonary arterial hypertension due to alk1 or endoglin mutation",
+        "high altitude pulmonary hypertension",
+        "high altitude pulmonary hypertension (disorder)",
+        "hupra syndrome",
+        "hypertensive pulmonary arterial disease",
+        "hypertensive pulmonary venous disease",
+        "hyperuricaemia, pulmonary hypertension, renal failure, alkalosis syndrome",
+        "hyperuricemia, pulmonary hypertension, renal failure, alkalosis syndrome",
+        "hyperuricemia, pulmonary hypertension, renal failure, alkalosis syndrome (disorder)",
+        "idiopathic pulmonary arterial hypertension",
+        "idiopathic pulmonary arterial hypertension (disorder)",
+        "large vessel pulmonary hypertension",
+        "large vessel pulmonary hypertension (disorder)",
+        "persistent pulmonary hypertension of the newborn",
+        "persistent pulmonary hypertension of the newborn (disorder)",
+        "pfc - persistent fetal circulation",
+        "pfc - persistent foetal circulation",
+        "portopulmonary hypertension",
+        "portopulmonary hypertension (disorder)",
+        "post-arteritic pulmonary hypertension",
+        "post-arteritic pulmonary hypertension (disorder)",
+        "post-capillary pulmonary hypertension",
+        "post-capillary pulmonary hypertension (disorder)",
+        "postcapillary pulmonary hypertension",
+        "pphn - persistent pulmonary hypertension in newborn",
+        "precapillary pulmonary hypertension",
+        "precapillary pulmonary hypertension (disorder)",
+        "progressive pulmonary hypertension",
+        "progressive pulmonary hypertension (disorder)",
+        "pulmonary arterial hypertension",
+        "pulmonary arterial hypertension associated with chronic haemolytic anaemia",
+        "pulmonary arterial hypertension associated with chronic hemolytic anemia",
+        "pulmonary arterial hypertension associated with chronic hemolytic anemia (disorder)",
+        "pulmonary arterial hypertension associated with congenital heart disease",
+        "pulmonary arterial hypertension associated with congenital heart disease (disorder)",
+        "pulmonary arterial hypertension associated with congenital systemic-to-pulmonary shunt",
+        "pulmonary arterial hypertension associated with congenital systemic-to-pulmonary shunt (disorder)",
+        "pulmonary arterial hypertension associated with connective tissue disease",
+        "pulmonary arterial hypertension associated with connective tissue disease (disorder)",
+        "pulmonary arterial hypertension associated with hiv infection",
+        "pulmonary arterial hypertension associated with human immunodeficiency virus infection",
+        "pulmonary arterial hypertension associated with human immunodeficiency virus infection (disorder)",
+        "pulmonary arterial hypertension associated with portal hypertension",
+        "pulmonary arterial hypertension associated with schistosomiasis",
+        "pulmonary arterial hypertension associated with schistosomiasis (disorder)",
+        "pulmonary arterial hypertension caused by drug",
+        "pulmonary arterial hypertension caused by toxin",
+        "pulmonary arterial hypertension caused by toxin (disorder)",
+        "pulmonary arterial hypertension induced by drug",
+        "pulmonary arterial hypertension induced by toxin",
+        "pulmonary capillary haemangiomatosis",
+        "pulmonary capillary hemangiomatosis",
+        "pulmonary capillary hemangiomatosis (disorder)",
+        "pulmonary hypertension associated with chronic underventilation",
+        "pulmonary hypertension associated with chronic underventilation (disorder)",
+        "pulmonary hypertension caused by drug",
+        "pulmonary hypertension caused by drug (disorder)",
+        "pulmonary hypertension due to alveolar hypoventilation disorder",
+        "pulmonary hypertension due to alveolar hypoventilation disorder (disorder)",
+        "pulmonary hypertension due to chronic exposure to high altitude",
+        "pulmonary hypertension due to chronic obstructive pulmonary disease",
+        "pulmonary hypertension due to chronic obstructive pulmonary disease (disorder)",
+        "pulmonary hypertension due to developmental abnormality of the lung",
+        "pulmonary hypertension due to developmental abnormality of the lung (disorder)",
+        "pulmonary hypertension due to diastolic left ventricular dysfunction",
+        "pulmonary hypertension due to diastolic systemic ventricular dysfunction",
+        "pulmonary hypertension due to diastolic systemic ventricular dysfunction (disorder)",
+        "pulmonary hypertension due to haematological disorder",
+        "pulmonary hypertension due to hematological disorder",
+        "pulmonary hypertension due to hematological disorder (disorder)",
+        "pulmonary hypertension due to interstitial lung disease",
+        "pulmonary hypertension due to interstitial lung disease (disorder)",
+        "pulmonary hypertension due to left heart disease",
+        "pulmonary hypertension due to left-sided valvular heart disease",
+        "pulmonary hypertension due to left-sided valvular heart disease (disorder)",
+        "pulmonary hypertension due to lung disease and/or hypoxia",
+        "pulmonary hypertension due to lung disease and/or hypoxia (disorder)",
+        "pulmonary hypertension due to myeloproliferative disorder",
+        "pulmonary hypertension due to myeloproliferative disorder (disorder)",
+        "pulmonary hypertension due to post-splenectomy haematological disorder",
+        "pulmonary hypertension due to post-splenectomy hematological disorder",
+        "pulmonary hypertension due to post-splenectomy hematological disorder (disorder)",
+        "pulmonary hypertension due to pulmonary disease with mixed restrictive and obstructive pattern",
+        "pulmonary hypertension due to pulmonary disease with mixed restrictive and obstructive pattern (disorder)",
+        "pulmonary hypertension due to sleep-disordered breathing",
+        "pulmonary hypertension due to sleep-disordered breathing (disorder)",
+        "pulmonary hypertension due to systolic left ventricular dysfunction",
+        "pulmonary hypertension due to systolic systemic ventricular dysfunction",
+        "pulmonary hypertension due to systolic systemic ventricular dysfunction (disorder)",
+        "pulmonary hypertension due to vasculitis",
+        "pulmonary hypertension due to vasculitis (disorder)",
+        "pulmonary hypertension in langerhans cell histiocytosis",
+        "pulmonary hypertension in langerhans cell histiocytosis (disorder)",
+        "pulmonary hypertension in systemic disorder",
+        "pulmonary hypertension in systemic disorder (disorder)",
+        "pulmonary hypertension in vasculitis",
+        "pulmonary hypertension secondary to raised pulmonary vascular resistance",
+        "pulmonary hypertension secondary to raised pulmonary vascular resistance (disorder)",
+        "pulmonary hypertension with extreme obesity",
+        "pulmonary hypertension with extreme obesity (disorder)",
+        "pulmonary hypertension with occult mitral stenosis",
+        "pulmonary hypertension with occult mitral stenosis (disorder)",
+        "pulmonary hypertensive arterial disease",
+        "pulmonary hypertensive arterial disease (disorder)",
+        "pulmonary hypertensive venous disease",
+        "pulmonary hypertensive venous disease (disorder)",
+        "pulmonary veno-occlusive disease",
+        "pulmonary veno-occlusive disease (disorder)",
+        "pulmonary veno-occlusive disease and/or pulmonary capillary haemangiomatosis",
+        "pulmonary veno-occlusive disease and/or pulmonary capillary hemangiomatosis",
+        "pulmonary veno-occlusive disease and/or pulmonary capillary hemangiomatosis (disorder)",
+        "pulmonary venous hypertension due to compression of pulmonary great vein",
+        "pulmonary venous hypertension due to compression of pulmonary great vein (disorder)",
+        "pulmonary venous hypertension due to compression of pulmonary great vein by fibrosing mediastinitis",
+        "pulmonary venous hypertension due to compression of pulmonary great vein by lymphadenopathy",
+        "pulmonary venous hypertension due to compression of pulmonary great vein by lymphadenopathy (disorder)",
+        "pulmonary venous hypertension due to compression of pulmonary great vein by neoplasm",
+        "pulmonary venous hypertension due to compression of pulmonary great vein by neoplasm (disorder)",
+        "pulmonary venous hypertension due to compression of pulmonary great vein by sclerosing mediastinitis",
+        "pulmonary venous hypertension due to compression of pulmonary great vein by sclerosing mediastinitis (disorder)",
+        "pulmonary venous hypertension due to compression of pulmonary great vein by tumor",
+        "pulmonary venous hypertension due to compression of pulmonary great vein by tumour",
+        "pulmonary venous hypertension due to congenital stenosis of pulmonary vein",
+        "pulmonary venous hypertension due to congenital stenosis of pulmonary vein (disorder)",
+        "pulmonary venous hypertension due to disorder of left heart",
+        "pulmonary venous hypertension due to disorder of left heart (disorder)",
+        "secondary pulmonary hypertension",
+        "secondary pulmonary hypertension (disorder)",
+        "small vessel pulmonary hypertension",
+        "small vessel pulmonary hypertension (disorder)",
+        "solitary pulmonary hypertension",
+        "solitary pulmonary hypertension (disorder)",
+        "sporadic primary pulmonary hypertension",
+        "sporadic primary pulmonary hypertension (disorder)",
+        "thromboembolic pulmonary hypertension",
+        "thromboembolic pulmonary hypertension (disorder)",
+        "vater-like syndrome with pulmonary hypertension, abnormal ear and growth deficiency",
+        "pht - pulmonary hypertension",
+        "pulmonary hypertension",
+        "pulmonary hypertension (disorder)"
+    ],
+    "SNOMEDtotalTermosPesquisadosComRevocacao": [
+        "pulmonary hypertension",
+        "pulmonary arterial hypertension",
+        "pulmonary arterial hypertension associated with congenital heart disease"
     ],
     "MeSH": [
         [
-            "st elevation myocardial infarction",
-            "d876406fd30f79dcf6e74ca11c49785c942d66aa",
-            "1471-2318-10-29.pdf",
+            "pulmonary arterial hypertension",
+            "aa08cd269ee6f0928c91c57b2107c4d33b9a0e23",
+            "s12877-018-0718-2.pdf",
+            "Frail-VIG index: a concise frailty evaluation tool for rapid geriatric assessment"
+        ],
+        [
+            "pulmonary arterial hypertension",
+            "dc6127b9f59216b720c5cbeca889ba0970b145b3",
+            "s12877-017-0658-2.pdf",
+            "Prevalence and treatment of diabetes mellitus and hypertension among older adults with intellectual disability in comparison with the general population"
+        ],
+        [
+            "primary pulmonary hypertension",
+            "534873a70bb6e68277e4514e4ddafd6c283296d1",
+            "1471-2318-4-6.pdf",
             null
         ],
         [
-            "shock, cardiogenic",
-            "4b269671cd7e73a8f43a38549db1f61c544ba226",
-            "s12877-017-0566-5.pdf",
-            "Comparison of procalcitonin and high-sensitivity C-reactive protein for the diagnosis of sepsis and septic shock in the oldest old patients"
+            "primary pulmonary hypertension",
+            "64d99f8655f5a447c8f263b66b49c740fa00de65",
+            "s12877-015-0093-1.pdf",
+            "New relative intensity ambulatory accelerometer thresholds for elderly men and women: the Generation 100 study"
         ],
         [
-            "st elevation myocardial infarction",
-            "d876406fd30f79dcf6e74ca11c49785c942d66aa",
-            "1471-2318-10-29.pdf",
+            "pulmonary hypertension",
+            "81168dade3f34a1881f99b7e40fdb09fb58c600b",
+            "1471-2318-11-71.pdf",
             null
         ],
         [
-            "myocardial infarctions",
-            "9a7835a683dea406cf2dea4d66f8ba66ed17b746",
-            "1471-2318-10-S1-L34.pdf",
+            "pulmonary hypertension",
+            "b6553e415baed8d6a6750eabee59cab89897b37d",
+            "1471-2318-10-85.pdf",
             null
         ],
         [
-            "myocardial infarctions",
-            "aacaf53fe751b4f5f0693da4e1dd4bf1f15bfaca",
-            "1471-2318-14-74.pdf",
+            "pulmonary hypertension",
+            "91e4bf8f7d64de6362f0a69c26a6ba9810300474",
+            "s12877-018-0989-7.pdf",
+            "Use of over the counter products in older cardiovascular patients admitted to a tertiary care center in USA"
+        ],
+        [
+            "pulmonary hypertension",
+            "534873a70bb6e68277e4514e4ddafd6c283296d1",
+            "1471-2318-4-6.pdf",
             null
         ],
         [
-            "myocardial infarctions",
-            "5fdb070ca7fe5594838655b6c32052f013b5a504",
-            "1471-2318-11-3.pdf",
-            null
+            "pulmonary hypertension",
+            "64d99f8655f5a447c8f263b66b49c740fa00de65",
+            "s12877-015-0093-1.pdf",
+            "New relative intensity ambulatory accelerometer thresholds for elderly men and women: the Generation 100 study"
         ],
         [
-            "myocardial infarctions",
-            "d876406fd30f79dcf6e74ca11c49785c942d66aa",
-            "1471-2318-10-29.pdf",
-            null
+            "pulmonary hypertension",
+            "c90eeaaeccafa40072e7a59b8db7a8cb981993a0",
+            "s12877-018-0807-2.pdf",
+            "Predictive biomarkers for death and rehospitalization in comorbid frail elderly heart failure patients"
         ],
         [
-            "myocardial infarctions",
-            "775676786fb1b7201aecb43f3d20784e5124479b",
-            "s12877-019-1050-1.pdf",
-            "Temporal trends in incidence, recurrence and prevalence of stroke in an era of ageing populations, a longitudinal study of the total Swedish population"
+            "pulmonary arterial hypertension",
+            "aa08cd269ee6f0928c91c57b2107c4d33b9a0e23",
+            "s12877-018-0718-2.pdf",
+            "Frail-VIG index: a concise frailty evaluation tool for rapid geriatric assessment"
         ],
         [
-            "myocardial infarctions",
-            "3790aee97e010487ac00229374229a62c26e53d7",
-            "s12877-017-0652-8.pdf",
-            "Association of multiple chronic conditions and pain among older black and white adults with diabetes mellitus"
-        ],
-        [
-            "myocardial infarctions",
-            "2f9c869ea18620849c91d9c3a3f191e61ee516d0",
-            "s12877-017-0671-5.pdf",
-            "A prediction model to identify hospitalised, older adults with reduced physical performance"
-        ],
-        [
-            "nstemi",
-            "3399329cb004dad065c90b337c4da52b88e9fedc",
-            "s12877-019-1242-8.pdf",
-            "Prognostic value of frailty in elderly patients with acute coronary syndrome: a systematic review and meta-analysis"
-        ],
-        [
-            "nstemi",
-            "3e1a90c44b52313632a8f2482386d73fd86aa595",
-            "s12877-018-0777-4.pdf",
-            "Single and dual antiplatelet therapy in elderly patients of medically managed myocardial infarction"
-        ],
-        [
-            "nstemi",
-            "b6c7b3e1c9d9971aa56bb24ba669803ea367f9db",
-            "s12877-018-0818-z.pdf",
-            "Improved short and long term survival associated with percutaneous coronary intervention in the elderly patients with acute coronary syndrome"
-        ],
-        [
-            "nstemi",
-            "85d765bb2e79a448f28c94db80ed66c1887edc9e",
-            "1471-2318-14-34.pdf",
-            null
-        ],
-        [
-            "st segment elevation myocardial infarction",
-            "b6c7b3e1c9d9971aa56bb24ba669803ea367f9db",
-            "s12877-018-0818-z.pdf",
-            "Improved short and long term survival associated with percutaneous coronary intervention in the elderly patients with acute coronary syndrome"
-        ],
-        [
-            "st segment elevation myocardial infarction",
-            "0701e0f6ddea9f16de004f5de911f423cafd77fc",
-            "s12877-017-0668-0.pdf",
-            "Value of soluble Urokinase plasminogen activator receptor over age as a biomarker of impaired myocardial relaxation"
-        ],
-        [
-            "st segment elevation myocardial infarction",
-            "df50b7545ba4d24b86227a22536758c4acfaef99",
-            "s12877-019-1301-1.pdf",
-            "Functional impairment and serum albumin predict in-hospital mortality in nonagenarians with acute infection: a retrospective cohort study"
-        ],
-        [
-            "cardiogenic shock",
-            "d849b0d60daab2df716acd1fb3a825296265fdd5",
-            "s12877-017-0629-7.pdf",
-            "Leading Comorbidity associated with 30-day post-anesthetic mortality in geriatric surgical patients in Taiwan: a retrospective study from the health insurance data"
-        ],
-        [
-            "cardiogenic shock",
-            "b6c7b3e1c9d9971aa56bb24ba669803ea367f9db",
-            "s12877-018-0818-z.pdf",
-            "Improved short and long term survival associated with percutaneous coronary intervention in the elderly patients with acute coronary syndrome"
-        ],
-        [
-            "cardiogenic shock",
-            "4b269671cd7e73a8f43a38549db1f61c544ba226",
-            "s12877-017-0566-5.pdf",
-            "Comparison of procalcitonin and high-sensitivity C-reactive protein for the diagnosis of sepsis and septic shock in the oldest old patients"
-        ],
-        [
-            "cardiogenic shock",
-            "b85c29aae6865892aff6fcb2250d8236444efd4d",
-            "s12877-018-0844-x.pdf",
-            "The effects of pre-existing dementia on surgical outcomes in emergent and nonemergent general surgical procedures: assessing differences in surgical risk with dementia"
-        ],
-        [
-            "heart attack",
-            "3790aee97e010487ac00229374229a62c26e53d7",
-            "s12877-017-0652-8.pdf",
-            "Association of multiple chronic conditions and pain among older black and white adults with diabetes mellitus"
-        ],
-        [
-            "heart attack",
-            "7f7cba5ea5e998b3cd5c34f0f9798f1ca607c213",
-            "1471-2318-13-73.pdf",
-            null
-        ],
-        [
-            "heart attack",
-            "a93e5d963822a0a4a845e057162766a0b82cd97f",
-            "s12877-019-1392-8.pdf",
-            "Internet use and self-rated health among Swedish 70-year-olds: a cross-sectional study"
-        ],
-        [
-            "heart attack",
-            "c040233d7d16cfeef18629cc682eff3e1c5b5f3b",
-            "1471-2318-13-85.pdf",
-            null
-        ],
-        [
-            "heart attack",
-            "53cf5bd851c608d3620aaa2a850e71e0545adb27",
-            "s12877-019-1149-4.pdf",
-            "Body weight, frailty, and chronic pain in older adults: a cross-sectional study"
-        ],
-        [
-            "heart attack",
-            "fb3a4b25a8805bebc48fee67669a16a92c4ad0b9",
-            "1471-2318-13-30.pdf",
-            null
-        ],
-        [
-            "heart attack",
-            "98a5263dd4fe7575be7b2c9316635aae63c4e28a",
-            "s12877-019-1138-7.pdf",
-            "Impact of drug burden index on adverse health outcomes in Irish community-dwelling older people: a cohort study"
-        ],
-        [
-            "heart attack",
-            "75d9eac3848c861d2e107b8f3d6eb20aa540ca68",
-            "s12877-015-0079-z.pdf",
-            "Purchasing and Using Personal Emergency Response Systems (PERS): how decisions are made by community-dwelling seniors in Canada"
-        ],
-        [
-            "heart attack",
-            "9336e1c304391ee540204cecb2699b2f52f20ec6",
-            "1471-2318-12-35.pdf",
-            null
-        ],
-        [
-            "heart attack",
-            "66f4939f6c32bca9e9e345c00fd5b93582c10450",
-            "1471-2318-10-26.pdf",
-            null
-        ],
-        [
-            "heart attacks",
-            "75d9eac3848c861d2e107b8f3d6eb20aa540ca68",
-            "s12877-015-0079-z.pdf",
-            "Purchasing and Using Personal Emergency Response Systems (PERS): how decisions are made by community-dwelling seniors in Canada"
-        ],
-        [
-            "heart attacks",
-            "76b9bdc154ac8d9a36ed7d9c7ebcdb7e08d267fd",
-            "1471-2318-7-14.pdf",
-            null
-        ],
-        [
-            "heart attacks",
-            "3399329cb004dad065c90b337c4da52b88e9fedc",
-            "s12877-019-1242-8.pdf",
-            "Prognostic value of frailty in elderly patients with acute coronary syndrome: a systematic review and meta-analysis"
-        ],
-        [
-            "heart attacks",
-            "f84c492239b376ff710c1afdf08f92f799775804",
-            "s12877-017-0438-z.pdf",
-            "Racial and ethnic differences in smoking changes after chronic disease diagnosis among middle-aged and older adults in the United States"
-        ],
-        [
-            "heart attacks",
-            "1eda952e38ea53e03cb380ce4418a3937a5f85aa",
-            "s12877-018-0963-4.pdf",
-            "Is excess weight a burden for older adults who suffer chronic pain?"
-        ],
-        [
-            "heart attacks",
-            "9336e1c304391ee540204cecb2699b2f52f20ec6",
-            "1471-2318-12-35.pdf",
-            null
-        ],
-        [
-            "stemi",
-            "3399329cb004dad065c90b337c4da52b88e9fedc",
-            "s12877-019-1242-8.pdf",
-            "Prognostic value of frailty in elderly patients with acute coronary syndrome: a systematic review and meta-analysis"
-        ],
-        [
-            "stemi",
-            "b6c7b3e1c9d9971aa56bb24ba669803ea367f9db",
-            "s12877-018-0818-z.pdf",
-            "Improved short and long term survival associated with percutaneous coronary intervention in the elderly patients with acute coronary syndrome"
-        ],
-        [
-            "stemi",
-            "3e1a90c44b52313632a8f2482386d73fd86aa595",
-            "s12877-018-0777-4.pdf",
-            "Single and dual antiplatelet therapy in elderly patients of medically managed myocardial infarction"
-        ],
-        [
-            "stemi",
-            "85d765bb2e79a448f28c94db80ed66c1887edc9e",
-            "1471-2318-14-34.pdf",
-            null
-        ],
-        [
-            "stemi",
-            "aacaf53fe751b4f5f0693da4e1dd4bf1f15bfaca",
-            "1471-2318-14-74.pdf",
-            null
-        ],
-        [
-            "stemi",
-            "492781425af57abd8e5d43dd0e98e7484d3d90f4",
-            "s12877-017-0572-7.pdf",
-            "12877_2017_572_Article 1..31"
-        ],
-        [
-            "myocardial infarct",
-            "f97337fc2089976b3841ea528e3765581954fc0d",
-            "1471-2318-11-58.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "284f197df4080a506ed72338fcffa7a43ce699b5",
-            "1471-2318-10-37.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "181473ee1577971c504d0653dfcda6c08d949e4c",
-            "1471-2318-2-2.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "c949037aef801cddbbb8ccb36d5745a224119fc8",
-            "s12877-016-0333-z.pdf",
-            "Hospitalization of elderly diabetic patients: characteristics, reasons for admission, and gender differences"
-        ],
-        [
-            "myocardial infarct",
-            "5fdb070ca7fe5594838655b6c32052f013b5a504",
-            "1471-2318-11-3.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "42d2e1d4ad15667651ae988aa59e646c1d028056",
-            "s12877-019-1373-y.pdf",
-            "How older patients prioritise their multiple health problems: a qualitative study"
-        ],
-        [
-            "myocardial infarct",
-            "ee0af572eab461b5f3af26f0890cb2f867ecfa36",
-            "1471-2318-14-1.pdf",
-            null
-        ],
-        [
-            "myocardial infarct",
-            "7bf6a8ab336e813c0aa242f341b72bdef1afc2a9",
-            "1471-2318-13-120.pdf",
-            null
-        ],
-        [
-            "myocardial infarction",
-            "3e1a90c44b52313632a8f2482386d73fd86aa595",
-            "s12877-018-0777-4.pdf",
-            "Single and dual antiplatelet therapy in elderly patients of medically managed myocardial infarction"
-        ],
-        [
-            "myocardial infarction",
-            "74de549fdaf2da2bcef36646a8e24635ebe493cc",
-            "s12877-018-0827-y.pdf",
-            "Determinants of adherence and effects on health-related quality of life after myocardial infarction: a prospective cohort study"
-        ],
-        [
-            "myocardial infarction",
-            "aacaf53fe751b4f5f0693da4e1dd4bf1f15bfaca",
-            "1471-2318-14-74.pdf",
-            null
-        ],
-        [
-            "myocardial infarction",
-            "3399329cb004dad065c90b337c4da52b88e9fedc",
-            "s12877-019-1242-8.pdf",
-            "Prognostic value of frailty in elderly patients with acute coronary syndrome: a systematic review and meta-analysis"
-        ],
-        [
-            "myocardial infarction",
-            "492781425af57abd8e5d43dd0e98e7484d3d90f4",
-            "s12877-017-0572-7.pdf",
-            "12877_2017_572_Article 1..31"
-        ],
-        [
-            "myocardial infarction",
-            "024ff7ef4b8561c3db2661736509f797f39bfb48",
-            "1471-2318-13-115.pdf",
-            null
-        ],
-        [
-            "myocardial infarction",
-            "627c520cefc8605a7289c6d8a013ac5f813586c5",
-            "s12877-018-0726-2.pdf",
-            "Overweight or obese BMI is associated with earlier, but not later survival after common acute illnesses"
-        ],
-        [
-            "myocardial infarction",
-            "85d765bb2e79a448f28c94db80ed66c1887edc9e",
-            "1471-2318-14-34.pdf",
-            null
-        ],
-        [
-            "myocardial infarction",
-            "09338266241bb7461f2e7a36b402759bbeee0726",
-            "s12877-017-0575-4.pdf",
-            "12877_2017_575_Article 119..143"
-        ],
-        [
-            "myocardial infarction",
-            "e6cea195ed1c2b4560d64aa3902d44ec79423ac2",
-            "s12877-019-1214-z.pdf",
-            "Associations between prevalent multimorbidity combinations and prospective disability and self-rated health among older adults in Europe"
-        ],
-        [
-            "myocardial infarcts",
-            "5fdb070ca7fe5594838655b6c32052f013b5a504",
-            "1471-2318-11-3.pdf",
-            null
+            "pulmonary arterial hypertension",
+            "dc6127b9f59216b720c5cbeca889ba0970b145b3",
+            "s12877-017-0658-2.pdf",
+            "Prevalence and treatment of diabetes mellitus and hypertension among older adults with intellectual disability in comparison with the general population"
         ]
+    ],
+    "MeSHtotalTermosPesquisados": [
+        "heritable pulmonary arterial hypertension",
+        "primary pulmonary hypertension",
+        "alveolar capillary dysplasia with misalignment of pulmonary veins",
+        "misalignment of the pulmonary vessels",
+        "persistent fetal circulation",
+        "persistent pulmonary hypertension of newborn",
+        "pulmonary hypertension",
+        "familial primary pulmonary hypertension",
+        "persistent fetal circulation syndrome",
+        "pulmonary arterial hypertension",
+        "pph1 with hht",
+        "alveolar capillary dysplasia with misalignment of pulmonary veins and other congenital anomalies",
+        "acd-mpv",
+        "acd mpv",
+        "idiopathic pulmonary hypertension",
+        "familial persistent pulmonary hypertension of the newborn",
+        "idiopathic pulmonary arterial hypertension",
+        "acdmpv"
+    ],
+    "MeSHtotalTermosPesquisadosComRevocacao": [
+        "primary pulmonary hypertension",
+        "pulmonary arterial hypertension",
+        "pulmonary hypertension"
     ]
 }

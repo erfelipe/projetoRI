@@ -145,14 +145,14 @@ def procuraNoSnomedPelaHierarquiaDeDescritoresMesh(codHierarquico):
     registro = 0
     quant = len(vocabularioTratado)
 
-    #localiza e seleciona os termos comuns com tratamento
-    for termo in vocabularioTratado:
-        registro += 1
-        encontradoTermoTratado = procuraNoSnomedDescritorTratado(termo)
-        if (encontradoTermoTratado > 0):
-            descritoresTratados.add(termo)
-            print("Descritor tratado: " + termo)
-        print("Descritor tratado: " + str(registro) + " de "  + str(quant)) 
+    # #localiza e seleciona os termos comuns com tratamento
+    # for termo in vocabularioTratado:
+    #     registro += 1
+    #     encontradoTermoTratado = procuraNoSnomedDescritorTratado(termo)
+    #     if (encontradoTermoTratado > 0):
+    #         descritoresTratados.add(termo)
+    #         print("Descritor tratado: " + termo)
+    #     print("Descritor tratado: " + str(registro) + " de "  + str(quant)) 
 
     #grava o array dos termos comuns em txt
     with open(constantes.MESH_DESCRITORES_COMUNS_ORIGINAIS, "w") as f:
@@ -160,9 +160,9 @@ def procuraNoSnomedPelaHierarquiaDeDescritoresMesh(codHierarquico):
             f.write("%s\n" % item)
 
     #grava o array dos termos comuns em txt
-    with open(constantes.MESH_DESCRITORES_COMUNS_TRATADOS, "w") as f:
-        for item in descritoresTratados:
-            f.write("%s\n" % item)
+    # with open(constantes.MESH_DESCRITORES_COMUNS_TRATADOS, "w") as f:
+    #     for item in descritoresTratados:
+    #         f.write("%s\n" % item)
 
 if __name__ == "__main__":
     # a categoria Diseases [C] - https://meshb.nlm.nih.gov/treeView 
