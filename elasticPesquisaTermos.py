@@ -109,12 +109,12 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 	return resposta
 
 def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
-	"""[summary]
+	""" Prepara os dados para serem gravados no banco de dados 
 
 	Arguments:
-		mesh {[type]} -- [description]
-		snomed {[type]} -- [description]
-		termoProcurado {[type]} -- [description]
+		mesh {dict} -- Dicionario com os dados processados da terminologia MeSH
+		snomed {dict} -- Dicionario com os dados processados da terminologia SNOMED CT
+		termoProcurado {str} -- Termo que deu origem aos dados estatisticos 
 	"""
 	listaMeSH = mesh["MeSH"] 
 	totalTermosPesquisadosMesh = len(mesh["MeSHtotalTermosPesquisados"])
@@ -172,17 +172,17 @@ def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
 
 	banco = BDestatistica(constantes.BD_SQL_ESTATISTICA)
 	with banco:
-		pkEstatistica = banco.insereEstatistica(termoProcurado, totalArtigosMeSH, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMeSH, totalArtigosRepetidosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, totalArtigosComuns, totalTermosComuns)
+		pkEstatistica = banco.insereEstatistica(termoProcurado, len(termoProcurado.split()), totalArtigosMeSH, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMeSH, totalArtigosRepetidosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, totalArtigosComuns, totalTermosComuns)
 		# segue as iteracoes para cada terminologia e seus conjuntos de termos
 		for termo in mesh["MeSHtotalTermosPesquisados"]:
-			banco.insereTermosAssociados(pkEstatistica,"M", "P", termo)
+			banco.insereTermosAssociados(pkEstatistica,"M", "P", str(termo), len(termo.split()))
 		for termo in mesh["MeSHtotalTermosPesquisadosComRevocacao"]:
-			banco.insereTermosAssociados(pkEstatistica, "M", "R", termo)
+			banco.insereTermosAssociados(pkEstatistica, "M", "R", str(termo), len(termo.split()))
 
 		for termo in snomed["SNOMEDtotalTermosPesquisados"]:
-			banco.insereTermosAssociados(pkEstatistica, "S", "P", termo)
+			banco.insereTermosAssociados(pkEstatistica, "S", "P", str(termo), len(termo.split()))
 		for termo in snomed["SNOMEDtotalTermosPesquisadosComRevocacao"]:
-			banco.insereTermosAssociados(pkEstatistica, "S", "R", termo)
+			banco.insereTermosAssociados(pkEstatistica, "S", "R", str(termo), len(termo.split()))
 
 	# with open('resultadoComparacao.json', 'w') as f:
 	# 	json.dump(resultado, f, indent=4)

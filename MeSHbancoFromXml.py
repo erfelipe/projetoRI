@@ -49,7 +49,7 @@ def main():
                         nome = termo.findall('String')
                         if validaConceptList(nome[0].text):
                             conjunto = {}
-                            conjunto[ui[0].text] = utils.textoNormalizado(nome[0].text)
+                            conjunto[ui[0].text] = nome[0].text
                             conceitosRelacionados.append(conjunto)
         
         desc = Descritor(dr, nomeDescritor, numerosHierarquicos, conceitosRelacionados, lang) 

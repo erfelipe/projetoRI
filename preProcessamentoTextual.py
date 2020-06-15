@@ -379,6 +379,8 @@ def saveText(texto, fileName, nameLib):
     arq.write(texto) 
     arq.close()
 
+
+
 if __name__ == "__main__":
     arquivo = "/Volumes/SD-64-Interno/artigosPDFbmc/s12877-019-1277-x.pdf" 
     fileName = os.path.basename(arquivo)

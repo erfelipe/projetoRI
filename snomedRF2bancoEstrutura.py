@@ -255,6 +255,7 @@ class BDSnomed:
             return resp
         axAbout = ''
         codigos = []
+        espaco = int(-1)
         objInterSize = len('ObjectIntersectionOf(') 
         for ax in dataSetAxioma: 
             codigos.clear()
@@ -280,7 +281,7 @@ class BDSnomed:
                         ehNumero = cod.isdigit()
                         if (ehNumero): 
                             codigos.append(ax[0][ind+1:espaco]) 
-                        ind = espaco + 1 
+                        ind = int(espaco) + 1 
                     else:
                         ehNumero = False
             else: #situacao SubClassOf(:371068009 :22298006)
