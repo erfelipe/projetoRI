@@ -1,0 +1,209 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- <script type="text/javascript" src="js/lib/jquery.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.3.1.js"
+        integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='springy.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='springyui.js') }}"></script>
+
+    <title> Início </title>
+
+    <script type="text/javascript">
+
+        function desenhaGrafo(data, termoPesquisado) {
+
+            //Springy.Renderer()
+            $('#grafo').empty();
+
+            //estrutura para filtrar os dados e preparar o json para o grafo
+            var mainDict = [];
+            //estrutura para considerar os nodos do grafo
+            var nodos = [];
+            for (var i = 0; i < data.length; i++) {
+                mainDict.push({
+                    lang: data[i]._source.dcLanguage,
+                    titulo: data[i]._source.dcTitle
+                })
+                nodos.push(data[i]._source.dcTitle);
+            }
+            nodos.push(termoPesquisado);
+            nodos.push('pt-br');
+            nodos.push('en');
+            nodos.push('es');
+            //console.log(mainDict);
+            //nsole.log(nodos);
+
+            //estrutura para considerar as conexoes
+            var conexoes = [];
+            conexoes.push([termoPesquisado, "pt-br"]);
+            conexoes.push([termoPesquisado, "en"]);
+            conexoes.push([termoPesquisado, "es"]);
+            for (var i = 0; i < mainDict.length; i++) {
+                if (mainDict[i].lang == 'pt-br') {
+                    conexoes.push(['pt-br', mainDict[i].titulo])
+                } else if (mainDict[i].lang == 'en') {
+                    conexoes.push(['en', mainDict[i].titulo])
+                } else if (mainDict[i].lang == 'es') {
+                    conexoes.push(['es', mainDict[i].titulo])
+                }
+            }
+
+            console.log(conexoes)
+            console.log(JSON.stringify(conexoes))
+            graphJSON = {
+                "nodes": nodos,
+                "edges": conexoes
+            };
+
+            var graph = new Springy.Graph();
+            graph.loadJSON(graphJSON);
+            //http://getspringy.com/demo-json.html
+
+            var layout = new Springy.Layout.ForceDirected(
+                graph,
+                300.0, // Spring stiffness
+                400.0, // Node repulsion
+                0.5 // Damping
+            );
+
+            var canvas = document.getElementById('grafo');
+            var ctx = canvas.getContext('2d');
+
+            var renderer = new Springy.Renderer(layout,
+                function clear() {
+                    ctx.clearRect(0, 0, 650, 350);
+                },
+                function drawEdge(edge, p1, p2) {
+                    ctx.save();
+                    ctx.translate(650 / 2, 350 / 2);
+
+                    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+                    ctx.lineWidth = 3.0;
+
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x * 50, p1.y * 40);
+                    ctx.lineTo(p2.x * 50, p2.y * 40);
+                    ctx.stroke();
+
+                    ctx.restore();
+                },
+                function drawNode(node, p) {
+                    ctx.save();
+                    ctx.translate(650 / 2, 350 / 2);
+
+                    ctx.font = "18px 'IM Fell English', 'Times New Roman', serif";
+
+                    var width = ctx.measureText(node.data.label).width;
+                    var x = p.x * 50;
+                    var y = p.y * 40;
+                    ctx.clearRect(x - width / 2.0 - 2, y - 10, width + 4, 20);
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText(node.data.label, x - width / 2.0, y + 5);
+
+                    ctx.restore();
+                }
+            );
+            
+            //$('#grafo').springy({ graph: graph });
+
+            renderer.start();
+
+        }
+
+        function desenhaLinha(linha) {
+            var row = $("<tr />")
+            $("#corpoTabela").append(row);
+            row.append($("<td>" + linha._id + "</td>"));
+            row.append($("<td>" + linha._score + "</td>"));
+            row.append($("<td>" + linha._source.dcDate + "</td>"));
+            row.append($("<td>" + linha._source.dcLanguage + "</td>"));
+            row.append($("<td>" + linha._source.dcCreator + "</td>"));
+            row.append($("<td>" + linha._source.dcTitle + "</td>"));
+            row.append($("<td>" + linha._source.dcDescription + "</td>"));
+        }
+
+        function desenhaTabela(data) {
+            $("#corpoTabela").empty();
+            for (var i = 0; i < data.length; i++) {
+                desenhaLinha(data[i]);
+            }
+        }
+
+        $(document).ready(function () {
+            $("#btnCarregar").click(function () {
+                let termo = $('#txtPesquisar').val();
+                let endereco = "http://localhost:5000/pesquisa/" + termo;
+                $.get(endereco, function (data) {
+                }).done(function (data) {
+                    $("#p1").text(data); //TESTE - tirar em producao
+                    console.log(data)
+                    let obj = jQuery.parseJSON(data);
+                    console.log(obj);
+                    desenhaTabela(obj);
+                    desenhaGrafo(obj, termo);
+                })
+            })
+        })
+
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin:24px 0;">
+        <a class="navbar-brand" href="javascript:void(0)">Recoll</a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navb">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navb">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0)">Projeto</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0)">Ajuda</a>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+                <input id="txtPesquisar" class="form-control mr-sm-2" type="text" placeholder="Termo a Pesquisar">
+                <button id="btnCarregar" class="btn btn-success my-2 my-sm-0" type="button">Pesquisar</button>
+            </form>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>Recuperação expandida</h1>
+    </div>
+    <div class="container" id="resp">
+        <p id="p1"> </p>
+        <table id="tabela" class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th>Id</th>
+                    <th>Ranking</th>
+                    <th>Data</th>
+                    <th>Idioma</th>
+                    <th>Autor</th>
+                    <th>Título</th>
+                    <th>Texto</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabela">
+
+            </tbody>
+        </table>
+        <br>
+    </div class="container" id="graf">
+    <center>
+        <canvas id="grafo" width="1024" height="600"></canvas>
+    </center>
+    </div>
+</body>
+
+</html>

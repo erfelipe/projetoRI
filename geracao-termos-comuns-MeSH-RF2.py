@@ -57,7 +57,9 @@ def procuraNoSnomedDescritorOriginal(desc):
     return dataSet[0]
 
 def procuraNoSnomedPelaHierarquiaDeTermosMesh(codHierarquico):
-    """ Dado um código hierárquico do MeSH, procura no Snomed os termos correspondentes
+    """ 
+        DEPRECATED
+        Dado um código hierárquico do MeSH, procura no Snomed os termos correspondentes
         a partir de termos do MeSH
     
     Arguments:
@@ -99,14 +101,14 @@ def procuraNoSnomedPelaHierarquiaDeTermosMesh(codHierarquico):
         print("Termo: " + str(registro) + " de " + str(quant))
 
     #grava o array dos termos comuns em txt
-    with open(constantes.MESH_TERMOS_COMUNS_ORIGINAIS, "w") as f:
-        for item in termosOriginais:
-            f.write("%s\n" % item)
+    # with open(constantes.MESH_TERMOS_COMUNS_ORIGINAIS, "w") as f:
+    #     for item in termosOriginais:
+    #         f.write("%s\n" % item)
 
     #grava o array dos termos tratados em txt
-    with open(constantes.MESH_TERMOS_COMUNS_TRATADOS, "w") as f:
-        for item in termosOriginais:
-            f.write("%s\n" % item)
+    # with open(constantes.MESH_TERMOS_COMUNS_TRATADOS, "w") as f:
+    #     for item in termosOriginais:
+    #         f.write("%s\n" % item)
     
 
 def procuraNoSnomedPelaHierarquiaDeDescritoresMesh(codHierarquico):
@@ -139,41 +141,32 @@ def procuraNoSnomedPelaHierarquiaDeDescritoresMesh(codHierarquico):
         encontradoTermoOriginal = procuraNoSnomedDescritorOriginal(termo)
         if (encontradoTermoOriginal > 0):
             descritoresOriginais.add(termo)
-            print("Descritor original: " + termo)
+            print("Encontrado descritor original: " + termo)
         print("Descritor: " + str(registro) + " de "  + str(quant)) 
-    
-    registro = 0
-    quant = len(vocabularioTratado)
 
-    # #localiza e seleciona os termos comuns com tratamento
-    # for termo in vocabularioTratado:
-    #     registro += 1
-    #     encontradoTermoTratado = procuraNoSnomedDescritorTratado(termo)
-    #     if (encontradoTermoTratado > 0):
-    #         descritoresTratados.add(termo)
-    #         print("Descritor tratado: " + termo)
-    #     print("Descritor tratado: " + str(registro) + " de "  + str(quant)) 
-
-    #grava o array dos termos comuns em txt
+    #grava o array dos termos comuns ORIGINAIS em txt
     with open(constantes.MESH_DESCRITORES_COMUNS_ORIGINAIS, "w") as f:
         for item in descritoresOriginais:
             f.write("%s\n" % item)
 
-    #grava o array dos termos comuns em txt
-    # with open(constantes.MESH_DESCRITORES_COMUNS_TRATADOS, "w") as f:
-    #     for item in descritoresTratados:
-    #         f.write("%s\n" % item)
+    registro = 0
+    quant = len(vocabularioTratado)
+
+    #localiza e seleciona os termos comuns com tratamento
+    for termo in vocabularioTratado:
+        registro += 1
+        encontradoTermoTratado = procuraNoSnomedDescritorTratado(termo)
+        if (encontradoTermoTratado > 0):
+            descritoresTratados.add(termo)
+            print("Encontrado descritor tratado: " + termo)
+        print("Descritor tratado: " + str(registro) + " de "  + str(quant)) 
+
+    #grava o array dos termos comuns TRATADOS em txt
+    with open(constantes.MESH_DESCRITORES_COMUNS_TRATADOS, "w") as f:
+        for item in descritoresTratados:
+            f.write("%s\n" % item)
 
 if __name__ == "__main__":
     # a categoria Diseases [C] - https://meshb.nlm.nih.gov/treeView 
 
     procuraNoSnomedPelaHierarquiaDeDescritoresMesh('C')
-
-    # proc1 = multiprocessing.Process(target= procuraNoSnomedPelaHierarquiaDeDescritoresMesh, args=('C',))
-    # proc2 = multiprocessing.Process(target= procuraNoSnomedPelaHierarquiaDeTermosMesh, args=('C',)) 
-
-    # proc1.start()
-    # proc2.start()
-
-    # proc1.join()
-    # proc2.join()

@@ -22,8 +22,9 @@ def processarArquivoRF2(arquivo, tabela):
                 for linha in conteudo:
                     bancoDeDados.inserirDescription(linha)
             elif tabela == 'relationship':
-                for linha in conteudo:
-                    bancoDeDados.inserirRelationShip(linha)
+                print("Tabela relationship não precisa ser importada")
+                # for linha in conteudo:
+                #     bancoDeDados.inserirRelationShip(linha)
             elif tabela == 'srefset':
                 for linha in conteudo:
                     bancoDeDados.inserirSrefSet(linha)
@@ -31,8 +32,9 @@ def processarArquivoRF2(arquivo, tabela):
                 for linha in conteudo:
                     bancoDeDados.inserirStatedRelationShip(linha)
             elif tabela == 'textdefinition':
-                for linha in conteudo:
-                    bancoDeDados.inserirTextDefinition(linha)
+                print("Tabela textdefinition não precisa ser importada")
+                # for linha in conteudo:
+                #     bancoDeDados.inserirTextDefinition(linha)
 
 def listaArquivosEmDiretorio(mascara):
     """ A partir de uma mascara (*.txt) por exemplo, retorna uma lista com os arquivos

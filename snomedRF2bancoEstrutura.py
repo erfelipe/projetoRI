@@ -101,7 +101,7 @@ class BDSnomed:
 
     def inserirConcept(self, tupla):
         """ Insere registros na tabela concept 
-
+            Por motivos de performance farei insercao direta, sem validacao
             Args: 
                 param1 (array): registro lido do arquivo txt
 
@@ -109,19 +109,20 @@ class BDSnomed:
                 void
         """ 
         id = tupla[0]
-        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
+        #effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
         active = tupla[2]
-        moduleId = tupla[3]
-        definitionStatusId = tupla[4]
-        """ Por motivos de performance farei insercao direta, sem validacao """
+        #moduleId = tupla[3]
+        #definitionStatusId = tupla[4]
         if (active == '1'):
             try:
-                self.cursor.execute(" INSERT INTO concept (id, effectiveTime, active, moduleId, definitionStatusId) VALUES (?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, definitionStatusId, ))
+                self.cursor.execute(" INSERT INTO concept (id, active) VALUES (?, ?)", (id, active, ))
             except Exception as identifier:
                 print('* Erro na inserção do ID' + id + identifier)
 
     def inserirDescription(self, tupla):
         """ Insere registros na tabela description 
+
+            Por motivos de performance farei insercao direta, sem validacao
 
             Args: 
             param1 (array): registro lido do arquivo txt 
@@ -130,19 +131,18 @@ class BDSnomed:
             void
         """         
         id = tupla[0]
-        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
+        #effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
         active = tupla[2]
-        moduleId = tupla[3]
+        #moduleId = tupla[3]
         conceptId = tupla[4]
         languageCode = tupla[5]
-        typeId = tupla[6]
+        #typeId = tupla[6]
         termOriginal = tupla[7]
         termTratado = preProcessamentoTextual.trataDescricao(tupla[7])
-        caseSignificanceId = tupla[8]
-        """ Por motivos de performance farei insercao direta, sem validacao """
+        #caseSignificanceId = tupla[8]
         if (active == '1'):
             try:
-                self.cursor.execute(" INSERT INTO description (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal, termTratado, caseSignificanceId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, conceptId, languageCode, typeId, termOriginal.lower(), termTratado.lower(), caseSignificanceId, ))
+                self.cursor.execute(" INSERT INTO description (id, active, conceptId, languageCode, termOriginal, termTratado) VALUES (?, ?, ?, ?, ?, ?)", (id, active, conceptId, languageCode, termOriginal.lower(), termTratado.lower(), ))
             except Exception as identifier:
                 print('* Erro na inserção do ID' + id + identifier)
         
@@ -162,39 +162,51 @@ class BDSnomed:
             try:
                 self.cursor.execute(" INSERT INTO relationship (id, effectiveTime, active, moduleId, sourceId, destinationId, relationshipGroup, typeId, characteristicTypeId, modifierId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, sourceId, destinationId, relationshipGroup, typeId, characteristicTypeId, modifierId, ))
             except Exception as identifier:
-                print('* Erro na inserção do ID' + id + identifier)
+                print('* Erro na inserção relationship - do ID' + id + identifier)
 
     def inserirSrefSet(self, tupla):
+        """ Insere registros na tabela refSet
+
+            Por motivos de performance farei insercao direta, sem validacao
+
+        Args:
+            tupla (array): registro lido do arquivo txt 
+        """        
         id = tupla[0]
-        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
+        #effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
         active = tupla[2]
-        moduleId = tupla[3]
-        refsetId = tupla[4]
-        referencedComponentId = tupla[5]
+        #moduleId = tupla[3]
+        #refsetId = tupla[4]
+        #referencedComponentId = tupla[5]
         owlExpression = tupla[6]
-        """ Por motivos de performance farei insercao direta, sem validacao """
         if (active == '1'):
             try:
-                self.cursor.execute(" INSERT INTO refset (id, effectiveTime, active, moduleId, refsetId, referencedComponentId, owlExpression) VALUES (?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, refsetId, referencedComponentId, owlExpression, ))
+                self.cursor.execute(" INSERT INTO refset (id, active, owlExpression) VALUES (?, ?, ?)", (id, active, owlExpression, ))
             except Exception as identifier:
-                print('* Erro na inserção do ID' + id + identifier)
+                print('* Erro na inserção refset - do ID' + id + identifier)
 
     def inserirStatedRelationShip(self, tupla):
+        """ Insere registros na tabela statedrelationship
+
+            Por motivos de performance farei insercao direta, sem validacao
+
+        Args:
+            tupla (array): registro lido do arquivo txt 
+        """        
         id = tupla[0]
-        effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
-        active = tupla[2]
-        moduleId = tupla[3]
+        #effectiveTime = preProcessamentoTextual.dateToTimeString(tupla[1])
+        #active = tupla[2]
+        #moduleId = tupla[3]
         sourceId = tupla[4]
         destinationId = tupla[5]
-        relationshipGroup = tupla[6]
-        typeId = tupla[7]
-        characteristicTypeId = tupla[8]
-        modifierId = tupla[9]
-        """ Por motivos de performance farei insercao direta, sem validacao """
+        #relationshipGroup = tupla[6]
+        #typeId = tupla[7]
+        #characteristicTypeId = tupla[8]
+        #modifierId = tupla[9]
         try:
-            self.cursor.execute(" INSERT INTO statedrelationship (id, effectiveTime, active, moduleId, sourceId, destinationId, relationshipGroup, typeId, characteristicTypeId, modifierId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, effectiveTime, active, moduleId, sourceId, destinationId, relationshipGroup, typeId, characteristicTypeId, modifierId, ))
+            self.cursor.execute(" INSERT INTO statedrelationship (id, sourceId, destinationId) VALUES (?, ?, ?)", (id, sourceId, destinationId, ))
         except Exception as identifier:
-            print('* Erro na inserção do ID' + id + identifier)
+            print('* Erro na inserção statedrelationship - do ID' + id + identifier)
 
     def inserirTextDefinition(self, tupla):
         id = tupla[0]
@@ -218,14 +230,14 @@ class BDSnomed:
             self.inserirConcept(linha)
         elif tabela == 'description':
             self.inserirDescription(linha)
-        elif tabela == 'relationship':
-            self.inserirRelationShip(linha)
+        # elif tabela == 'relationship':
+        #     self.inserirRelationShip(linha)
         elif tabela == 'srefset':
             self.inserirSrefSet(linha)
         elif tabela == 'statedrelationship':
             self.inserirStatedRelationShip(linha)
-        elif tabela == 'textdefinition':
-            self.inserirTextDefinition(linha)
+        # elif tabela == 'textdefinition':
+        #     self.inserirTextDefinition(linha)
 
     def listaTermosProximosConceitualmente(self, termoProcurado, tipoTermo, idioma):
         pass

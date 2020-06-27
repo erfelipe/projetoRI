@@ -38,21 +38,22 @@ def validaHierarquiaDescritores(idhierarq, lista):
             resposta.append(item[0])
     return resposta
 
-def carregarDescritoresComunsOriginaisMeSH(quantidade):
+def carregarDescritoresComunsOriginaisMeSH(inicio, fim):
     """ Le o arquivo de descritores comuns e retorna os itens em lista (array)
 
     Args:
-        quantidade (int): 0 para todos ou maior que zero para um conjunto especifico de itens
+        inicio (int): maior que zero para um conjunto especifico de itens
+        fim (int): 0 para todos ou maior que zero para um conjunto especifico de itens
 
     Returns:
         list: Uma lista (array) com os descritores do arquivo
-    """
+    """ 
     with open(constantes.MESH_DESCRITORES_COMUNS_ORIGINAIS, 'r') as file:
         lista = file.read().splitlines()
         listaMinuscula = [x.lower() for x in lista]
 
-        if quantidade > 0:
-            return listaMinuscula[:quantidade]
+        if fim > 0:
+            return listaMinuscula[inicio:fim]
         else:
             return listaMinuscula
 

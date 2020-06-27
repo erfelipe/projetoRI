@@ -52,12 +52,12 @@ class BDestatistica:
         Args:
             termo (str): Termo que encabeca a pesquisa expandida 
             totalUnigramas (int): Número de palavras que compoem este termo
-            totalArtigosMesh (int): Número de artigos recuperados
+            totalArtigosMesh (int): Número de artigos recuperados para terminologia MeSH
             totalTermosPesquisadosMesh (int): Número total de termos para consulta expandida
             totalTermosPesquisadosComRevocacaoMesh (int): Número de termos com revocação
             totalArtigosUnicosMesh (int): Número de artigos que não se repetem para os diversos termos pesquisados
             totalArtigosRepetidosMesh (int): Número de artigos que se repetem para os diversos termos pesquisados
-            totalArtigosSnomed (int): Número de artigos recuperados
+            totalArtigosSnomed (int): Número de artigos recuperados para a terminologia SNOMED CT 
             totalTermosPesquisadosSnomed (int): Número total de termos para consulta expandida
             totalTermosPesquisadosComRevocacaoSnomed (int): Número de termos com revocação
             totalArtigosUnicosSnomed (int): Número de artigos que não se repetem para os diversos termos pesquisados
