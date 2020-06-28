@@ -22,81 +22,38 @@ class BDSnomed:
         self.conn.close() 
 
     def criarBancoDeDados(self): 
-        """ Cria a estrutura do banco de dados
+        """ Cria a estrutura do banco de dados 
         """ 
         self.cursor.execute("""  CREATE TABLE if not exists concept 
-                            (id   text NOT NULL, 
-                             effectiveTime text NOT NULL,
-                             active integer NOT NULL,
-                             moduleId text NOT NULL,
-                             definitionStatusId text NOT NULL ); 
+                            (id   text NOT NULL ); 
                     """) 
         
         self.cursor.execute("""  CREATE TABLE if not exists description 
                             (id   text NOT NULL,
-                             effectiveTime   text NOT NULL,
-                             active integer NOT NULL,
-                             moduleID text NOT NULL,
                              conceptId text NOT NULL, 
                              languageCode text NOT NULL,
-                             typeId text NOT NULL,
                              termOriginal text NOT NULL,
-                             termTratado text NOT NULL,
-                             caseSignificanceId text NOT NULL);
+                             termTratado text NOT NULL );
                     """) 
-
-        self.cursor.execute(""" CREATE TABLE if not exists relationship 
-                            (id text NOT NULL,
-                            effectiveTime text NOT NULL,
-                            active integer NOT NULL, 
-                            moduleId text NOT NULL,
-                            sourceId text NOT NULL, 
-                            destinationId text NOT NULL, 
-                            relationshipGroup text NOT NULL, 
-                            typeId text NOT NULL, 
-                            characteristicTypeId text NOT NULL, 
-                            modifierId text NOT NULL );
-                    """)
 
         self.cursor.execute(""" CREATE TABLE if not exists refset
                             (id text NOT NULL, 
-                            effectiveTime text NOT NULL, 
-                            active integer NOT NULL, 
-                            moduleId text NOT NULL, 
-                            refsetId text NOT NULL,
-                            referencedComponentId text NOT NULL,
                             owlExpression text NOT NULL );
                     """)
 
         self.cursor.execute(""" CREATE TABLE if not exists statedrelationship
                             (id text NOT NULL, 
-                            effectiveTime text NOT NULL, 
-                            active integer NOT NULL, 
-                            moduleId text NOT NULL, 
                             sourceId text NOT NULL, 
-                            destinationId text NOT NULL,
-                            relationshipGroup text NOT NULL, 
-                            typeId text NOT NULL, 
-                            characteristicTypeId text NOT NULL, 
-                            modifierId text NOT NULL );
+                            destinationId text NOT NULL );
                     """)
 
-        self.cursor.execute(""" CREATE TABLE if not exists textdefinition
-                            (id text NOT NULL, 
-                            effectiveTime text NOT NULL, 
-                            active integer NOT NULL, 
-                            moduleId text NOT NULL, 
-                            conceptId text NOT NULL,
-                            languageCode text NOT NULL, 
-                            typeId text NOT NULL,
-                            term text NOT NULL,
-                            caseSignificanceId text NOT NULL );
-                    """)
-
-        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_description_term ON description (termTratado);")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_concept_id ON concept (id);")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_description_id ON description (conceptId);")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_description_lang ON description (languageCode);")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_description_termOriginal ON description (termOriginal);")
-        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationship_destId ON relationship (destinationId);")
-        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationship_srcId ON relationship (sourceId);")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_description_termTratado ON description (termTratado);")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_refset_owl ON refset (owlExpression);")
+        self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_statedrelationship_srcId ON statedrelationship (sourceId);")
         self.cursor.execute("CREATE INDEX IF NOT EXISTS idx_statedrelationship_destId ON statedrelationship (destinationId);")
 
     def inserirConcept(self, tupla):
@@ -115,15 +72,17 @@ class BDSnomed:
         #definitionStatusId = tupla[4]
         if (active == '1'):
             try:
-                self.cursor.execute(" INSERT INTO concept (id, active) VALUES (?, ?)", (id, active, ))
+                self.cursor.execute(" INSERT INTO concept (id) VALUES (?)", (id, ))
             except Exception as identifier:
-                print('* Erro na inserção do ID' + id + identifier)
+                print('* Erro na inserção concept - do ID' + id + identifier)
 
     def inserirDescription(self, tupla):
         """ Insere registros na tabela description 
 
             Por motivos de performance farei insercao direta, sem validacao
-
+            Atenção: a linha: 1225447015	20040131	0	900000000000207008	275814008	en	900000000000013009	Morning after pill	900000000000020002
+            contém uma aspa dupla que atrapalha toda a importacao. Eh necessario apagar antes de prosseguir com o algoritmo 
+            
             Args: 
             param1 (array): registro lido do arquivo txt 
 
@@ -142,9 +101,9 @@ class BDSnomed:
         #caseSignificanceId = tupla[8]
         if (active == '1'):
             try:
-                self.cursor.execute(" INSERT INTO description (id, active, conceptId, languageCode, termOriginal, termTratado) VALUES (?, ?, ?, ?, ?, ?)", (id, active, conceptId, languageCode, termOriginal.lower(), termTratado.lower(), ))
+                self.cursor.execute(" INSERT INTO description (id, conceptId, languageCode, termOriginal, termTratado) VALUES (?, ?, ?, ?, ?)", (id, conceptId, languageCode, termOriginal.lower(), termTratado.lower(), ))
             except Exception as identifier:
-                print('* Erro na inserção do ID' + id + identifier)
+                print('* Erro na inserção description - do ID' + id + identifier)
         
     def inserirRelationShip(self, tupla):
         id = tupla[0]
@@ -181,7 +140,7 @@ class BDSnomed:
         owlExpression = tupla[6]
         if (active == '1'):
             try:
-                self.cursor.execute(" INSERT INTO refset (id, active, owlExpression) VALUES (?, ?, ?)", (id, active, owlExpression, ))
+                self.cursor.execute(" INSERT INTO refset (id, owlExpression) VALUES (?, ?)", (id, owlExpression, ))
             except Exception as identifier:
                 print('* Erro na inserção refset - do ID' + id + identifier)
 
@@ -345,7 +304,6 @@ class BDSnomed:
         dataset = self.cursor.execute( """ select d.conceptId
                                            from description d
                                            where termOriginal like ?
-                                           and active = 1
                                            group by d.conceptId """, (termo, )
                                     ).fetchall()
         datasetSimples = []

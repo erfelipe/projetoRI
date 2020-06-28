@@ -51,7 +51,7 @@ def carregarDescritoresComunsOriginaisMeSH(inicio, fim):
     with open(constantes.MESH_DESCRITORES_COMUNS_ORIGINAIS, 'r') as file:
         lista = file.read().splitlines()
         listaMinuscula = [x.lower() for x in lista]
-
+        print("Tamanho da lista de termos: ", str(len(listaMinuscula)))
         if fim > 0:
             return listaMinuscula[inicio:fim]
         else:

@@ -226,7 +226,6 @@ def iniciaPesquisaEmAmbasTerminologias(termos):
 			listaSnomed = f1.result()
 			listaMeSH = f2.result()
 			listaFinal = {**listaSnomed, **listaMeSH}
-			print("Funçao compara resultados")
 			comparaResultadosDasTerminologias(listaMeSH, listaSnomed, termoProcurado)
 
 			# with open('search.json', 'w') as f:
@@ -241,7 +240,7 @@ if __name__ == "__main__":
 	#termosComuns = ["plagiocephaly", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy"]
 	
 	descritoresComuns = []
-	descritoresComuns = MeSHutils.carregarDescritoresComunsOriginaisMeSH(0, 0)
+	descritoresComuns = MeSHutils.carregarDescritoresComunsOriginaisMeSH(2001, 2226) 
 	#descritoresComuns.append("heart attack")
 
 	#passe uma lISTA PARA A FUNCAO, pelamor!

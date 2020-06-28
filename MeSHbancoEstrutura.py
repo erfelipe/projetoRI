@@ -52,7 +52,7 @@ class BDMeSH:
         """ Insere os dados no modelo relacional mapeado para o MeSH
         
         Arguments:
-            desc {class} -- Classe que contém tanto o descritor principal como os termos hierarquicos
+            desc {class} -- Classe que contem tanto o descritor principal como os termos hierarquicos
         """        
         lang = desc.language
         iddesc = desc.iddesc

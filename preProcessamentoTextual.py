@@ -1,3 +1,5 @@
+# coding=UTF-8
+
 # leitura de sistema de arquivo
 import os
 # extracao do texto em pdf para texto puro
@@ -16,7 +18,7 @@ import hashlib
 from cleantext import clean
 # limpar o texto com caracteres especiais
 from string import punctuation
-# limpar o texto de espaços repetidos com regex
+# limpar o texto de espacos repetidos com regex
 import re
 # extracao do texto em pdf para texto puro 
 import fitz
@@ -84,7 +86,7 @@ def extraiPDFpyMuPdf(arq):
         resultado.append(raw.metadata)
         return resultado
     except Exception as e:
-        logging.error('Erro na extração do arquivo PDF: ' + arq + str(e))
+        logging.error('Erro na extracao do arquivo PDF: ' + arq + str(e))
         return ""
 
 # List of files from directory choosed 

@@ -51,19 +51,19 @@ class BDestatistica:
 
         Args:
             termo (str): Termo que encabeca a pesquisa expandida 
-            totalUnigramas (int): Número de palavras que compoem este termo
-            totalArtigosMesh (int): Número de artigos recuperados para terminologia MeSH
-            totalTermosPesquisadosMesh (int): Número total de termos para consulta expandida
-            totalTermosPesquisadosComRevocacaoMesh (int): Número de termos com revocação
-            totalArtigosUnicosMesh (int): Número de artigos que não se repetem para os diversos termos pesquisados
-            totalArtigosRepetidosMesh (int): Número de artigos que se repetem para os diversos termos pesquisados
-            totalArtigosSnomed (int): Número de artigos recuperados para a terminologia SNOMED CT 
-            totalTermosPesquisadosSnomed (int): Número total de termos para consulta expandida
-            totalTermosPesquisadosComRevocacaoSnomed (int): Número de termos com revocação
-            totalArtigosUnicosSnomed (int): Número de artigos que não se repetem para os diversos termos pesquisados
-            totalArtigosRepetidosSnomed (int): Número de artigos que se repetem para os diversos termos pesquisados
-            totalArtigosComuns (int): Número de artigos que aparecem em revocação para ambas terminologias
-            totalTermosComuns (int): Número de termos comuns em ambas terminologias no processo de pesquisa 
+            totalUnigramas (int): Numero de palavras que compoem este termo
+            totalArtigosMesh (int): Numero de artigos recuperados para terminologia MeSH
+            totalTermosPesquisadosMesh (int): Numero total de termos para consulta expandida
+            totalTermosPesquisadosComRevocacaoMesh (int): Numero de termos com revocacao
+            totalArtigosUnicosMesh (int): Numero de artigos que nao se repetem para os diversos termos pesquisados
+            totalArtigosRepetidosMesh (int): Numero de artigos que se repetem para os diversos termos pesquisados
+            totalArtigosSnomed (int): Numero de artigos recuperados para a terminologia SNOMED CT 
+            totalTermosPesquisadosSnomed (int): Numero total de termos para consulta expandida
+            totalTermosPesquisadosComRevocacaoSnomed (int): Numero de termos com revocacao
+            totalArtigosUnicosSnomed (int): Numero de artigos que nao se repetem para os diversos termos pesquisados
+            totalArtigosRepetidosSnomed (int): Numero de artigos que se repetem para os diversos termos pesquisados
+            totalArtigosComuns (int): Numero de artigos que aparecem em revocacao para ambas terminologias
+            totalTermosComuns (int): Numero de termos comuns em ambas terminologias no processo de pesquisa 
 
         Returns:
             int: Codigo da chave primaria criada na insercao
@@ -80,7 +80,7 @@ class BDestatistica:
             terminologia (str): "M" = MeSH, "S" = SNOMED
             tipoTermo (str): "P" = Pesquisado, "R" = Obteve revocacao
             termo (str): Termo usado nesta pesquisa 
-            totalUnigramas (int): Número de palavras que compoem este termo
+            totalUnigramas (int): Numero de palavras que compoem este termo
         """
         self.cursor.execute(""" INSERT INTO termosAssociados (idEstatistica, terminologia, tipoTermo, termo, totalUnigramas) 
                                 VALUES (?, ?, ?, ?, ?) """, (idEstatistica, terminologia, tipoTermo, termo, totalUnigramas,))
