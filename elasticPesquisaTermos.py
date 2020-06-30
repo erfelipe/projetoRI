@@ -32,29 +32,27 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	es = elasticsearch.Elasticsearch()
 	es.indices.open("articles")
 	itensEncontrados = []
-	termosComRevocacao = [] 
+	termosERevocacao = {} 
 
 	for desc in descritoresHierarquicos:
 		resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": desc, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
+		termosERevocacao[desc] = len(resultSet['hits'])
 		for item in resultSet['hits']:
 			itensEncontrados.append([desc, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
-			termosComRevocacao.append(desc)
+			
 
 	for termo in termosEntradaHierarquicos:
 		resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termo, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
+		termosERevocacao[termo] = len(resultSet['hits'])
 		for item in resultSet['hits']:
 			itensEncontrados.append([termo, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
-			termosComRevocacao.append(termo)
 
-	totalTermosPesquisados = list(descritoresHierarquicos.union(termosEntradaHierarquicos))
-	totalTermosPesquisadosComRevocacao = list(set(termosComRevocacao))
 	resposta = {}
 	resposta["MeSH"] = itensEncontrados
-	resposta["MeSHtotalTermosPesquisados"] = totalTermosPesquisados
-	resposta["MeSHtotalTermosPesquisadosComRevocacao"] = totalTermosPesquisadosComRevocacao
+	resposta["MeSHtotalTermosPesquisadosERevocacao"] = termosERevocacao
 
-	# with open('MeSH.json', 'w') as f:
-	# 	json.dump(resposta, f, indent=4)
+	with open('MeSH.json', 'w') as f:
+		json.dump(resposta, f, indent=4)
 
 	return resposta
 	
@@ -81,30 +79,26 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 		es = elasticsearch.Elasticsearch() 
 		es.indices.open("articles") 
 		itensEncontrados = [] 
-		termosComRevocacao = []
+		termosERevocacao = {}
 
 		for termoHierq in termosHierarquicos:
 			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termoHierq, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
+			termosERevocacao[termoHierq] = len(resultSet['hits'])
 			for item in resultSet['hits']:
 				itensEncontrados.append([termoHierq, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
-				termosComRevocacao.append(termoHierq)
 
 		for termopConceitual in termosProximosConceitualmente:
 			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termopConceitual, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
+			termosERevocacao[termopConceitual] = len(resultSet['hits'])
 			for item in resultSet['hits']:
 				itensEncontrados.append([termopConceitual, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
-				termosComRevocacao.append(termopConceitual)
-	
-	totalTermosPesquisados = []
-	totalTermosPesquisados = list(termosHierarquicos) + list(termosProximosConceitualmente)
-	totalTermosPesquisadosComRevocacao = list(set(termosComRevocacao))
+	 
 	resposta = {}
 	resposta["SNOMED"] = itensEncontrados
-	resposta["SNOMEDtotalTermosPesquisados"] = totalTermosPesquisados
-	resposta["SNOMEDtotalTermosPesquisadosComRevocacao"] = totalTermosPesquisadosComRevocacao
+	resposta["SNOMEDtotalTermosPesquisadosERevocacao"] = termosERevocacao
 
-	# with open('Snomed.json', 'w') as f:
-	# 	json.dump(resposta, f, indent=4)
+	with open('Snomed.json', 'w') as f:
+		json.dump(resposta, f, indent=4)
 
 	return resposta
 
@@ -117,15 +111,32 @@ def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
 		termoProcurado {str} -- Termo que deu origem aos dados estatisticos 
 	"""
 	listaMeSH = mesh["MeSH"] 
-	totalTermosPesquisadosMesh = len(mesh["MeSHtotalTermosPesquisados"])
-	totalTermosPesquisadosComRevocacaoMesh = len(mesh["MeSHtotalTermosPesquisadosComRevocacao"])
+	listaMeSHtotalTermosPesquisadosERevocacao = mesh["MeSHtotalTermosPesquisadosERevocacao"]
+	listaMeSHSomenteTermos = []
+	contador = 0
+	for key, value in listaMeSHtotalTermosPesquisadosERevocacao.items():
+		listaMeSHSomenteTermos.append(key)
+		if value > 0:
+			contador += 1
+	totalTermosPesquisadosComRevocacaoMesh = contador
+	totalTermosPesquisadosERevocacaoMesh = len(listaMeSHtotalTermosPesquisadosERevocacao)
+
+	# SNOMED 
 	listaSnomed = snomed["SNOMED"] 
-	totalTermosPesquisadosSnomed = len(snomed["SNOMEDtotalTermosPesquisados"])
-	totalTermosPesquisadosComRevocacaoSnomed = len(snomed["SNOMEDtotalTermosPesquisadosComRevocacao"])
+	listaSNOMEDtotalTermosPesquisadosERevocacao = snomed["SNOMEDtotalTermosPesquisadosERevocacao"]
+	listaSNOMEDSomenteTermos = []
+	contador = 0
+	for key, value in listaSNOMEDtotalTermosPesquisadosERevocacao.items():
+		listaSNOMEDSomenteTermos.append(key)
+		if value > 0:
+			contador += 1
+	totalTermosPesquisadosComRevocacaoSNOMED = contador
+	totalTermosPesquisadosERevocacaoSNOMED = len(listaSNOMEDtotalTermosPesquisadosERevocacao)
+
+	# Items comuns
 	totalArtigosMeSH = len(listaMeSH) 
 	totalArtigosSnomed = len(listaSnomed) 
 
-	# Items comuns
 	itemsIguais = set()
 	for itemMesh in listaMeSH: 
 		hashMesh = itemMesh[1] 
@@ -150,20 +161,20 @@ def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
 	totalArtigosRepetidosMesh = quantItemsRepetidosEmUmaLista(listaMeSH)
 	totalArtigosRepetidosSnomed = quantItemsRepetidosEmUmaLista(listaSnomed)
 
-	totalTermosComuns = len(list(set(mesh["MeSHtotalTermosPesquisados"]).intersection(snomed["SNOMEDtotalTermosPesquisados"])))
+	totalTermosComuns = len(list(set(listaMeSHSomenteTermos).intersection(listaSNOMEDSomenteTermos)))
 
 	resultado = {}
 	resultado['termo'] = termoProcurado
-
+	#MeSH
 	resultado['totalArtigosMesh'] = totalArtigosMeSH
-	resultado['totalTermosPesquisadosMesh'] = totalTermosPesquisadosMesh
+	resultado['totalTermosPesquisadosMesh'] = totalTermosPesquisadosERevocacaoMesh
 	resultado['totalTermosPesquisadosComRevocacaoMesh'] = totalTermosPesquisadosComRevocacaoMesh
 	resultado['totalArtigosUnicosMesh'] = totalArtigosUnicosMeSH 
 	resultado['totalArtigosRepetidosMesh'] = totalArtigosRepetidosMesh
-
+	#SNOMED
 	resultado['totalArtigosSnomed'] = totalArtigosSnomed 
-	resultado['totalTermosPesquisadosSnomed'] = totalTermosPesquisadosSnomed
-	resultado['totalTermosPesquisadosComRevocacaoSnomed'] = totalTermosPesquisadosComRevocacaoSnomed
+	resultado['totalTermosPesquisadosSnomed'] = totalTermosPesquisadosERevocacaoSNOMED
+	resultado['totalTermosPesquisadosComRevocacaoSnomed'] = totalTermosPesquisadosComRevocacaoSNOMED
 	resultado['totalArtigosUnicosSnomed'] = totalArtigosUnicosSnomed 
 	resultado['totalArtigosRepetidosSnomed'] = totalArtigosRepetidosSnomed
 
@@ -172,20 +183,22 @@ def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
 
 	banco = BDestatistica(constantes.BD_SQL_ESTATISTICA)
 	with banco:
-		pkEstatistica = banco.insereEstatistica(termoProcurado, len(termoProcurado.split()), totalArtigosMeSH, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMeSH, totalArtigosRepetidosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, totalArtigosComuns, totalTermosComuns)
-		# segue as iteracoes para cada terminologia e seus conjuntos de termos
-		for termo in mesh["MeSHtotalTermosPesquisados"]:
-			banco.insereTermosAssociados(pkEstatistica,"M", "P", str(termo), len(termo.split()))
-		for termo in mesh["MeSHtotalTermosPesquisadosComRevocacao"]:
-			banco.insereTermosAssociados(pkEstatistica, "M", "R", str(termo), len(termo.split()))
+		pkEstatistica = banco.insereEstatistica(termoProcurado, len(termoProcurado.split()), totalArtigosMeSH, totalTermosPesquisadosERevocacaoMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMeSH, totalArtigosRepetidosMesh, totalArtigosSnomed, totalTermosPesquisadosERevocacaoSNOMED, totalTermosPesquisadosComRevocacaoSNOMED, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, totalArtigosComuns, totalTermosComuns)
+		# MeSH
+		for termo, quant in listaMeSHtotalTermosPesquisadosERevocacao.items():
+			if quant > 0:
+				banco.insereTermosAssociados(pkEstatistica, "M", "R", str(termo), len(termo.split()), quant)
+			else:
+				banco.insereTermosAssociados(pkEstatistica,"M", "P", str(termo), len(termo.split()), quant)
+		# SNOMED
+		for termo, quant in listaSNOMEDtotalTermosPesquisadosERevocacao.items():
+			if quant > 0:
+				banco.insereTermosAssociados(pkEstatistica, "S", "R", str(termo), len(termo.split()), quant)
+			else:
+				banco.insereTermosAssociados(pkEstatistica, "S", "P", str(termo), len(termo.split()), quant)
 
-		for termo in snomed["SNOMEDtotalTermosPesquisados"]:
-			banco.insereTermosAssociados(pkEstatistica, "S", "P", str(termo), len(termo.split()))
-		for termo in snomed["SNOMEDtotalTermosPesquisadosComRevocacao"]:
-			banco.insereTermosAssociados(pkEstatistica, "S", "R", str(termo), len(termo.split()))
-
-	# with open('resultadoComparacao.json', 'w') as f:
-	# 	json.dump(resultado, f, indent=4)
+	with open('resultadoComparacao.json', 'w') as f:
+		json.dump(resultado, f, indent=4)
 
 def quantItemsRepetidosEmUmaLista(listaTratada):
 	""" Realiza uma contagem de itens repetidos em uma lista (array) 
@@ -228,8 +241,8 @@ def iniciaPesquisaEmAmbasTerminologias(termos):
 			listaFinal = {**listaSnomed, **listaMeSH}
 			comparaResultadosDasTerminologias(listaMeSH, listaSnomed, termoProcurado)
 
-			# with open('search.json', 'w') as f:
-			# 	json.dump(listaFinal, f, indent=4)
+			with open('search.json', 'w') as f:
+				json.dump(listaFinal, f, indent=4)
 
 if __name__ == "__main__":
 
@@ -240,8 +253,8 @@ if __name__ == "__main__":
 	#termosComuns = ["plagiocephaly", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy"]
 	
 	descritoresComuns = []
-	descritoresComuns = MeSHutils.carregarDescritoresComunsOriginaisMeSH(2001, 2226) 
-	#descritoresComuns.append("heart attack")
+	#descritoresComuns = MeSHutils.carregarDescritoresComunsOriginaisMeSH(2001, 2226) 
+	descritoresComuns.append("abdominal abscess")
 
 	#passe uma lISTA PARA A FUNCAO, pelamor!
 	iniciaPesquisaEmAmbasTerminologias(descritoresComuns)

@@ -42,7 +42,8 @@ class BDestatistica:
                                 terminologia char(1) not null, 
                                 tipoTermo char(1) not null, 
                                 termo text not null,
-                                totalUnigramas integer not null
+                                totalUnigramas integer not null,
+                                totalRevocacao integer not null
                                 ); 
                             """)
         
@@ -72,7 +73,7 @@ class BDestatistica:
                                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) """, (termo, totalUnigramas, totalArtigosMesh, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMesh, totalArtigosRepetidosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, totalArtigosComuns, totalTermosComuns, ))
         return self.cursor.lastrowid
 
-    def insereTermosAssociados(self, idEstatistica, terminologia, tipoTermo, termo, totalUnigramas):
+    def insereTermosAssociados(self, idEstatistica, terminologia, tipoTermo, termo, totalUnigramas, totalRevocacao):
         """ Para cada estatistica, varios termos estao associados
 
         Args:
@@ -81,7 +82,8 @@ class BDestatistica:
             tipoTermo (str): "P" = Pesquisado, "R" = Obteve revocacao
             termo (str): Termo usado nesta pesquisa 
             totalUnigramas (int): Numero de palavras que compoem este termo
+            totalRevocacao (int): Numero de documentos recuperados
         """
-        self.cursor.execute(""" INSERT INTO termosAssociados (idEstatistica, terminologia, tipoTermo, termo, totalUnigramas) 
-                                VALUES (?, ?, ?, ?, ?) """, (idEstatistica, terminologia, tipoTermo, termo, totalUnigramas,))
+        self.cursor.execute(""" INSERT INTO termosAssociados (idEstatistica, terminologia, tipoTermo, termo, totalUnigramas, totalRevocacao) 
+                                VALUES (?, ?, ?, ?, ?, ?) """, (idEstatistica, terminologia, tipoTermo, termo, totalUnigramas, totalRevocacao,))
 
