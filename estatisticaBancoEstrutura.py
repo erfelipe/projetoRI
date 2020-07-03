@@ -26,13 +26,15 @@ class BDestatistica:
                                 totalTermosPesquisadosComRevocacaoMesh integer not null,
                                 totalArtigosUnicosMesh integer not null, 
                                 totalArtigosRepetidosMesh integer not null,
+                                tempoSegundosMesh real not null,
                                 totalArtigosSnomed integer not null,
                                 totalTermosPesquisadosSnomed integer not null,
                                 totalTermosPesquisadosComRevocacaoSnomed integer not null,
-                                totalArtigosUnicosSnomed integer not null,
-                                totalArtigosRepetidosSnomed integer not null,
-                                totalArtigosComuns integer not null,
-                                totalTermosComuns integer not null
+                                totalArtigosUnicosSnomed integer not null, 
+                                totalArtigosRepetidosSnomed integer not null, 
+                                tempoSegundosSnomed real not null, 
+                                totalArtigosComuns integer not null, 
+                                totalTermosComuns integer not null 
                                 );
                             """) 
 
@@ -40,14 +42,13 @@ class BDestatistica:
                                 idAssociado integer primary key autoincrement, 
                                 idEstatistica integer not null, 
                                 terminologia char(1) not null, 
-                                tipoTermo char(1) not null, 
                                 termo text not null,
                                 totalUnigramas integer not null,
                                 totalRevocacao integer not null
                                 ); 
                             """)
         
-    def insereEstatistica(self, termo, totalUnigramas, totalArtigosMesh, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMesh, totalArtigosRepetidosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, totalArtigosComuns, totalTermosComuns):
+    def insereEstatistica(self, termo, totalUnigramas, totalArtigosMesh, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMesh, totalArtigosRepetidosMesh, tempoSegundosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, tempoSegundosSnomed, totalArtigosComuns, totalTermosComuns):
         """ Dados da estatistica de uma determinada pesquisa pelo termo principal 
 
         Args:
@@ -58,32 +59,33 @@ class BDestatistica:
             totalTermosPesquisadosComRevocacaoMesh (int): Numero de termos com revocacao
             totalArtigosUnicosMesh (int): Numero de artigos que nao se repetem para os diversos termos pesquisados
             totalArtigosRepetidosMesh (int): Numero de artigos que se repetem para os diversos termos pesquisados
+            tempoSegundosMesh (real): Tempo em segundos do processamento deste termo
             totalArtigosSnomed (int): Numero de artigos recuperados para a terminologia SNOMED CT 
             totalTermosPesquisadosSnomed (int): Numero total de termos para consulta expandida
             totalTermosPesquisadosComRevocacaoSnomed (int): Numero de termos com revocacao
             totalArtigosUnicosSnomed (int): Numero de artigos que nao se repetem para os diversos termos pesquisados
             totalArtigosRepetidosSnomed (int): Numero de artigos que se repetem para os diversos termos pesquisados
+            tempoSegundosSnomed (real): Tempo em segundos do processamento deste termo
             totalArtigosComuns (int): Numero de artigos que aparecem em revocacao para ambas terminologias
             totalTermosComuns (int): Numero de termos comuns em ambas terminologias no processo de pesquisa 
 
         Returns:
             int: Codigo da chave primaria criada na insercao
         """
-        self.cursor.execute(""" INSERT INTO estatistica (termo, totalUnigramas, totalArtigosMesh, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMesh, totalArtigosRepetidosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, totalArtigosComuns, totalTermosComuns) 
-                                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) """, (termo, totalUnigramas, totalArtigosMesh, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMesh, totalArtigosRepetidosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, totalArtigosComuns, totalTermosComuns, ))
+        self.cursor.execute(""" INSERT INTO estatistica (termo, totalUnigramas, totalArtigosMesh, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMesh, totalArtigosRepetidosMesh, tempoSegundosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, tempoSegundosSnomed, totalArtigosComuns, totalTermosComuns) 
+                                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) """, (termo, totalUnigramas, totalArtigosMesh, totalTermosPesquisadosMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMesh, totalArtigosRepetidosMesh,  tempoSegundosMesh, totalArtigosSnomed, totalTermosPesquisadosSnomed, totalTermosPesquisadosComRevocacaoSnomed, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, tempoSegundosSnomed, totalArtigosComuns, totalTermosComuns, ))
         return self.cursor.lastrowid
 
-    def insereTermosAssociados(self, idEstatistica, terminologia, tipoTermo, termo, totalUnigramas, totalRevocacao):
+    def insereTermosAssociados(self, idEstatistica, terminologia, termo, totalUnigramas, totalRevocacao):
         """ Para cada estatistica, varios termos estao associados
-
+    
         Args:
             idEstatistica (integer): Chave estrangeira para a tabela estatistica
             terminologia (str): "M" = MeSH, "S" = SNOMED
-            tipoTermo (str): "P" = Pesquisado, "R" = Obteve revocacao
             termo (str): Termo usado nesta pesquisa 
             totalUnigramas (int): Numero de palavras que compoem este termo
             totalRevocacao (int): Numero de documentos recuperados
         """
-        self.cursor.execute(""" INSERT INTO termosAssociados (idEstatistica, terminologia, tipoTermo, termo, totalUnigramas, totalRevocacao) 
-                                VALUES (?, ?, ?, ?, ?, ?) """, (idEstatistica, terminologia, tipoTermo, termo, totalUnigramas, totalRevocacao,))
+        self.cursor.execute(""" INSERT INTO termosAssociados (idEstatistica, terminologia, termo, totalUnigramas, totalRevocacao) 
+                                VALUES (?, ?, ?, ?, ?) """, (idEstatistica, terminologia, termo, totalUnigramas, totalRevocacao,))
 

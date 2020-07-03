@@ -1,3 +1,4 @@
+from datetime import date
 import logging
 import concurrent.futures
 import elasticsearch 
@@ -8,7 +9,7 @@ from snomedRF2bancoEstrutura import BDSnomed
 import constantes 
 import logging 
 import json 
-import MeSHutils
+import datetime as dt
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -25,6 +26,7 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 		dict -- Um dicionario com uma lista de conjunto complexo da pesquisa de descritores e termos do MeSH 
 	"""
 	bancoMeSH = BDMeSH(constantes.BD_SQL_MESH)
+	t1 = dt.datetime.now()
 	with bancoMeSH:
 		descritoresHierarquicos = bancoMeSH.selecionarDescritoresHierarquicos(termoProcurado, tipoTermo, idioma)
 		termosEntradaHierarquicos = bancoMeSH.selecionarTermosDeEntradaHierarquicos(termoProcurado, tipoTermo, idioma)
@@ -39,17 +41,18 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 		termosERevocacao[desc] = len(resultSet['hits'])
 		for item in resultSet['hits']:
 			itensEncontrados.append([desc, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
-			
 
 	for termo in termosEntradaHierarquicos:
 		resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termo, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
 		termosERevocacao[termo] = len(resultSet['hits'])
 		for item in resultSet['hits']:
 			itensEncontrados.append([termo, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
-
+	t2 = dt.datetime.now()
+	tempoGasto = (t2-t1).total_seconds()
 	resposta = {}
 	resposta["MeSH"] = itensEncontrados
 	resposta["MeSHtotalTermosPesquisadosERevocacao"] = termosERevocacao
+	resposta["MeSHTempoGasto"] = tempoGasto
 
 	with open('MeSH.json', 'w') as f:
 		json.dump(resposta, f, indent=4)
@@ -66,6 +69,7 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 		idioma {str} -- en = ingles e es = espanhol 
 	"""
 	bancoSNOMED = BDSnomed(constantes.BD_SQL_SNOMED) 
+	t1 = dt.datetime.now()
 	with bancoSNOMED:
 		iDPrincipal = bancoSNOMED.selecionarIdPrincipalDoTermo(termoProcurado)
 		if iDPrincipal:
@@ -92,10 +96,12 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 			termosERevocacao[termopConceitual] = len(resultSet['hits'])
 			for item in resultSet['hits']:
 				itensEncontrados.append([termopConceitual, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
-	 
+	t2 = dt.datetime.now()
+	tempoGasto = (t2-t1).total_seconds()
 	resposta = {}
 	resposta["SNOMED"] = itensEncontrados
-	resposta["SNOMEDtotalTermosPesquisadosERevocacao"] = termosERevocacao
+	resposta["SNOMEDtotalTermosPesquisadosERevocacao"] = termosERevocacao 
+	resposta["SNOMEDtempoGasto"] = tempoGasto
 
 	with open('Snomed.json', 'w') as f:
 		json.dump(resposta, f, indent=4)
@@ -112,6 +118,7 @@ def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
 	"""
 	listaMeSH = mesh["MeSH"] 
 	listaMeSHtotalTermosPesquisadosERevocacao = mesh["MeSHtotalTermosPesquisadosERevocacao"]
+	tempoGastoMeSH = mesh["MeSHTempoGasto"]
 	listaMeSHSomenteTermos = []
 	contador = 0
 	for key, value in listaMeSHtotalTermosPesquisadosERevocacao.items():
@@ -124,6 +131,7 @@ def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
 	# SNOMED 
 	listaSnomed = snomed["SNOMED"] 
 	listaSNOMEDtotalTermosPesquisadosERevocacao = snomed["SNOMEDtotalTermosPesquisadosERevocacao"]
+	tempoGastoSnomed = snomed["SNOMEDtempoGasto"]
 	listaSNOMEDSomenteTermos = []
 	contador = 0
 	for key, value in listaSNOMEDtotalTermosPesquisadosERevocacao.items():
@@ -171,31 +179,27 @@ def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
 	resultado['totalTermosPesquisadosComRevocacaoMesh'] = totalTermosPesquisadosComRevocacaoMesh
 	resultado['totalArtigosUnicosMesh'] = totalArtigosUnicosMeSH 
 	resultado['totalArtigosRepetidosMesh'] = totalArtigosRepetidosMesh
+	resultado['totalTempoGastoMesh'] = tempoGastoMeSH 
 	#SNOMED
 	resultado['totalArtigosSnomed'] = totalArtigosSnomed 
 	resultado['totalTermosPesquisadosSnomed'] = totalTermosPesquisadosERevocacaoSNOMED
 	resultado['totalTermosPesquisadosComRevocacaoSnomed'] = totalTermosPesquisadosComRevocacaoSNOMED
 	resultado['totalArtigosUnicosSnomed'] = totalArtigosUnicosSnomed 
 	resultado['totalArtigosRepetidosSnomed'] = totalArtigosRepetidosSnomed
+	resultado['totalTempoGastoSnomed'] = tempoGastoSnomed
 
 	resultado['totalArtigosComuns'] = totalArtigosComuns
 	resultado['totalTermosComuns'] = totalTermosComuns
 
 	banco = BDestatistica(constantes.BD_SQL_ESTATISTICA)
 	with banco:
-		pkEstatistica = banco.insereEstatistica(termoProcurado, len(termoProcurado.split()), totalArtigosMeSH, totalTermosPesquisadosERevocacaoMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMeSH, totalArtigosRepetidosMesh, totalArtigosSnomed, totalTermosPesquisadosERevocacaoSNOMED, totalTermosPesquisadosComRevocacaoSNOMED, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, totalArtigosComuns, totalTermosComuns)
+		pkEstatistica = banco.insereEstatistica(termoProcurado, len(termoProcurado.split()), totalArtigosMeSH, totalTermosPesquisadosERevocacaoMesh, totalTermosPesquisadosComRevocacaoMesh, totalArtigosUnicosMeSH, totalArtigosRepetidosMesh, tempoGastoMeSH, totalArtigosSnomed, totalTermosPesquisadosERevocacaoSNOMED, totalTermosPesquisadosComRevocacaoSNOMED, totalArtigosUnicosSnomed, totalArtigosRepetidosSnomed, tempoGastoSnomed, totalArtigosComuns, totalTermosComuns)
 		# MeSH
 		for termo, quant in listaMeSHtotalTermosPesquisadosERevocacao.items():
-			if quant > 0:
-				banco.insereTermosAssociados(pkEstatistica, "M", "R", str(termo), len(termo.split()), quant)
-			else:
-				banco.insereTermosAssociados(pkEstatistica,"M", "P", str(termo), len(termo.split()), quant)
+			banco.insereTermosAssociados(pkEstatistica, "M", str(termo), len(termo.split()), quant)
 		# SNOMED
 		for termo, quant in listaSNOMEDtotalTermosPesquisadosERevocacao.items():
-			if quant > 0:
-				banco.insereTermosAssociados(pkEstatistica, "S", "R", str(termo), len(termo.split()), quant)
-			else:
-				banco.insereTermosAssociados(pkEstatistica, "S", "P", str(termo), len(termo.split()), quant)
+			banco.insereTermosAssociados(pkEstatistica, "S", str(termo), len(termo.split()), quant)
 
 	with open('resultadoComparacao.json', 'w') as f:
 		json.dump(resultado, f, indent=4)
@@ -250,11 +254,11 @@ if __name__ == "__main__":
 	# with mesh:
 	# 	mesh.identificarTermosPelaPLN('how to avoid a heart attack today?', 'eng')
 	
-	#termosComuns = ["plagiocephaly", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy"]
+	#termosComuns = [abdominal abscess, "plagiocephaly", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy"]
 	
 	descritoresComuns = []
 	#descritoresComuns = MeSHutils.carregarDescritoresComunsOriginaisMeSH(2001, 2226) 
-	descritoresComuns.append("abdominal abscess")
+	descritoresComuns.append("hearing loss")
 
 	#passe uma lISTA PARA A FUNCAO, pelamor!
 	iniciaPesquisaEmAmbasTerminologias(descritoresComuns)
