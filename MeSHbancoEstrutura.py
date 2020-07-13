@@ -249,8 +249,9 @@ class BDMeSH:
             DescritoresPorIdHierarquico = self.selecionarDescritoresPorIdHierarquico(id[0], tipoTermo, idioma)
             for desc in DescritoresPorIdHierarquico:
                 descHierarquicos.add(desc)
-        if (descritorPrincipal in descHierarquicos):
-            descHierarquicos.remove(descritorPrincipal)
+        if (descritorPrincipal not in descHierarquicos):
+            descHierarquicos.add(descritorPrincipal)
+
         return descHierarquicos
 
     def selecionarTodosTermos(self):

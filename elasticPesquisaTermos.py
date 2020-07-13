@@ -10,6 +10,7 @@ import constantes
 import logging 
 import json 
 import datetime as dt
+import MeSHutils
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -35,6 +36,14 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	es.indices.open("articles")
 	itensEncontrados = []
 	termosERevocacao = {} 
+	itensEncontrados.clear()
+	termosERevocacao.clear()
+
+	if (termoProcurado not in descritoresHierarquicos) and (termoProcurado not in termosEntradaHierarquicos):
+		resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termoProcurado, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
+		termosERevocacao[termoProcurado] = len(resultSet['hits'])
+		for item in resultSet['hits']:
+			itensEncontrados.append([termoProcurado, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
 
 	for desc in descritoresHierarquicos:
 		resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": desc, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
@@ -47,6 +56,7 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 		termosERevocacao[termo] = len(resultSet['hits'])
 		for item in resultSet['hits']:
 			itensEncontrados.append([termo, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
+	
 	t2 = dt.datetime.now()
 	tempoGasto = (t2-t1).total_seconds()
 	resposta = {}
@@ -54,8 +64,8 @@ def searchElasticMeSH(termoProcurado, tipoTermo, idioma):
 	resposta["MeSHtotalTermosPesquisadosERevocacao"] = termosERevocacao
 	resposta["MeSHTempoGasto"] = tempoGasto
 
-	with open('MeSH.json', 'w') as f:
-		json.dump(resposta, f, indent=4)
+	# with open('MeSH.json', 'w') as f:
+	# 	json.dump(resposta, f, indent=4)
 
 	return resposta
 	
@@ -70,20 +80,30 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 	"""
 	bancoSNOMED = BDSnomed(constantes.BD_SQL_SNOMED) 
 	t1 = dt.datetime.now()
+	termosProximosConceitualmente = []
+	termosHierarquicos = [] 
+	termosProximosConceitualmente.clear()
+	termosHierarquicos.clear()
 	with bancoSNOMED:
 		iDPrincipal = bancoSNOMED.selecionarIdPrincipalDoTermo(termoProcurado)
 		if iDPrincipal:
-			termosHierarquicos = bancoSNOMED.selecionarTermosHierarquicos(iDPrincipal, 'O', idioma)
-			termosProximosConceitualmente = bancoSNOMED.selecionarTermosProximosConceitualmente(iDPrincipal, 'O', idioma)
+			termosHierarquicos = bancoSNOMED.selecionarTermosHierarquicos(iDPrincipal, tipoTermo, idioma)
+			termosProximosConceitualmente = bancoSNOMED.selecionarTermosProximosConceitualmente(iDPrincipal, tipoTermo, idioma)
 		else:
 			logging.error("SNOMED - idPrincipal: %s nao identificado (!)", str(iDPrincipal), exc_info=True) 
-			termosProximosConceitualmente = []
-			termosHierarquicos = [] 
 		
 		es = elasticsearch.Elasticsearch() 
 		es.indices.open("articles") 
 		itensEncontrados = [] 
 		termosERevocacao = {}
+		itensEncontrados.clear()
+		termosERevocacao.clear()
+
+		if (termoProcurado not in termosHierarquicos) and (termoProcurado not in termosProximosConceitualmente):
+			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termoProcurado, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
+			termosERevocacao[termoProcurado] = len(resultSet['hits'])
+			for item in resultSet['hits']:
+				itensEncontrados.append([termoProcurado, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
 
 		for termoHierq in termosHierarquicos:
 			resultSet = es.search(index="articles", body={"track_total_hits": True, "query": {"multi_match" : {"query": termoHierq, "type": "phrase", "fields": [ "dcTitle", "textBody" ]}}})['hits']
@@ -96,15 +116,16 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 			termosERevocacao[termopConceitual] = len(resultSet['hits'])
 			for item in resultSet['hits']:
 				itensEncontrados.append([termopConceitual, item["_source"]["dcIdentifier"], item["_source"]["dcSource"], item["_source"]["dcTitle"] ])
+	
 	t2 = dt.datetime.now()
 	tempoGasto = (t2-t1).total_seconds()
 	resposta = {}
 	resposta["SNOMED"] = itensEncontrados
-	resposta["SNOMEDtotalTermosPesquisadosERevocacao"] = termosERevocacao 
+	resposta["SNOMEDtotalTermosPesquisadosERevocacao"] = termosERevocacao
 	resposta["SNOMEDtempoGasto"] = tempoGasto
 
-	with open('Snomed.json', 'w') as f:
-		json.dump(resposta, f, indent=4)
+	# with open('Snomed.json', 'w') as f:
+	# 	json.dump(resposta, f, indent=4)
 
 	return resposta
 
@@ -201,8 +222,8 @@ def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
 		for termo, quant in listaSNOMEDtotalTermosPesquisadosERevocacao.items():
 			banco.insereTermosAssociados(pkEstatistica, "S", str(termo), len(termo.split()), quant)
 
-	with open('resultadoComparacao.json', 'w') as f:
-		json.dump(resultado, f, indent=4)
+	# with open('resultadoComparacao.json', 'w') as f:
+	# 	json.dump(resultado, f, indent=4)
 
 def quantItemsRepetidosEmUmaLista(listaTratada):
 	""" Realiza uma contagem de itens repetidos em uma lista (array) 
@@ -235,9 +256,11 @@ def iniciaPesquisaEmAmbasTerminologias(termos):
 	Args:
 		termoProcurado (list): Recebe uma lista (array) de termos para serem procurados nas terminologias
 	"""	
+	i = 0
 	with concurrent.futures.ThreadPoolExecutor() as executor:
 		for termoProcurado in termos:
-			print(termoProcurado)
+			i += 1
+			print(str(i)+" -> "+termoProcurado)
 			f1 = executor.submit(searchElasticSnomed, termoProcurado, 'O', 'en')
 			f2 = executor.submit(searchElasticMeSH, termoProcurado, 'O', 'eng')
 			listaSnomed = f1.result()
@@ -245,8 +268,8 @@ def iniciaPesquisaEmAmbasTerminologias(termos):
 			listaFinal = {**listaSnomed, **listaMeSH}
 			comparaResultadosDasTerminologias(listaMeSH, listaSnomed, termoProcurado)
 
-			with open('search.json', 'w') as f:
-				json.dump(listaFinal, f, indent=4)
+			# with open('search.json', 'w') as f:
+			# 	json.dump(listaFinal, f, indent=4)
 
 if __name__ == "__main__":
 
@@ -254,11 +277,18 @@ if __name__ == "__main__":
 	# with mesh:
 	# 	mesh.identificarTermosPelaPLN('how to avoid a heart attack today?', 'eng')
 	
-	#termosComuns = [abdominal abscess, "plagiocephaly", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy"]
+	#termosComuns = ["abdominal abscess", "plagiocephaly", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy", "hearing loss"]
 	
 	descritoresComuns = []
-	#descritoresComuns = MeSHutils.carregarDescritoresComunsOriginaisMeSH(2001, 2226) 
-	descritoresComuns.append("hearing loss")
-
+	#descritoresComuns = ["plagiocephaly", "hearing loss", "abdominal abscess", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy", "hearing loss", "heart attack", "hearing loss", "plagiocephaly"]
+	descritoresComuns = MeSHutils.carregarDescritoresComunsOriginaisMeSH(0, 0) 
+	#descritoresComuns.append("hearing loss")
+	
 	#passe uma lISTA PARA A FUNCAO, pelamor!
+	t1 = dt.datetime.now()
 	iniciaPesquisaEmAmbasTerminologias(descritoresComuns)
+	t2 = dt.datetime.now() 
+	tempoGasto = (t2-t1).total_seconds() 
+	print("tempo gasto hs ", str(tempoGasto/60/60)) 
+
+

@@ -201,7 +201,7 @@ class BDSnomed:
     def listaTermosProximosConceitualmente(self, termoProcurado, tipoTermo, idioma):
         pass
 
-    def hierarquiaDeIDsPorIdConcept(self, IdConcept, resp = []):
+    def hierarquiaDeIDsPorIdConcept(self, IdConcept, resp=None):
         """ Dado um ConceptId: 22298006, pesquisa seus IDs ligados hierarquicamente
 
         Args: 
@@ -222,60 +222,65 @@ class BDSnomed:
         """
         dataSetAxioma = self.selecionarAxiomasPorConceptID(IdConcept)
 
-        if (len(dataSetAxioma) <= 0) or (len(resp) > constantes.LIMITE_HIERARQUICO):
+        if (len(dataSetAxioma) > 0):
+            if (resp is None):
+                resp = []
+            axAbout = ''
+            codigos = []
+            espaco = int(-1)
+            objInterSize = len('ObjectIntersectionOf(') 
+            for ax in dataSetAxioma: 
+                codigos.clear()
+                pParentesis = ax[0].find('(')
+
+                introAxioma = ax[0][0:pParentesis]
+                if introAxioma == 'EquivalentClasses':
+                    espaco = ax[0].find(' ', len('EquivalentClasses(:'))
+                    axAbout = ax[0][len('EquivalentClasses(:') : espaco]
+                else:
+                    if introAxioma == 'SubClassOf':
+                        espaco = ax[0].find(' ', len('SubClassOf(:'))
+                        axAbout = ax[0][len('SubClassOf(:') : espaco]
+
+                ind = ax[0].find('ObjectIntersectionOf(') 
+                ehNumero = True 
+                if ind > -1: 
+                    ind = ind + objInterSize 
+                    while (ehNumero): 
+                        espaco = ax[0].find(' ', ind) 
+                        if espaco > -1: 
+                            cod = ax[0][ind+1 : espaco]
+                            ehNumero = cod.isdigit()
+                            if (ehNumero): 
+                                codigos.append(ax[0][ind+1:espaco]) 
+                            ind = int(espaco) + 1 
+                        else:
+                            ehNumero = False
+                else: #situacao SubClassOf(:371068009 :22298006)
+                    if (introAxioma == 'SubClassOf'):
+                        espaco = ax[0].find(' ')
+                        ultParentese = ax[0].find(')')
+                        if (espaco > -1) and (ultParentese > -1):
+                            cod = ax[0][espaco+2 : ultParentese]
+                            ehNumero = cod.isdigit()
+                            if (ehNumero):
+                                codigos.append(cod)
+                isChild = False
+                for cod in codigos:
+                    if (cod == IdConcept):
+                        isChild = True
+                if isChild:
+                    if axAbout:
+                        resp.append(axAbout)
+                        temMaisFilhos = self.hierarquiaDeIDsPorIdConcept(axAbout, resp) 
+                        if (len(temMaisFilhos) > 0):
+                            if (type(temMaisFilhos) is str):
+                                resp.append(temMaisFilhos) 
+                            elif (type(temMaisFilhos is list)):
+                                resp + temMaisFilhos
             return resp
-        axAbout = ''
-        codigos = []
-        espaco = int(-1)
-        objInterSize = len('ObjectIntersectionOf(') 
-        for ax in dataSetAxioma: 
-            codigos.clear()
-            pParentesis = ax[0].find('(')
-
-            introAxioma = ax[0][0:pParentesis]
-            if introAxioma == 'EquivalentClasses':
-                espaco = ax[0].find(' ', len('EquivalentClasses(:'))
-                axAbout = ax[0][len('EquivalentClasses(:') : espaco]
-            else:
-                if introAxioma == 'SubClassOf':
-                    espaco = ax[0].find(' ', len('SubClassOf(:'))
-                    axAbout = ax[0][len('SubClassOf(:') : espaco]
-
-            ind = ax[0].find('ObjectIntersectionOf(') 
-            ehNumero = True 
-            if ind > -1: 
-                ind = ind + objInterSize 
-                while (ehNumero): 
-                    espaco = ax[0].find(' ', ind) 
-                    if espaco > -1: 
-                        cod = ax[0][ind+1 : espaco]
-                        ehNumero = cod.isdigit()
-                        if (ehNumero): 
-                            codigos.append(ax[0][ind+1:espaco]) 
-                        ind = int(espaco) + 1 
-                    else:
-                        ehNumero = False
-            else: #situacao SubClassOf(:371068009 :22298006)
-                if (introAxioma == 'SubClassOf'):
-                    espaco = ax[0].find(' ')
-                    ultParentese = ax[0].find(')')
-                    if (espaco > -1) and (ultParentese > -1):
-                        cod = ax[0][espaco+2 : ultParentese]
-                        ehNumero = cod.isdigit()
-                        if (ehNumero):
-                            codigos.append(cod)
-            isChild = False
-            for cod in codigos:
-                if (cod == IdConcept):
-                    isChild = True
-            if isChild:
-                if axAbout:
-                    if (len(resp) < constantes.LIMITE_HIERARQUICO):
-                        resp.append(axAbout) 
-                temMaisFilhos = self.hierarquiaDeIDsPorIdConcept(axAbout)
-                if (len(temMaisFilhos) > 0) and (type(temMaisFilhos) is str) and (len(resp) < constantes.LIMITE_HIERARQUICO):
-                    resp.append(temMaisFilhos)
-        return resp
+        else:
+            return ''
 
     def selecionarAxiomasPorConceptID(self, identificador):
         """ Ao receber um conceptID identifica quais axiomas estao relacionados a este conceito
@@ -286,10 +291,13 @@ class BDSnomed:
         Returns:
             list -- retorna um array de Axiomas 
         """ 
-        dataset = self.cursor.execute(""" select r.owlExpression
-                                        from refset r
-                                        where r.owlExpression like ? 
-        """, ('%'+identificador+'%', )).fetchall()
+        if identificador:
+            dataset = self.cursor.execute(""" select r.owlExpression
+                                            from refset r
+                                            where r.owlExpression like ? 
+            """, ('%'+identificador+'%', )).fetchall()
+        else: 
+            dataset = ''
         return dataset
 
     def selecionarConceptIdsPorTermo(self, termo):
@@ -460,9 +468,14 @@ class BDSnomed:
 
         Returns:
             list -- Um array com os nomes dos termos hierarquicos 
-        """        
+        """  
+        iDsHierarquicos = []
+        iDsHierarquicos.clear()
+        termosHierarquicos = []
+        termosHierarquicos.clear()
+
         iDsHierarquicos = self.hierarquiaDeIDsPorIdConcept(iDPrincipal)
         termosHierarquicos = self.selecionarDescricoesPorIDsConcept(iDsHierarquicos, tipoTermo, idioma)
-        logging.debug("SNOMED - idPrincipal: %s - termos hierarquicos: %s", str(iDPrincipal), str(termosHierarquicos))
+
         return termosHierarquicos
 
