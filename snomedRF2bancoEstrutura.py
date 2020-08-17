@@ -198,9 +198,6 @@ class BDSnomed:
         # elif tabela == 'textdefinition':
         #     self.inserirTextDefinition(linha)
 
-    def listaTermosProximosConceitualmente(self, termoProcurado, tipoTermo, idioma):
-        pass
-
     def hierarquiaDeIDsPorIdConcept(self, IdConcept, resp=None):
         """ Dado um ConceptId: 22298006, pesquisa seus IDs ligados hierarquicamente
 

@@ -117,22 +117,28 @@
 
         }
 
-        function desenhaLinha(linha) {
-            var row = $("<tr />")
+        function desenhaLinha(linha, terminologia) {
+            var row = $("<div class='row'> </div>")
             $("#corpoTabela").append(row);
-            row.append($("<td>" + linha._id + "</td>"));
-            row.append($("<td>" + linha._score + "</td>"));
-            row.append($("<td>" + linha._source.dcDate + "</td>"));
-            row.append($("<td>" + linha._source.dcLanguage + "</td>"));
-            row.append($("<td>" + linha._source.dcCreator + "</td>"));
-            row.append($("<td>" + linha._source.dcTitle + "</td>"));
-            row.append($("<td>" + linha._source.dcDescription + "</td>"));
-        }
+            row.append($("<div class='col-sm-1'>" + terminologia + "</div>"));
+            row.append($("<div class='col-sm-3'>" + linha[0] + "</div>"));
+            row.append($("<div class='col-sm-3'>" + linha[2] + "</div>"));
+            row.append($("<div class='col-sm-5'>" + linha[3] + "</div>"));
+        }   
 
         function desenhaTabela(data) {
             $("#corpoTabela").empty();
-            for (var i = 0; i < data.length; i++) {
-                desenhaLinha(data[i]);
+
+            let mesh = data['MeSH']
+            for (var i = 0; i < mesh.length; i++) {
+
+                desenhaLinha(mesh[i], 'MeSH');
+            }
+
+            let snomed = data['SNOMED']
+            for (var i = 0; i < snomed.length; i++) {
+                console.log(snomed[i])
+                desenhaLinha(snomed[i], 'SNOMED');
             }
         }
 
@@ -140,14 +146,14 @@
             $("#btnCarregar").click(function () {
                 let termo = $('#txtPesquisar').val();
                 let endereco = "http://localhost:5000/pesquisa/" + termo;
+                console.log(endereco)
                 $.get(endereco, function (data) {
                 }).done(function (data) {
-                    $("#p1").text(data); //TESTE - tirar em producao
-                    console.log(data)
+                    //$("#p1").text(data); //TESTE - tirar em producao
                     let obj = jQuery.parseJSON(data);
-                    console.log(obj);
+                    //console.log(obj);
                     desenhaTabela(obj);
-                    desenhaGrafo(obj, termo);
+                    //desenhaGrafo(obj, termo);
                 })
             })
         })
@@ -171,35 +177,32 @@
                 </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
-                <input id="txtPesquisar" class="form-control mr-sm-2" type="text" placeholder="Termo a Pesquisar">
-                <button id="btnCarregar" class="btn btn-success my-2 my-sm-0" type="button">Pesquisar</button>
+                <input id="txtPesquisar" class="form-control mr-sm-2" type="text" placeholder="Termo a Pesquisar" >
+                <button id="btnCarregar" class="btn btn-success my-2 my-sm-0 btn-default" type="button">Pesquisar</button>
             </form>
         </div>
     </nav>
-    <div class="container">
-        <h1>Recuperação expandida</h1>
+    <div class="container-fluid">
+        <h3>Recuperação expandida</h3>
     </div>
-    <div class="container" id="resp">
+    <div class="container-fluid" id="resp">
         <p id="p1"> </p>
-        <table id="tabela" class="table">
+        <table id="tabela" class="table table-striped">
+            <!--
             <thead class="thead-light">
                 <tr>
-                    <th>Id</th>
-                    <th>Ranking</th>
-                    <th>Data</th>
-                    <th>Idioma</th>
-                    <th>Autor</th>
-                    <th>Título</th>
-                    <th>Texto</th>
-                    <th></th>
+                    <th scope="col">Terminologia</th>
+                    <th scope="col">Termo Pesquisado</th>
+                    <th scope="col">Arquivo</th>
+                    <th scope="col">Título</th>
                 </tr>
             </thead>
+        -->
             <tbody id="corpoTabela">
-
             </tbody>
         </table>
         <br>
-    </div class="container" id="graf">
+    </div class="container-fluid" id="graf">
     <center>
         <canvas id="grafo" width="1024" height="600"></canvas>
     </center>

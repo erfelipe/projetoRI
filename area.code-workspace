@@ -7,7 +7,7 @@
 	"settings": {
 		"python.pythonPath": "venv/bin/python3.7",
 		"editor.fontSize": 16,
-		"editor.fontFamily": "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace"
+		"editor.fontFamily": "JetBrains Mono, Menlo"
 	},
 	"editor.fontLigatures": null
 }

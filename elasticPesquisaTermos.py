@@ -124,8 +124,8 @@ def searchElasticSnomed(termoProcurado, tipoTermo, idioma):
 	resposta["SNOMEDtotalTermosPesquisadosERevocacao"] = termosERevocacao
 	resposta["SNOMEDtempoGasto"] = tempoGasto
 
-	# with open('Snomed.json', 'w') as f:
-	# 	json.dump(resposta, f, indent=4)
+	with open('Snomed.json', 'w') as f:
+		json.dump(resposta, f, indent=4)
 
 	return resposta
 
@@ -222,8 +222,8 @@ def comparaResultadosDasTerminologias(mesh, snomed, termoProcurado):
 		for termo, quant in listaSNOMEDtotalTermosPesquisadosERevocacao.items():
 			banco.insereTermosAssociados(pkEstatistica, "S", str(termo), len(termo.split()), quant)
 
-	# with open('resultadoComparacao.json', 'w') as f:
-	# 	json.dump(resultado, f, indent=4)
+	with open('resultadoComparacao.json', 'w') as f:
+		json.dump(resultado, f, indent=4)
 
 def quantItemsRepetidosEmUmaLista(listaTratada):
 	""" Realiza uma contagem de itens repetidos em uma lista (array) 
@@ -268,8 +268,10 @@ def iniciaPesquisaEmAmbasTerminologias(termos):
 			listaFinal = {**listaSnomed, **listaMeSH}
 			comparaResultadosDasTerminologias(listaMeSH, listaSnomed, termoProcurado)
 
-			# with open('search.json', 'w') as f:
-			# 	json.dump(listaFinal, f, indent=4)
+			with open('search.json', 'w') as f:
+				json.dump(listaFinal, f, indent=4)
+			
+			return listaFinal
 
 if __name__ == "__main__":
 
@@ -280,9 +282,9 @@ if __name__ == "__main__":
 	#termosComuns = ["abdominal abscess", "plagiocephaly", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy", "hearing loss"]
 	
 	descritoresComuns = []
-	#descritoresComuns = ["plagiocephaly", "hearing loss", "abdominal abscess", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy", "hearing loss", "heart attack", "hearing loss", "plagiocephaly"]
-	descritoresComuns = MeSHutils.carregarDescritoresComunsOriginaisMeSH(0, 0) 
-	#descritoresComuns.append("hearing loss")
+	#descritoresComuns = ["diabetes insipidus", "plagiocephaly", "hearing loss", "abdominal abscess", "intermediate uveitis", "pulmonary hypertension", "coffin-lowry syndrome", "pleurisy", "hearing loss", "heart attack", "hearing loss", "plagiocephaly"]
+	#descritoresComuns = MeSHutils.carregarDescritoresComunsOriginaisMeSH(0, 0) 
+	descritoresComuns.append("heart attack")
 	
 	#passe uma lISTA PARA A FUNCAO, pelamor!
 	t1 = dt.datetime.now()
