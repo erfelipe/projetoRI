@@ -254,7 +254,10 @@ def iniciaPesquisaEmAmbasTerminologias(termos):
 	""" Permite procurar os termos da lista nas terminologias e gerar o JSON e estatistica de BD
 
 	Args:
-		termoProcurado (list): Recebe uma lista (array) de termos para serem procurados nas terminologias
+		termos (list): Recebe uma lista (array) de termos para serem procurados nas terminologias
+
+	Returns:
+		list: Lista concatenada de ambos resultados das terminologias (usado na interface web)
 	"""	
 	i = 0
 	with concurrent.futures.ThreadPoolExecutor() as executor:
